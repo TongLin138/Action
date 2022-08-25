@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-16
+## Modified: 2022-08-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -867,8 +867,7 @@ function UpdateMain() {
 
     case $# in
     0)
-        Output_Command_Error 1 ## 命令错误
-        exit                   ## 终止退出
+        Help $UpdateCmd
         ;;
     1)
         case $1 in

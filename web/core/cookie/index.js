@@ -24,7 +24,7 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
+        return `## 用户名=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
     };
 
     this.convert = (cookie, tips, phone = '无') => {

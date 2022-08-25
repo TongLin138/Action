@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-05-27
+## Modified: 2022-08-26
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -41,7 +41,6 @@ function ChooseRunMod() {
                                     ExistenceJudgment $i
                                 done
                             else
-                                Help
                                 echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
                                 exit ## 终止退出
                             fi

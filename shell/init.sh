@@ -1,20 +1,24 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-18
+## Modified: 2022-08-26
 
 set -e
 RED='\033[31m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
 BLUE='\033[34m'
+PURPLE='\033[35m'
+AZURE='\033[36m'
 PLAIN='\033[0m'
 BOLD='\033[1m'
-SUCCESS='[\033[32mOK\033[0m]'
-COMPLETE='[\033[32mDone\033[0m]'
-WARN='[\033[33mWARN\033[0m]'
-ERROR='[\033[31mERROR\033[0m]'
-WORKING='[\033[34m*\033[0m]'
-TIPS='[\033[32m友情提示\033[0m]'
+SUCCESS="[${GREEN}成功${PLAIN}]"
+COMPLETE="[${GREEN}完成${PLAIN}]"
+WARN="[${YELLOW}注意${PLAIN}]"
+ERROR="[${RED}错误${PLAIN}]"
+FAIL="[${RED}失败${PLAIN}]"
+WORKING="[${AZURE} >_ ${PLAIN}]"
+EXAMPLE="[${GREEN}参考命令${PLAIN}]"
+TIPS="[${GREEN}友情提示${PLAIN}]"
 TIME="+%Y-%m-%d %T"
 ContrlCmd="taskctl"
 UpdateCmd="update"
@@ -33,7 +37,6 @@ git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
 sleep 2
 ## 检测配置文件
 ${ContrlCmd} check files >/dev/null 2>&1
-sleep 2
 ${UpdateCmd} shell
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
@@ -48,7 +51,7 @@ if [[ ${ENABLE_TG_BOT} == true ]]; then
     if [[ -z $(grep -E "123456789" ${WORK_DIR}/config/bot.json) ]]; then
       $ContrlCmd jbot start
     else
-      echo -e "检测到当前还没有配置 bot.json 可能是首次部署容器，因此不启动电报机器人..."
+      echo -e "检测到当前还没有配置 ${BLUE}bot.json${PLAIN} 可能是首次部署容器，因此不启动电报机器人..."
     fi
     ;;
   esac
@@ -61,17 +64,17 @@ echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➁ 电报机器人结束 -
 echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} ----- ➂ 控制面板和网页终端开始 -----\n"
 if [[ ${ENABLE_WEB_PANEL} == true ]]; then
   cd ${WORK_DIR}
-  export PS1="\033[32m@Helloworld Cli\033[0m ➜  \033[34m\w\033[0m $ "
+  export PS1="\033[32m@Helloworld\033[0m ➜  \033[34m\w\033[0m $ "
   pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t fontSize=16 -t disableLeaveAlert=true bash
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
   cd ./web
-  echo -e "[${BLUE}*${PLAIN}] 开始安装面板依赖模块...\n"
+  echo -e "$WORKING 开始安装面板依赖模块...\n"
   npm install
   echo -e "\n$SUCCESS 模块安装完成\n"
   pm2 start ecosystem.config.js
   cd ${WORK_DIR}
-  echo -e "\nTips: 如果这是首次安装并启动此面板，则初始用户名为：useradmin，初始密码为：passwd"
+  echo -e "\nTips: 如果这是首次安装并启动此面板，则初始用户名为：useradmin，初始密码为：helloworld"
   echo -e "      请访问 http://<IP>:5678 登陆控制面板并修改配置，注意首次登录会自动强制修改初始密码"
   echo -e "\n\033[1;34m$(date "${TIME}")${PLAIN} 控制面板启动成功 $SUCCESS\n"
 elif [[ ${ENABLE_WEB_PANEL} == false ]]; then
