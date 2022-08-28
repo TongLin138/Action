@@ -168,7 +168,7 @@ function removeCookie(ptPins) {
     let cookieList = readCookies();
     let deleteCount = 0
     if (ptPins && ptPins.length > 0) {
-        for (let i = 0; i < cookieList.length; i++) {
+        for (let i = 0, len = cookieList.length; i < len; i++) {
             let cookieObj = cookieList[i];
             if (ptPins.indexOf(cookieObj.ptPin) > -1) {
                 cookieList.splice(i, 1);
