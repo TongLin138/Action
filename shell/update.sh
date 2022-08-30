@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-26
+## Modified: 2022-08-29
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/share.sh
@@ -40,7 +40,7 @@ function Git_Clone() {
     local Branch=$3
     [[ $Branch ]] && local Command="-b $Branch "
     echo -e "\n$WORKING 开始克隆仓库 ${BLUE}$Url${PLAIN} 到 ${BLUE}$Dir${PLAIN}\n"
-    git clone $Command $Url $Dir
+    GIT_TERMINAL_PROMPT=0 git clone $Command $Url $Dir
     ExitStatus=$?
 }
 
@@ -52,10 +52,10 @@ function Git_Pull() {
     local Branch=$2
     cd $WorkDir
     echo -e "\n$WORKING 开始更新仓库：${BLUE}$WorkDir${PLAIN}\n"
-    git fetch --all
+    GIT_TERMINAL_PROMPT=0 git fetch --all
     ExitStatus=$?
-    git pull
-    git reset --hard origin/$Branch
+    GIT_TERMINAL_PROMPT=0 git pull
+    GIT_TERMINAL_PROMPT=0 git reset --hard origin/$Branch
     cd $CurrentDir
 }
 
@@ -81,7 +81,7 @@ function Count_OwnRepoSum() {
         OwnRepoSum=0
     else
         for ((i = 1; i <= 0x64; i++)); do
-            local Tmp1=OwnRepoUrl$i
+            local Tmp1=OwnRepoConfig$i
             local Tmp2=${!Tmp1}
             [[ $Tmp2 ]] && OwnRepoSum=$i || break
         done
@@ -92,32 +92,64 @@ function Count_OwnRepoSum() {
 ## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
 function Gen_Own_Dir_And_Path() {
     local scripts_path_num="-1"
-    local repo_num Tmp1 Tmp2 Tmp3 Tmp4 Tmp5 dir
+    local arr_num TmpConf RepoTmp_Url RepoTmp_EnableRepo RepoTmp_Branch RepoTmp_EnableCron Tmp1 Tmp2 dir
 
     if [[ $OwnRepoSum -ge 1 ]]; then
         for ((i = 1; i <= $OwnRepoSum; i++)); do
-            repo_num=$((i - 1))
-            ## 仓库地址
-            Tmp1=OwnRepoUrl$i
-            array_own_repo_url[$repo_num]=${!Tmp1}
-            ## 仓库分支
-            Tmp2=OwnRepoBranch$i
-            array_own_repo_branch[$repo_num]=${!Tmp2}
-            ## 仓库文件夹名（作者_仓库名）
-            array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
-            ## 仓库路径
-            array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
-            Tmp3=OwnRepoPath$i
-            if [[ ${!Tmp3} ]]; then
-                for dir in ${!Tmp3}; do
-                    let scripts_path_num++
-                    Tmp4="${array_own_repo_dir[repo_num]}/$dir"
-                    Tmp5=$(echo $Tmp4 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
-                    array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp5"
-                done
+            arr_num=$((i - 1))
+
+            # 读取仓库配置
+            TmpConf=OwnRepoConfig$i
+            # 检测配置语法
+            jq -n "${!TmpConf}" >/dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo -e "$ERROR 第$i个仓库配置存在语法错误，跳过..."
+                continue
+            fi
+
+            ## 仓库地址和仓库分支
+            RepoTmp_Url="$(JSON_Parse "${!TmpConf}" ".Url")"
+            RepoTmp_Branch="$(JSON_Parse "${!TmpConf}" ". Branch")"
+            RepoTmp_EnableRepo="$(JSON_Parse "${!TmpConf}" ".EnableRepo")"
+            if [ -z $RepoTmp_Url ] || [[ $RepoTmp_Url == "null" ]]; then
+                # echo -e "$ERROR 未检测到第$i个仓库配置的远程地址，跳过..."
+                continue
+            fi
+            if [ -z $RepoTmp_Branch ] || [[ $RepoTmp_Branch == "null" ]]; then
+                echo -e "$ERROR 未检测到第$i个仓库配置的分支名称，跳过..."
+                continue
+            fi
+            # 判断是否启用仓库（true为开启，否则关闭）
+            if [[ $RepoTmp_EnableRepo == "true" ]]; then
+                array_own_repo_url[$arr_num]="${RepoTmp_Url}"
+                array_own_repo_branch[$arr_num]="${RepoTmp_Branch}"
+                ## 仓库路径
+                array_own_repo_dir[$arr_num]="$(echo ${array_own_repo_url[$arr_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
+                array_own_repo_path[$arr_num]="$OwnDir/${array_own_repo_dir[$arr_num]}"
             else
-                let scripts_path_num++
-                array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$repo_num]}"
+                continue
+            fi
+
+
+            ## 是否启用脚本定时任务（true为开启，否则关闭）
+            RepoTmp_EnableCron="$(JSON_Parse "${!TmpConf}" ".EnableCron")"
+            array_own_repo_branch[$arr_num]="${RepoTmp_EnableCron}"
+
+            if [[ $RepoTmp_EnableCron == "true" ]]; then
+                ## 仓库导入定时脚本路径
+                RepoTmp_CronScriptsPath="$(JSON_Parse "${!TmpConf}" ".CronScriptsPath")"
+                if [[ ${RepoTmp_CronScriptsPath} ]]; then
+                    for dir in ${RepoTmp_CronScriptsPath}; do
+                        let scripts_path_num++
+                        Tmp1="${array_own_repo_dir[arr_num]}/$dir"
+                        Tmp2=$(echo $Tmp1 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
+                        array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp2"
+                    done
+                else
+                    let scripts_path_num++
+                    array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$arr_num]}"
+                fi
+            else
             fi
         done
     fi
@@ -137,7 +169,7 @@ function Gen_ListTask() {
 ## 生成 own 脚本的绝对路径清单
 function Gen_ListOwn() {
     local CurrentDir=$(pwd)
-    ## 导入用户的定时
+    ## 先导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
     Make_Dir $LogTmpDir
     [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
@@ -145,6 +177,8 @@ function Gen_ListOwn() {
     local ExitStatus=$?
     [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
     rm -rf $LogTmpDir/own*.list
+
+    ## 循环处理各个仓库配置
     for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
         cd ${array_own_scripts_path[i]}
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
@@ -177,6 +211,7 @@ function Gen_ListOwn() {
             fi
         fi
     done
+
     [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
     ## 汇总去重
     echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts

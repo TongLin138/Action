@@ -61,7 +61,7 @@ def reContent_INVALID(text):
 async def cmd(cmdtext):
     '''定义执行cmd命令'''
     try:
-        msg = await jdbot.send_message(chat_id, '开始执行命令')
+        msg = await jdbot.send_message(chat_id, '🕙 开始执行命令')
         p = await asyncio.create_subprocess_shell(
             cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'" + ' 2>&1', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()

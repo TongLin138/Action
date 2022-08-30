@@ -1,5 +1,5 @@
 ## Version: v2.0.0
-## Date: 2022-08-26
+## Date: 2022-08-31
 ## Update Content: 1. 移除了部分变量 2. 新增定时任务变动通知控制变量 3. 账号屏蔽功能新增支持填入用户名
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -80,14 +80,27 @@ DisableNewCron=""
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
 # 如果您的设备不能有效连通 GitHub 建议加上代理，否则可能会出现连接缓慢、丢包等情况，非常影响使用
 
-OwnRepoUrl1=""
-OwnRepoUrl2=""
+OwnRepoConfig1='{
+  EnableRepo: true,
+  Url: "",
+  Branch: "",
+  EnableCron: false,
+  CronScriptsPath: "",
+  CronWhiteList: "",
+  CronBlackList: ""
+}'
 
-OwnRepoBranch1=""
-OwnRepoBranch2=""
 
-OwnRepoPath1=""
-OwnRepoPath2=""
+OwnRepoConfig2='{
+  EnableRepo: true,
+  Url: "",
+  Branch: "",
+  EnableCron: false,
+  CronScriptsPath: "",
+  CronWhiteList: "",
+  CronBlackList: ""
+}'
+
 
 # 示例：
 # OwnRepoUrl：仓库地址清单，必须从1开始依次编号

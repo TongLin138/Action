@@ -334,6 +334,11 @@ function Apply_SendNotify() {
     fi
 }
 
+## 解析 json 数据
+function JSON_Parse() {
+    jq -n "$1" | jq -r "$2"
+}
+
 ## 创建目录
 function Make_Dir() {
     local Dir=$1
