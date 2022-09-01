@@ -149,7 +149,6 @@ function Gen_Own_Dir_And_Path() {
                     let scripts_path_num++
                     array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$arr_num]}"
                 fi
-            else
             fi
         done
     fi
