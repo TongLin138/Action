@@ -49,6 +49,24 @@ jobs:
         directory: jd_base_dev.githubwyj
         github_token: ${{ secrets.TOKEN }}
         branch: jd_base_dev.githubwyj
+    - name: Clone jd_base_main
+      run: |
+        git clone -b main git@gitee.com:supermanito/jd_base.git jd_base_main
+    - name: Push jd_base_main
+      uses: ad-m/github-push-action@master
+      with:
+        directory: jd_base_main
+        github_token: ${{ secrets.TOKEN }}
+        branch: jd_base_main
+    - name: Clone panel_sign_json
+      run: |
+        git clone -b master git@gitee.com:supermanito/panel_sign_json.git panel_sign_json
+    - name: Push panel_sign_json
+      uses: ad-m/github-push-action@master
+      with:
+        directory: panel_sign_json
+        github_token: ${{ secrets.TOKEN }}
+        branch: panel_sign_json
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
