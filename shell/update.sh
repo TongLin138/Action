@@ -657,7 +657,7 @@ function Update_Shell() {
     Random_Update_Cron
     ## 更新仓库
     cd $RootDir
-    echo -e "\n$WORKING 开始更新项目源码：\n"
+    echo -e "\n$WORKING 开始更新项目源码\n"
     git fetch --all
     git pull
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
