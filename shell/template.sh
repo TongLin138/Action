@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-26
+## Modified: 2022-09-20
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -45,13 +45,10 @@ FileUpdateCookie=$UtilsDir/UpdateCookies.js
 ListCronScripts=$ScriptsDir/docker/crontab_list.sh
 ListCrontabUser=$ConfigDir/crontab.list
 ListCrontabSample=$SampleDir/crontab.sample.list
-ListTaskScripts=$LogTmpDir/task_scripts.list
-ListTaskUser=$LogTmpDir/task_user.list
-ListTaskAdd=$LogTmpDir/task_add.list
-ListTaskDrop=$LogTmpDir/task_drop.list
 ListOwnScripts=$LogTmpDir/own_scripts.list
 ListOwnUser=$LogTmpDir/own_user.list
 ListOwnAdd=$LogTmpDir/own_add.list
+ListOwnAddNames=$LogTmpDir/own_add_name.list
 ListOwnRepoAdd=$LogTmpDir/own_repo_add.list
 ListOwnRawAdd=$LogTmpDir/own_raw_add.list
 ListOwnDrop=$LogTmpDir/own_drop.list
@@ -260,18 +257,18 @@ function Combin_ShareCodes() {
             . $CodeDir/$LatestLog 2>/dev/null
         fi
     fi
-    export FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
-    export PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
-    export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
-    export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
-    export DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
-    export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
-    export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
-    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
-    export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
-    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
-    export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
-    export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
+    declare -x FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
+    declare -x PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
+    declare -x PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
+    declare -x DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
+    declare -x DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
+    declare -x JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
+    declare -x JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
+    declare -x JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
+    declare -x CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
+    declare -x BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
+    declare -x JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
+    declare -x JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
 }
 
 ## 组合全部Cookie
@@ -286,6 +283,7 @@ function Combin_AllCookie() {
             local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
         fi
         for ((i = 0x1; i <= ${UserSum}; i++)); do
+            ## 跳过全局屏蔽的账号
             if [[ ${GlobalBlockCookie} ]]; then
                 for num1 in ${GlobalBlockCookie}; do
                     if [[ $i -eq $num1 ]]; then
@@ -296,6 +294,7 @@ function Combin_AllCookie() {
                     fi
                 done
             fi
+            ## 跳过临时屏蔽的账号
             for num2 in ${TempBlockCookie}; do
                 if [[ $i -eq $num2 ]]; then
                     continue 2
@@ -310,8 +309,7 @@ function Combin_AllCookie() {
         done
         echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
     }
-
-    export JD_COOKIE=$(Combin)
+    declare -x JD_COOKIE=$(Combin)
 }
 
 ## 推送通知
@@ -563,7 +561,7 @@ function Help() {
 \t❖ 更新指令：
 
 \t   ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-\t   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+\t   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
 \t                                                 自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 \t❋ 指令参数注释：
@@ -576,7 +574,7 @@ function Help() {
 \t❖ 更新指令：
 
 \t   ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-\t   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，主要仓库 ${BLUE}scripts${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+\t   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
 \t                                                 自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 \t❋ 指令参数注释：

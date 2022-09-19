@@ -1,9 +1,9 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-26
+## Modified: 2022-09-20
 
 ShellDir=${WORK_DIR}/shell
-. $ShellDir/share.sh
+. $ShellDir/template.sh
 
 ## 生成 pm2 list 日志清单，以此判断各服务状态
 function PM2_List_All_Services() {
@@ -27,7 +27,7 @@ function Panel_Control() {
     function Install_TTYD() {
         [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
         ## 增加环境变量
-        export PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
+        declare -x PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
         pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t fontSize=16 -t disableLeaveAlert=true bash
     }
 
@@ -196,8 +196,8 @@ function Bot_Control() {
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
-        pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-        pip3 --default-timeout=1800 install -r requirements.txt
+        pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+        pip3 --default-timeout=3600 install -r requirements.txt
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
         else
@@ -457,26 +457,35 @@ function Environment_Deployment() {
     install)
         case ${ARCH} in
         armv7l | armv6l)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块...\n"
+            echo -e "\n$WORKING 开始安装常用模块...\n"
             ;;
         *)
-            echo -e "\n[${BLUE}*${PLAIN}] 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
+            echo -e "\n$WORKING 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
             ;;
         esac
-        echo -e "$TIPS 忽略 ${YELLOW}WARN${PLAIN} 警告类输出内容，如有 ${RED}ERR!${PLAIN} 类报错，90% 都是由网络原因所导致的，自行解读日志。\n"
         npm install -g npm npm-install-peers
         case ${ARCH} in
         armv7l | armv6l)
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js ws@7.4.3
+            echo -e "\n$WORKING 开始安装常用模块...\n"
+            npm install -g date-fns fs crypto dotenv png-js ws@7.4.3
             ;;
         *)
-            apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
-            pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-            pip3 install --upgrade pip
-            pip3 install requests
-            npm install -g date-fns axios require request fs crypto crypto-js dotenv png-js tunnel ws@7.4.3 ts-node typescript @types/node ts-md5 tslib jsdom prettytable js-base64 file-system-cache ds
+            if [ ! -x /usr/bin/python3 ]; then
+                echo -e "\n$WORKING 开始安装 ${BLUE}Python3${PLAIN} 运行环境...\n"
+                apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
+                pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+                pip3 install --upgrade pip
+                pip3 install requests
+            fi
+            if [ ! -x /usr/bin/ts-node ]; then
+                echo -e "\n$WORKING 开始安装 ${BLUE}TypeScript${PLAIN} 运行环境...\n"
+                npm install -g ts-node typescript @types/node ts-md5 tslib
+            fi
+            echo -e "\n$WORKING 开始安装常用模块...\n"
+            npm install -g date-fns file-system-cache fs crypto dotenv png-js ws@7.4.3 tunnel prettytable js-base64 ds
             ;;
         esac
+        echo -e "\n$TIPS 忽略 ${YELLOW}WARN${PLAIN} 警告类输出内容，如有 ${RED}ERR!${PLAIN} 类报错，自行解读日志。"
         echo -e "\n$SUCCESS 安装完成\n"
         ;;
     repairs)

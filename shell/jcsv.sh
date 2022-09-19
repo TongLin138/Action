@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ShellDir=${WORK_DIR}/shell
-. $ShellDir/share.sh
+. $ShellDir/template.sh
 
 ## 导入配置文件（不检查）
 Import_Config_Not_Check "jd_bean_change"

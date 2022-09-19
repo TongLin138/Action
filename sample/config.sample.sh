@@ -1,5 +1,5 @@
 ## Version: v2.0.0
-## Date: 2022-08-31
+## Date: 2022-09-20
 ## Update Content: 1. 移除了部分变量 2. 新增定时任务变动通知控制变量 3. 账号屏蔽功能新增支持填入用户名
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -49,23 +49,6 @@ export CK_AUTO_ADD="true"
 
 
 
-# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 主 要 仓 库 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-
-## Scripts 主要仓库
-# 项目文档：https://supermanito.github.io/Helloworld/#/config/主要仓库
-
-## ❖ Scripts 主要仓库脚本定时任务开关（自动增加/自动删除）
-# 当启用自动增加时，如果从检测文件中检测到有新的定时任务会自动在本地增加，定时时间为检测文件中定义的时间
-# 当启用自动删除时，会自动从检测文件中读取比对删除的任务，脚本只会删除失效定时任务的所在行
-# 当启用自动删除时，如果您有添加额外脚本是以 "jd_" "jr_" "jx_" 开头的会被自动删除，其它字符开头的任务则不受影响
-# 检测文件：Scripts仓库中的 docker/crontab_list.sh（此清单由仓库开发者维护），如果文件不存在将使用 utils 目录下的公共定时清单
-# "AutoAddCron": 自动增加；"AutoDelCron": 自动删除；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
-AutoAddCron="true"
-AutoDelCron="true"
-
-## ❖ Scripts 主要仓库脚本新增定时任务自动禁用功能
-# 当主要仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
-DisableNewCron=""
 
 
 
@@ -81,24 +64,16 @@ DisableNewCron=""
 # 如果您的设备不能有效连通 GitHub 建议加上代理，否则可能会出现连接缓慢、丢包等情况，非常影响使用
 
 OwnRepoConfig1='{
-  EnableRepo: true,
-  Url: "",
-  Branch: "",
-  EnableCron: false,
-  CronScriptsPath: "",
-  CronWhiteList: "",
-  CronBlackList: ""
-}'
-
-
-OwnRepoConfig2='{
-  EnableRepo: true,
-  Url: "",
-  Branch: "",
-  EnableCron: false,
-  CronScriptsPath: "",
-  CronWhiteList: "",
-  CronBlackList: ""
+  name: "",
+  url: "",
+  branch: "",
+  isEnable: true,
+  cronSettings: {
+    isEnable: false,
+    scriptsPath: "",
+    whiteList: "",
+    blackList: ""
+  } 
 }'
 
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-29
+## Modified: 2022-09-20
 
 ShellDir=${WORK_DIR}/shell
-. $ShellDir/share.sh
+. $ShellDir/template.sh
 
 ## 创建日志文件夹
 Make_Dir $LogDir
@@ -69,8 +69,8 @@ function Reset_Romote_Url() {
     if [ -d "$WorkDir/.git" ]; then
         cd $WorkDir
         git remote set-url origin $Url >/dev/null 2>&1
-        git fetch --all >/dev/null 2>&1
-        git reset --hard origin/$Branch >/dev/null 2>&1
+        GIT_TERMINAL_PROMPT=0 git fetch --all >/dev/null 2>&1
+        GIT_TERMINAL_PROMPT=0 git reset --hard origin/$Branch >/dev/null 2>&1
         cd $CurrentDir
     fi
 }
@@ -88,86 +88,135 @@ function Count_OwnRepoSum() {
     fi
 }
 
-## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
-## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
-function Gen_Own_Dir_And_Path() {
+## 生成仓库配置清单数组
+# 仓库名称 array_own_repo_name
+# 远程地址 array_own_repo_url
+# 分支名称 array_own_repo_branch
+# 存放仓库文件夹名 array_own_repo_dir
+# 仓库本地绝对路径 array_own_repo_path
+# 仓库启用状态 array_own_repo_status
+# 仓库脚本定时设置 array_own_repo_cronSettings
+function Gen_Own_Repo_Conf() {
+
     local scripts_path_num="-1"
-    local arr_num TmpConf RepoTmp_Url RepoTmp_EnableRepo RepoTmp_Branch RepoTmp_EnableCron Tmp1 Tmp2 dir
+    local arr_num TmpConf Tmp_name Tmp_url Tmp_branch Tmp_isEnable Tmp_cronSettings_isEnable Tmp_cronSettings_scriptsPath Tmp_cronSettings_whiteList Tmp_cronSettings_blackList Tmp_KeysValue
 
     if [[ $OwnRepoSum -ge 1 ]]; then
         for ((i = 1; i <= $OwnRepoSum; i++)); do
             arr_num=$((i - 1))
 
-            # 读取仓库配置
+            # 读取仓库配置并检测语法
             TmpConf=OwnRepoConfig$i
-            # 检测配置语法
             jq -n "${!TmpConf}" >/dev/null 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "$ERROR 第$i个仓库配置存在语法错误，跳过..."
                 continue
             fi
 
-            ## 仓库地址和仓库分支
-            RepoTmp_Url="$(JSON_Parse "${!TmpConf}" ".Url")"
-            RepoTmp_Branch="$(JSON_Parse "${!TmpConf}" ". Branch")"
-            RepoTmp_EnableRepo="$(JSON_Parse "${!TmpConf}" ".EnableRepo")"
-            if [ -z $RepoTmp_Url ] || [[ $RepoTmp_Url == "null" ]]; then
+            ## 仓库地址（如若未定义或格式错误则跳过视为无效配置）
+            Tmp_url="$(JSON_Parse "${!TmpConf}" ".url")"
+            if [[ -z ${Tmp_url} ]] || [[ ${Tmp_url} == "null" ]]; then
                 # echo -e "$ERROR 未检测到第$i个仓库配置的远程地址，跳过..."
                 continue
             fi
-            if [ -z $RepoTmp_Branch ] || [[ $RepoTmp_Branch == "null" ]]; then
-                echo -e "$ERROR 未检测到第$i个仓库配置的分支名称，跳过..."
+            # 判断仓库地址格式
+            echo ${RepoUrl} | grep -Eq "\.git$" # 链接必须以.git结尾
+            if [ $? -ne 0 ]; then
+                # echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
                 continue
             fi
-            # 判断是否启用仓库（true为开启，否则关闭）
-            if [[ $RepoTmp_EnableRepo == "true" ]]; then
-                array_own_repo_url[$arr_num]="${RepoTmp_Url}"
-                array_own_repo_branch[$arr_num]="${RepoTmp_Branch}"
-                ## 仓库路径
-                array_own_repo_dir[$arr_num]="$(echo ${array_own_repo_url[$arr_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
-                array_own_repo_path[$arr_num]="$OwnDir/${array_own_repo_dir[$arr_num]}"
-            else
-                continue
-            fi
-
-
-            ## 是否启用脚本定时任务（true为开启，否则关闭）
-            RepoTmp_EnableCron="$(JSON_Parse "${!TmpConf}" ".EnableCron")"
-            array_own_repo_branch[$arr_num]="${RepoTmp_EnableCron}"
-
-            if [[ $RepoTmp_EnableCron == "true" ]]; then
-                ## 仓库导入定时脚本路径
-                RepoTmp_CronScriptsPath="$(JSON_Parse "${!TmpConf}" ".CronScriptsPath")"
-                if [[ ${RepoTmp_CronScriptsPath} ]]; then
-                    for dir in ${RepoTmp_CronScriptsPath}; do
-                        let scripts_path_num++
-                        Tmp1="${array_own_repo_dir[arr_num]}/$dir"
-                        Tmp2=$(echo $Tmp1 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
-                        array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp2"
-                    done
-                else
-                    let scripts_path_num++
-                    array_own_scripts_path[$scripts_path_num]="${array_own_repo_path[$arr_num]}"
+            echo ${RepoUrl} | grep -Eq "http.*:"
+            if [ $? -ne 0 ]; then
+                echo ${RepoUrl} | grep -Eq "^git\@"
+                if [ $? -ne 0 ]; then
+                    # echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
+                    continue
                 fi
             fi
+
+            ## 仓库分支（如若未定义或格式错误则跳过视为无效配置）
+            Tmp_branch="$(JSON_Parse "${!TmpConf}" ". branch")"
+            if [[ -z ${Tmp_branch} ]] || [[ ${Tmp_branch} == "null" ]]; then
+                # echo -e "$ERROR 未检测到第$i个仓库配置的分支名称，跳过..."
+                continue
+            fi
+
+            array_own_repo_url[$arr_num]="${Tmp_url}"
+            array_own_repo_branch[$arr_num]="${Tmp_branch}"
+
+            ## 仓库名称（如若未定义则采用远程地址中的仓库名称）
+            Tmp_name="$(JSON_Parse "${!TmpConf}" ".name")"
+            if [[ $Tmp_branch == "null" ]]; then
+                array_own_repo_name[$arr_num]="$(echo ${array_own_repo_url[$arr_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print$NF}')"
+            else
+                array_own_repo_name[$arr_num]="${Tmp_name}"
+            fi
+
+            ## 仓库路径
+            array_own_repo_dir[$arr_num]="$(echo ${array_own_repo_url[$arr_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
+            array_own_repo_path[$arr_num]="$OwnDir/${array_own_repo_dir[$arr_num]}"
+
+            ## 仓库启用状态（默认启用仓库，即使键名键值未定义或键值定义错误）
+            Tmp_isEnable="$(JSON_Parse "${!TmpConf}" ".isEnable")"
+            if [[ $Tmp_branch == true ]]; then
+                array_own_repo_status[$arr_num]="true"
+            else
+                array_own_repo_status[$arr_num]="false"
+            fi
+
+            ## 仓库定时任务配置
+            Tmp_cronSettings="$(JSON_Parse "${!TmpConf}" ".cronSettings")"
+
+            # 定时启用状态（如若未定义或格式错误则默认禁用）
+            Tmp_KeysValue="$(JSON_Parse "${Tmp_cronSettings}" ".isEnable")"
+            if [[ "${Tmp_KeysValue}" == true ]]; then
+                Tmp_cronSettings_isEnable="true"
+            else
+                Tmp_cronSettings_isEnable="false"
+            fi
+            # 定时脚本路径（如若未定义或格式错误则默认为空）
+            Tmp_KeysValue="$(JSON_Parse "${Tmp_cronSettings}" ".scriptsPath")"
+            if [[ "${Tmp_KeysValue}" == "null" ]]; then
+                Tmp_cronSettings_scriptsPath=""
+            else
+                Tmp_cronSettings_scriptsPath="${Tmp_KeysValue}"
+            fi
+            # 定时脚本白名单（如若未定义则默认为空）
+            Tmp_KeysValue="$(JSON_Parse "${Tmp_cronSettings}" ".whiteList")"
+            if [[ "${Tmp_KeysValue}" == "null" ]]; then
+                Tmp_cronSettings_whiteList=""
+            else
+                Tmp_cronSettings_whiteList="${Tmp_KeysValue}"
+            fi
+            # 定时脚本黑名单（如若未定义则默认为空）
+            Tmp_KeysValue="$(JSON_Parse "${Tmp_cronSettings}" ".blackList")"
+            if [[ "${Tmp_KeysValue}" == "null" ]]; then
+                Tmp_cronSettings_blackList=""
+            else
+                Tmp_cronSettings_blackList="${Tmp_KeysValue}"
+            fi
+            # 生成配置
+            array_own_repo_cronSettings[$arr_num]="{
+                isEnable: \"${Tmp_cronSettings_isEnable}\",
+                scriptsPath: \"${Tmp_cronSettings_scriptsPath}\",
+                whiteList: \"${Tmp_cronSettings_whiteList}\",
+                blackList: \"${Tmp_cronSettings_blackList}\"
+            }"
         done
     fi
-    if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
-        let scripts_path_num++
-        array_own_scripts_path[$scripts_path_num]=$RawDir
-    fi
 }
 
-## 生成 Scripts仓库的定时任务清单，内容为去掉后缀的脚本名
-function Gen_ListTask() {
-    Make_Dir $LogTmpDir
-    grep -E "node.+j[drx]_\w+\.js" $ListCronScripts | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort -u >$ListTaskScripts
-    grep -E " $TaskCmd j[drx]_\w+" $ListCrontabUser | perl -pe "s|.*$TaskCmd (j[drx]_\w+).*|\1|" | sort -u >$ListTaskUser
+## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
+## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
+function Gen_Own_Dir_And_Path() {
 }
 
-## 生成 own 脚本的绝对路径清单
+## 生成 own 定时任务脚本的绝对路径清单
 function Gen_ListOwn() {
+    local Matching isEnable scriptsPath whiteList blackList ScriptSuffix
+    local MatchScriptsType="\.js$|\.py$|\.ts$"
     local CurrentDir=$(pwd)
+
     ## 先导入用户的定时
     local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
     Make_Dir $LogTmpDir
@@ -177,39 +226,83 @@ function Gen_ListOwn() {
     [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
     rm -rf $LogTmpDir/own*.list
 
+    # 仓库名称 array_own_repo_name
+    # 远程地址 array_own_repo_url
+    # 分支名称 array_own_repo_branch
+    # 存放仓库文件夹名 array_own_repo_dir
+    # 仓库本地绝对路径 array_own_repo_path
+    # 仓库启用状态 array_own_repo_status
+    # 仓库脚本定时设置 array_own_repo_cronSettings
+
     ## 循环处理各个仓库配置
-    for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
-        cd ${array_own_scripts_path[i]}
+    for ((i = 0; i < ${#array_own_repo_name[*]}; i++)); do
+        # 判断仓库是否启用
+        [[ ${array_own_repo_status[i]} == false ]] && continue
+        # 判断仓库是否启用定时
+        isEnable=$(JSON_Parse "${array_own_repo_cronSettings[i]}" ".isEnable")
+        [[ ${isEnable} == false ]] && continue
+
+        ## 黑白名单
+        whiteList=$(JSON_Parse "${array_own_repo_cronSettings[i]}" ".whiteList" | perl -pe '{s|^ ||g; s| $||g; s# #\|#g;}')
+        blackList=$(JSON_Parse "${array_own_repo_cronSettings[i]}" ".blackList" | perl -pe '{s|^ ||g; s| $||g; s# #\|#g;}')
+
+        ## 脚本路径（循环处理）
+        scriptsPath=$(JSON_Parse "${array_own_repo_cronSettings[i]}" ".scriptsPath" | perl -pe '{s|^ ||g; s| $||g; s#\|# #g;}')
+        for path in ${scriptsPath}; do
+            ## 进入仓库根目录
+            cd ${array_own_repo_path[i]}
+
+            ## 判断是否存在子目录（值为空则代表根目录）
+            if [[ ${path} ]]; then
+                if [[ -d ${path} ]]; then
+                    cd ${path}
+                else
+                    continue
+                fi
+            fi
+
+            ## 判断路径下是否存在脚本
+            if [[ $(ls | grep -E "${MatchScriptsType}") ]]; then
+
+                ## 判断是否定义了黑名单并筛选符合条件的脚本
+                if [[ -z ${blackList} ]]; then
+                    Matching=$(ls | grep -E "${MatchScriptsType}" 2>/dev/null | grep -E "${whiteList}" | grep -Ev ${blackList})
+                else
+                    Matching=$(ls | grep -E "${MatchScriptsType}" 2>/dev/null | grep -E "${whiteList}")
+                fi
+
+                for file in ${Matching}; do
+                    ## 判断脚本是否存在内容
+                    if [ -s $file ]; then
+                        ## 判断脚本路径是否包含仓库下子目录
+                        if [[ ${path} ]]; then
+                            echo "${array_own_repo_path[i]}/${path}/${file}" >>$ListOwnScripts
+                        else
+                            echo "${array_own_repo_path[i]}/${file}" >>$ListOwnScripts
+                        fi
+                    else
+                        continue
+                    fi
+                done
+            else
+                continue
+            fi
+        done
+    done
+
+    if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
+        let scripts_path_num++
+        array_own_scripts_path[$scripts_path_num]=$RawDir
         if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                for file in $(ls | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
+            if [[ $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+                for file in $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}"); do
                     if [ -f $file ]; then
                         echo "$RawDir/$file" >>$ListOwnScripts
                     fi
                 done
             fi
-        else
-            ## Own仓库脚本定时屏蔽
-            if [[ -z ${OwnRepoCronShielding} ]]; then
-                local Matching=$(ls *.js 2>/dev/null)
-            else
-                local ShieldTmp=$(echo ${OwnRepoCronShielding} | perl -pe '{s|^ ||g; s| $||g; s# #\|#g;}')
-                local Matching=$(ls *.js 2>/dev/null | grep -Ev ${ShieldTmp})
-            fi
-            if [[ $(ls *.js 2>/dev/null) ]]; then
-                ls | grep "\.js$" -q
-                if [ $? -eq 0 ]; then
-                    for file in ${Matching}; do
-                        if [ -f $file ]; then
-                            perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*\/?$file/" $file |
-                                perl -pe "s|.*(([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$file.*|${array_own_scripts_path[i]}/$file|g" |
-                                sort -u | head -1 >>$ListOwnScripts
-                        fi
-                    done
-                fi
-            fi
         fi
-    done
+    fi
 
     [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
     ## 汇总去重
@@ -293,6 +386,25 @@ function Npm_Install_Upgrade() {
     cd $CurrentDir
 }
 
+## 生成新增脚本名称清单
+function Gen_AddScripts_Name() {
+    local CurrentDir=$(pwd)
+    local NameTmp DirTmp
+    local List=$1
+    local scriptArr=(
+        $(cat $List)
+    )
+    rm -rf $ListOwnAddNames
+    for script in ${scriptArr[@]}; do
+        NameTmp=${script##*/}
+        DirTmp=${script%/*}
+        cd $DirTmp
+        Query_ScriptName "${NameTmp}"
+        echo "${ScriptName}" >>$ListOwnAddNames
+        cd $CurrentDir
+    done
+}
+
 ## 输出是否有新的或失效的定时任务
 ## 注释  $1：新的或失效的任务清单文件路径，$2：新/失效
 function Output_List_Add_Drop() {
@@ -300,7 +412,21 @@ function Output_List_Add_Drop() {
     local Type=$2
     if [ -s $List ]; then
         echo -e "\n检测到有$Type的定时任务：\n"
-        cat $List
+        if [[ ${Type} == "新" ]]; then
+            local ListArr=(
+                $(cat $List)
+            )
+            Gen_AddScripts_Name $List
+            local NameListArr=(
+                $(cat $ListOwnAddNames)
+            )
+            rm -rf $ListOwnAddNames
+            for ((i = 0; i < ${#ListArr[@]}; i++)); do
+                echo -e "${ListArr[i]} ➜  ${NameListArr[i]}" | tee -a $ListOwnAddNames
+            done
+        else
+            cat $List
+        fi
         echo ''
     fi
 }
@@ -332,38 +458,6 @@ function Del_Cron() {
     fi
 }
 
-## 自动增加 Scripts 仓库新的定时任务
-## 需要：
-##      1.AutoAddCron 设置为 true；
-##      2.正常更新脚本，没有报错；
-##      3.存在新任务；
-##      4.crontab.list存在并且不为空
-## 注释  $1：新任务清单文件路径
-function Add_Cron_Scripts() {
-    local ListAdd=$1
-    if [[ ${AutoAddCron} == "true" ]] && [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
-        echo -e "$WORKING 开始尝试自动添加 Scipts 仓库的定时任务...\n"
-        local Detail=$(cat $ListAdd)
-        for cron in $Detail; do
-            ## 新增定时任务自动禁用
-            if [[ $cron == "jd_bean_sign" ]]; then
-                if [[ ${DisableNewCron} == "true" ]]; then
-                    echo "# 4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
-                else
-                    echo "4 0,9 * * * $TaskCmd $cron" >>$ListCrontabUser
-                fi
-            else
-                if [[ ${DisableNewCron} == "true" ]]; then
-                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.[jspyth]{2,2}.+|\1$TaskCmd \2|; s|^|# |" >>$ListCrontabUser
-                else
-                    cat $ListCronScripts | grep -E "\/$cron\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.[jspyth]{2,2}.+|\1$TaskCmd \2|" >>$ListCrontabUser
-                fi
-            fi
-        done
-        ExitStatus=$?
-    fi
-}
-
 ## 自动增加自己额外的脚本的定时任务
 ## 需要：
 ##      1.AutoAddOwnRepoCron/AutoAddOwnRawCron 设置为 true；
@@ -378,49 +472,28 @@ function Add_Cron_Own() {
     if [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
         echo -e "$WORKING 开始添加 own 脚本的定时任务...\n"
         local Detail=$(cat $ListAdd)
-        for FilePath in $Detail; do
-            local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
-            if [ -f ${FilePath} ]; then
-                if [ ${FilePath} = "$RawDir/${FileName}" ]; then
-                    ## 判断表达式所在行
-                    local Tmp1=$(grep -E "^cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${FileName}" ${FilePath} | grep -Ev "^https\?:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
-                    ## 判断开头
-                    local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
-                    ## 判断表达式的第一个数字（分钟）
-                    local Tmp3=$(echo "${Tmp1}" | grep -Eo "[0-9]" | head -1)
-                    ## 判定开头是否为空值
-                    if [[ $(echo "${Tmp2}" | perl -pe '{s| ||g;}') = "" ]]; then
-                        local Cron=$(echo "${Tmp1}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
-                    else
-                        local Cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
-                    fi
-                    ## 如果未检测出定时就随机一个每天执行1次的定时
-                    echo "${Tmp1}" | grep "[0-9]" -q
-                    if [ $? -eq 0 ]; then
-                        echo "$Cron $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
-                    else
-                        echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${FilePath}" | sort -u | head -1 >>$ListCrontabOwnTmp
-                    fi
-                else
-                    local Cron=$(perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*${FileName}/" ${FilePath} | perl -pe "{s|[^\d\*]*(([\d\*]*[\*-\/,\d]*[\d\*] ){4,5}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?${FileName}.*|\1 $TaskCmd ${FilePath}|g;s|  | |g; s|^[^ ]+ (([^ ]+ ){5}$TaskCmd ${FilePath})|\1|;}" | sort -u | head -1)
+        for path in $Detail; do
 
-                    ## 新增定时任务自动禁用
-                    if [[ ${DisableNewOwnRepoCron} == "true" ]]; then
-                        echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
-                    else
-                        grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
-                        if [ $? -eq 0 ]; then
-                            ## 重复定时任务自动禁用
-                            if [[ ${DisableDuplicateOwnRepoCron} == "true" ]]; then
-                                echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
-                            else
-                                echo "${Cron}" >>$ListCrontabOwnTmp
-                            fi
-                        else
-                            echo "${Cron}" >>$ListCrontabOwnTmp
-                        fi
-                    fi
-                fi
+            local ScriptSuffix=$(echo ${path##*.})
+            local ScriptName=$(echo ${path##*/} | awk -F "." '{print $1}')
+            ## 判断表达式所在行
+            local Tmp1=$(grep -E "^cron|^Cron|script-path=|tag=|[0-9] \* \*|^[0-9]\*.*${ScriptName}" ${path} | grep -Ev "^https\?:|^function " | head -1 | perl -pe '{s|[a-zA-Z\"\.\=\:\_]||g;}')
+            ## 判断开头
+            local Tmp2=$(echo "${Tmp1}" | awk -F '[0-9]' '{print$1}' | sed 's/\*/\\*/g; s/\./\\./g')
+            ## 判断表达式的第一个数字（分钟）
+            local Tmp3=$(echo "${Tmp1}" | grep -Eo "[0-9]" | head -1)
+            ## 判定开头是否为空值
+            if [[ $(echo "${Tmp2}" | perl -pe '{s| ||g;}') = "" ]]; then
+                local Cron=$(echo "${Tmp1}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+            else
+                local Cron=$(echo "${Tmp1}" | perl -pe "{s|${Tmp2}${Tmp3}|${Tmp3}|g;}" | awk '{if($1~/^[0-9]{1,2}/) print $1,$2,$3,$4,$5; else if ($1~/^[*]/) print $2,$3,$4,$5,$6}')
+            fi
+            ## 如果未检测出定时就随机一个每天执行1次的定时
+            echo "${Tmp1}" | grep "[0-9]" -q
+            if [ $? -eq 0 ]; then
+                echo "$Cron $TaskCmd ${path}" | sort -u | head -1 >>$ListCrontabOwnTmp
+            else
+                echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${path}" | sort -u | head -1 >>$ListCrontabOwnTmp
             fi
         done
         perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
@@ -454,6 +527,8 @@ function Add_Cron_Notify() {
 ## 更新所有 Own 仓库
 function Update_OwnRepo() {
     for ((i = 0; i < ${#array_own_repo_url[*]}; i++)); do
+        ## 判断仓库是否启用
+        [[ ${array_own_repo_status[i]} == "false" ]] && continue
         if [ -d ${array_own_repo_path[i]}/.git ]; then
             Reset_Romote_Url ${array_own_repo_path[i]} ${array_own_repo_url[i]} ${array_own_repo_branch[i]}
             Git_Pull ${array_own_repo_path[i]} ${array_own_repo_branch[i]}
@@ -608,66 +683,11 @@ function Update_Shell() {
     Detect_Config_Version
 }
 
-## 更新 Scripts 仓库
-function Update_Scripts() {
-    local ScriptsDependOld ScriptsDependNew
-    ## 更新仓库
-    if [ -d $ScriptsDir/.git ]; then
-        echo -e "-------------------------------------------------------------"
-        ## 更新前先存储 package.json
-        [ -f $ScriptsDir/package.json ] && ScriptsDependOld=$(cat $ScriptsDir/package.json)
-        ## 更新仓库
-        local CurrentDir=$(pwd)
-        cd $ScriptsDir
-        echo -e "\n$WORKING 开始更新主要仓库：${BLUE}$ScriptsDir${PLAIN}\n"
-        git fetch --all
-        ExitStatus=$?
-        git pull
-        git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
-        cd $CurrentDir
-        ## 推送通知
-        Apply_SendNotify $ScriptsDir
-        ## 文件替换
-        for file in ${ScriptsDirReplaceFiles}; do
-            [ -f "$UtilsDir/$file" ] && cp -rf "$UtilsDir/$file" $ScriptsDir
-        done
-        if [[ $ExitStatus -eq 0 ]]; then
-            ## 安装模块
-            [ ! -d $ScriptsDir/node_modules ] && Npm_Install_Standard $ScriptsDir
-            [ -f $ScriptsDir/package.json ] && ScriptsDependNew=$(cat $ScriptsDir/package.json)
-            [[ "$ScriptsDependOld" != "$ScriptsDependNew" ]] && Npm_Install_Upgrade $ScriptsDir
-            ## 检测定时清单
-            if [[ ! -f $ScriptsDir/docker/crontab_list.sh ]]; then
-                cp -rf $SampleDir/crontab_list_public.sh $ScriptsDir/docker/crontab_list.sh
-                echo -e "\n$WARN 未检测到定时清单，已启用内置模版\n"
-            fi
-            ## 比较定时任务
-            Gen_ListTask
-            Diff_Cron $ListTaskScripts $ListTaskUser $ListTaskAdd $ListTaskDrop
-
-            ## 删除定时任务 & 通知
-            if [[ ${AutoDelCron} == "true" ]] && [ -s $ListTaskDrop ]; then
-                Output_List_Add_Drop $ListTaskDrop "失效"
-                Del_Cron $ListTaskDrop $TaskCmd
-            fi
-            ## 新增定时任务 & 通知
-            if [[ ${AutoAddCron} == "true" ]] && [ -s $ListTaskAdd ]; then
-                Output_List_Add_Drop $ListTaskAdd "新"
-                Add_Cron_Scripts $ListTaskAdd
-                Add_Cron_Notify $ExitStatus $ListTaskAdd " Scripts 仓库脚本"
-            fi
-
-            echo -e "\n$COMPLETE Scripts 仓库更新完成\n"
-        else
-            echo -e "\n$FAIL Scripts 仓库更新失败，请检查原因...\n"
-        fi
-    fi
-}
-
 ## 更新 Own Repo 仓库和 Own RawFile 脚本
 function Update_Own() {
     Make_Dir $RawDir
     Count_OwnRepoSum
+    Gen_Own_Repo_Conf
     Gen_Own_Dir_And_Path
     local EnableRepoUpdate EnableRawUpdate
     case $1 in
@@ -697,49 +717,49 @@ function Update_Own() {
     if [[ ${#array_own_scripts_path[*]} -gt 0 ]]; then
         echo -e "-------------------------------------------------------------"
         ## 更新仓库
-        if [[ ${EnableRepoUpdate} == "true" ]]; then
+        if [[ ${EnableRepoUpdate} == true ]]; then
             Update_OwnRepo
         fi
-        if [[ ${EnableRawUpdate} == "true" ]]; then
+        if [[ ${EnableRawUpdate} == true ]]; then
             Update_RawFile
         fi
         ## 比较定时任务
         Gen_ListOwn
         Diff_Cron $ListOwnAll $ListOwnUser $ListOwnAdd $ListOwnDrop
         ## Own Repo 仓库
-        if [[ ${EnableRepoUpdate} == "true" ]]; then
+        if [[ ${EnableRepoUpdate} == true ]]; then
             ## 比对清单
             grep -v "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRepoAdd
             grep -v "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRepoDrop
 
             ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRepoCron} == "true" ]] && [ -s $ListOwnRepoDrop ]; then
+            if [[ ${AutoDelOwnRepoCron} == true ]] && [ -s $ListOwnRepoDrop ]; then
                 Output_List_Add_Drop $ListOwnRepoDrop "失效"
                 Del_Cron $ListOwnRepoDrop $TaskCmd
             fi
             ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRepoCron} == "true" ]] && [ -s $ListOwnRepoAdd ]; then
+            if [[ ${AutoAddOwnRepoCron} == true ]] && [ -s $ListOwnRepoAdd ]; then
                 Output_List_Add_Drop $ListOwnRepoAdd "新"
                 Add_Cron_Own $ListOwnRepoAdd
-                Add_Cron_Notify $ExitStatus $ListOwnRepoAdd " Own 仓库脚本"
+                Add_Cron_Notify $ExitStatus $ListOwnAddNames " Own 仓库脚本"
             fi
         fi
         ## Own Raw 脚本
-        if [[ ${EnableRawUpdate} == "true" ]]; then
+        if [[ ${EnableRawUpdate} == true ]]; then
             ## 比对清单
             grep "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRawAdd
             grep "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRawDrop
 
             ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRawCron} == "true" ]] && [ -s $ListOwnRawDrop ]; then
+            if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
                 Output_List_Add_Drop $ListOwnRawDrop "失效"
                 Del_Cron $ListOwnRawDrop $TaskCmd
             fi
             ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRawCron} == "true" ]] && [ -s $ListOwnRawAdd ]; then
+            if [[ ${AutoAddOwnRawCron} == true ]] && [ -s $ListOwnRawAdd ]; then
                 Output_List_Add_Drop $ListOwnRawAdd "新"
                 Add_Cron_Own $ListOwnRawAdd
-                Add_Cron_Notify $ExitStatus $ListOwnRawAdd " Raw 脚本"
+                Add_Cron_Notify $ExitStatus $ListOwnAddNames " Raw 脚本"
             fi
 
         fi
@@ -755,7 +775,7 @@ function ExtraShell() {
         echo -e "-------------------------------------------------------------\n"
     fi
     ## 同步用户的 extra.sh
-    if [[ $EnableExtraShellSync == "true" ]] && [[ $ExtraShellSyncUrl ]]; then
+    if [[ $EnableExtraShellSync == true ]] && [[ $ExtraShellSyncUrl ]]; then
         echo -e "$WORKING 开始同步自定义脚本：$ExtraShellSyncUrl\n"
         wget -q --no-check-certificate $ExtraShellSyncUrl -O $FileExtra.new -T 20
         if [ $? -eq 0 ]; then
@@ -773,7 +793,7 @@ function ExtraShell() {
         [ -f "$FileExtra.new" ] && rm -rf "$FileExtra.new"
     fi
     ## 执行用户的 extra.sh
-    if [[ $EnableExtraShell == "true" ]]; then
+    if [[ $EnableExtraShell == true ]]; then
         ## 执行
         if [ -f $FileExtra ]; then
             echo -e "$WORKING 开始执行自定义脚本：$FileExtra\n"
@@ -814,9 +834,6 @@ function Update_Designated() {
         if [[ "${AbsolutePath}" = "$RootDir" ]]; then
             Title "shell"
             Update_Shell
-        elif [[ "${AbsolutePath}" = "$ScriptsDir" ]]; then
-            Title "scripts"
-            Update_Scripts
         else
             Title "designated"
             echo -e "-------------------------------------------------------------"
@@ -855,9 +872,6 @@ function Title() {
         ;;
     shell)
         RunMod=" 项 目 源 码 "
-        ;;
-    scripts)
-        RunMod=" 主 要 仓 库"
         ;;
     own)
         RunMod=" 扩 展 仓 库 "
@@ -908,7 +922,6 @@ function UpdateMain() {
         all)
             Title $1
             Update_Shell
-            Update_Scripts
             Update_Own "all"
             ExtraShell
             ;;
@@ -916,28 +929,19 @@ function UpdateMain() {
             Title $1
             Update_Shell
             ;;
-        scripts)
-            if [ -d $ScriptsDir/.git ]; then
-                Title $1
-                Update_Scripts
-            else
-                echo -e "\n$ERROR 请先配置 Sciprts 主要仓库！\n"
-            fi
-            ;;
         own)
             Title $1
             Update_Own "all"
             ;;
         repo)
             Title $1
-            Update_Scripts
             Update_Own "repo"
             ;;
         raw)
             Update_Own "raw"
             ;;
         extra)
-            if [[ $EnableExtraShellSync == "true" ]] || [[ $EnableExtraShell == "true" ]]; then
+            if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then
                 Title $1
                 ExtraShell
             else

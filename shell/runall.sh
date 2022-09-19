@@ -1,9 +1,9 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-08-26
+## Modified: 2022-09-20
 
 ShellDir=${WORK_DIR}/shell
-. $ShellDir/share.sh
+. $ShellDir/template.sh
 
 ## 选择执行模式
 function ChooseRunMod() {
