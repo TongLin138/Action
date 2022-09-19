@@ -710,7 +710,7 @@ function Update_Own() {
         Title $1
         ;;
     esac
-    if [[ ${#array_own_scripts_path[*]} -gt 0 ]]; then
+    if [[ ${#array_own_repo_url[*]} -gt 0 ]]; then
         echo -e "-------------------------------------------------------------"
         ## 更新仓库
         if [[ ${EnableRepoUpdate} == true ]]; then

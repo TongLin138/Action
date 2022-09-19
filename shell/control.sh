@@ -455,15 +455,7 @@ function Server_Status() {
 function Environment_Deployment() {
     case $1 in
     install)
-        case ${ARCH} in
-        armv7l | armv6l)
-            echo -e "\n$WORKING 开始安装常用模块...\n"
-            ;;
-        *)
-            echo -e "\n$WORKING 开始安装常用模块以及 Python 和 TypeScript 运行环境...\n"
-            ;;
-        esac
-        npm install -g npm npm-install-peers
+        npm install -g npm npm-install-peers >/dev/null 2>&1
         case ${ARCH} in
         armv7l | armv6l)
             echo -e "\n$WORKING 开始安装常用模块...\n"
