@@ -89,6 +89,8 @@ function Count_OwnRepoSum() {
 }
 
 ## 生成仓库配置清单数组
+## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
+## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
 # 仓库名称 array_own_repo_name
 # 远程地址 array_own_repo_url
 # 分支名称 array_own_repo_branch
@@ -204,11 +206,6 @@ function Gen_Own_Repo_Conf() {
             }"
         done
     fi
-}
-
-## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
-## array_own_repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
-function Gen_Own_Dir_And_Path() {
 }
 
 ## 生成 own 定时任务脚本的绝对路径清单
@@ -688,7 +685,6 @@ function Update_Own() {
     Make_Dir $RawDir
     Count_OwnRepoSum
     Gen_Own_Repo_Conf
-    Gen_Own_Dir_And_Path
     local EnableRepoUpdate EnableRawUpdate
     case $1 in
     all)
