@@ -75,22 +75,7 @@ function Reset_Romote_Url() {
     fi
 }
 
-## 统计 own 仓库数量
-function Count_OwnRepoSum() {
-    if [[ -z ${OwnRepoConfig1} ]]; then
-        OwnRepoSum=0
-    else
-        for ((i = 1; i <= 0x64; i++)); do
-            local Tmp1=OwnRepoConfig$i
-            local Tmp2=${!Tmp1}
-            [[ $Tmp2 ]] && OwnRepoSum=$i || break
-        done
-    fi
-}
-
-## 生成仓库配置清单数组
-## 生成 own 仓库信息的数组，组依赖于 Import_Conf 或 Import_Config_Not_Check
-## Array_Repo_path：repo存放的绝对路径组成的数组；array_own_scripts_path：所有要使用的脚本所在的绝对路径组成的数组
+## 生成仓库用户配置信息数组
 # 仓库名称 Array_Repo_name
 # 远程地址 Array_Repo_url
 # 分支名称 Array_Repo_branch
@@ -102,16 +87,16 @@ function Count_OwnRepoSum() {
 # 仓库脚本定时设置（匹配白名单） Array_Repo_cronSettings_whiteList
 # 仓库脚本定时设置（匹配黑名单） Array_Repo_cronSettings_blackList
 
-function Gen_Own_Repo_Conf() {
+function Gen_RepoConf() {
 
     local scripts_path_num="-1"
     local arr_num TmpConf Tmp_name Tmp_url Tmp_branch Tmp_isEnable Tmp_cronSettings_isEnable Tmp_cronSettings_scriptsPath Tmp_cronSettings_whiteList Tmp_cronSettings_blackList Tmp_KeysValue
-    if [[ $OwnRepoSum -ge 1 ]]; then
-        for ((i = 1; i <= $OwnRepoSum; i++)); do
+    if [[ $RepoSum -ge 1 ]]; then
+        for ((i = 1; i <= $RepoSum; i++)); do
             arr_num=$((i - 1))
 
             # 读取仓库配置并检测语法
-            TmpConf=OwnRepoConfig$i
+            TmpConf=RepoConfig$i
             jq -n "${!TmpConf}" >/dev/null 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "$ERROR 第$i个仓库配置存在语法错误，跳过..."
@@ -201,20 +186,20 @@ function Gen_Own_Repo_Conf() {
     fi
 }
 
-## 生成 own 定时任务脚本的绝对路径清单
-function Gen_ListOwn() {
+## 生成定时任务脚本的绝对路径清单
+function Gen_ListCron() {
     local Matching isEnable scriptsPath whiteList blackList FormatPath
     local MatchScriptsType="\.js$|\.py$|\.ts$"
     local CurrentDir=$(pwd)
 
     ## 先导入用户的定时
-    local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
+    local ListCronTmp=$LogTmpDir/crontab_tmp.list
     Make_Dir $LogTmpDir
-    [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
-    grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $RepoDir"
+    [ ! -f $ListScripts ] && touch $ListScripts
+    grep -vwf $ListScripts $ListCrontabUser | grep -Eq " $TaskCmd $RepoDir"
     local ExitStatus=$?
-    [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $RepoDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
-    rm -rf $LogTmpDir/own*.list
+    [[ $ExitStatus -eq 0 ]] && grep -vwf $ListScripts $ListCrontabUser | grep -E " $TaskCmd $RepoDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCronTmp
+    rm -rf $LogTmpDir/*.list
 
     ## 循环处理各个仓库配置
     for ((i = 0; i < ${#Array_Repo_name[*]}; i++)); do
@@ -250,7 +235,7 @@ function Gen_ListOwn() {
                 for file in ${Matching}; do
                     ## 判断脚本是否存在内容
                     if [ -s $file ]; then
-                        echo "${FormatPath}/${file}" >>$ListOwnScripts
+                        echo "${FormatPath}/${file}" >>$ListScripts
                     else
                         continue
                     fi
@@ -279,7 +264,7 @@ function Gen_ListOwn() {
                     for file in ${Matching}; do
                         ## 判断脚本是否存在内容
                         if [ -s $file ]; then
-                            echo "${FormatPath}/${file}" >>$ListOwnScripts
+                            echo "${FormatPath}/${file}" >>$ListScripts
                         else
                             continue
                         fi
@@ -291,33 +276,30 @@ function Gen_ListOwn() {
         fi
     done
 
-    if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
-        let scripts_path_num++
-        array_own_scripts_path[$scripts_path_num]=$RawDir
-        if [ ${array_own_scripts_path[i]} = $RawDir ]; then
-            if [[ $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
-                for file in $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}"); do
-                    if [ -f $file ]; then
-                        echo "$RawDir/$file" >>$ListOwnScripts
-                    fi
-                done
-            fi
+    if [[ ${#RawFile[*]} -ge 1 ]]; then
+        if [[ $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
+            for file in $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}"); do
+                if [ -f $file ]; then
+                    echo "$RawDir/$file" >>$ListScripts
+                fi
+            done
         fi
     fi
-    [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
+
+    [ ! -f $ListScripts ] && touch $ListScripts
     ## 汇总去重
-    echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
+    echo "$(sort -u $ListScripts)" >$ListScripts
     ## 导入用户的定时
-    cat $ListOwnScripts >$ListOwnAll
-    [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
+    cat $ListScripts >$ListAll
+    [[ $ExitStatus -eq 0 ]] && cat $ListCronTmp >>$ListAll
 
     if [[ $ExitStatus -eq 0 ]]; then
-        grep -E " $TaskCmd $RepoDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
-        cat $ListCrontabOwnTmp >>$ListOwnUser
+        grep -E " $TaskCmd $RepoDir" $ListCrontabUser | grep -Ev "$(cat $ListCronTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListUser
+        cat $ListCronTmp >>$ListUser
     else
-        grep -E " $TaskCmd $RepoDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+        grep -E " $TaskCmd $RepoDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListUser
     fi
-    [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+    [ -f $ListCronTmp ] && rm -f $ListCronTmp
     cd $CurrentDir
 }
 
@@ -398,14 +380,14 @@ function Output_List_Add_Drop() {
             local ListArr=(
                 $(cat $List)
             )
-            rm -rf $ListOwnAddNames
+            rm -rf $ListAddNames
             for script in ${ListArr[@]}; do
                 NameTmp=${script##*/}
                 DirTmp=${script%/*}
                 cd $DirTmp
                 Query_ScriptName "${NameTmp}"
                 printf "%-50s %s\n" "${script}" "${ScriptName}"
-                echo -e "${script} ➜  ${ScriptName}" >>$ListOwnAddNames
+                echo -e "${script} ➜  ${ScriptName}" >>$ListAddNames
                 cd $CurrentDir
             done
         else
@@ -417,7 +399,7 @@ function Output_List_Add_Drop() {
 
 ## 自动删除失效的脚本与定时任务
 ## 需要：
-##      1.AutoDelCron/AutoDelOwnRepoCron/AutoDelOwnRawCron 设置为 true；
+##      1.AutoDelCron/AutoDelRepoCron/AutoDelRawCron 设置为 true；
 ##      2.正常更新脚本，没有报错；
 ##      3.存在失效任务；
 ##      4.crontab.list存在并且不为空
@@ -443,15 +425,15 @@ function Del_Cron() {
 
 ## 自动增加自己额外的脚本的定时任务
 ## 需要：
-##      1.AutoAddOwnRepoCron/AutoAddOwnRawCron 设置为 true；
+##      1.AutoAddRepoCron/AutoAddRawCron 设置为 true；
 ##      2.正常更新脚本，没有报错；
 ##      3.存在新任务；
 ##      4.crontab.list存在并且不为空
 ## 注释  $1：新任务清单文件路径
-function Add_Cron_Own() {
+function Add_Cron() {
     local ListAdd=$1
-    local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
-    [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+    local ListCronTmp=$LogTmpDir/crontab_tmp.list
+    [ -f $ListCronTmp ] && rm -f $ListCronTmp
     if [ -s $ListAdd ] && [ -s $ListCrontabUser ]; then
         local Detail=$(cat $ListAdd)
         for path in $Detail; do
@@ -473,19 +455,19 @@ function Add_Cron_Own() {
             ## 如果未检测出定时就随机一个每天执行1次的定时
             echo "${Tmp1}" | grep "[0-9]" -q
             if [ $? -eq 0 ]; then
-                echo "$Cron $TaskCmd ${path}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                echo "$Cron $TaskCmd ${path}" | sort -u | head -1 >>$ListCronTmp
             else
-                echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${path}" | sort -u | head -1 >>$ListCrontabOwnTmp
+                echo "$((${RANDOM} % 60)) $((${RANDOM} % 24)) * * * $TaskCmd ${path}" | sort -u | head -1 >>$ListCronTmp
             fi
         done
-        perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
+        perl -i -pe "s|(# 项目定时任务结束.+)|$(cat $ListCronTmp)\n\1|" $ListCrontabUser
         ExitStatus=$?
     fi
-    [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
+    [ -f $ListCronTmp ] && rm -f $ListCronTmp
 }
 
 ## 向系统添加定时任务以及通知
-## 注释  $1：写入crontab.list时的exit状态，$2：新增清单文件路径，$3：Scripts仓库脚本/Own仓库脚本/Raw脚本
+## 注释  $1：写入crontab.list时的exit状态，$2：新增清单文件路径，$3：Repo仓库脚本/Raw脚本
 function Add_Cron_Notify() {
     local Status_Code=$1
     local ListAdd=$2
@@ -506,8 +488,102 @@ function Add_Cron_Notify() {
     fi
 }
 
-## 更新所有 Own 仓库
-function Update_OwnRepo() {
+## 删除定时任务
+function Update_Cron() {
+    ## 生成定时任务脚本的绝对路径清单
+    Gen_ListCron
+    ## 比较定时任务
+    Diff_Cron $ListAll $ListUser $ListAdd $ListDrop
+    case $1 in
+    repo)
+        if [[ ${#Array_Repo_url[*]} -gt 0 ]]; then
+            ## 比对清单
+            grep -v "$RawDir/" $ListAdd 2>/dev/null >$ListRepoAdd
+            grep -v "$RawDir/" $ListDrop 2>/dev/null >$ListRepoDrop
+
+            ## 删除定时任务 & 通知
+            if [[ ${AutoDelRepoCron} == true ]] && [[ $(cat $ListRepoDrop) != '' ]]; then
+                Output_List_Add_Drop $ListRepoDrop "失效"
+                Del_Cron $ListRepoDrop $TaskCmd
+            fi
+            ## 新增定时任务 & 通知
+            if [[ ${AutoAddRepoCron} == true ]] && [[ $(cat $ListRepoAdd) != '' ]]; then
+                Output_List_Add_Drop $ListRepoAdd "新"
+                Add_Cron $ListRepoAdd
+                Add_Cron_Notify $ExitStatus $ListAddNames " Repo 仓库脚本"
+            fi
+        else
+            perl -i -ne "{print unless / $TaskCmd \/jd\/repo/}" $ListCrontabUser
+        fi
+        ;;
+    raw)
+        if [[ ${#RawFile[*]} -gt 0 ]]; then
+            ## 比对清单
+            grep "$RawDir/" $ListAdd 2>/dev/null >$ListRawAdd
+            grep "$RawDir/" $ListDrop 2>/dev/null >$ListRawDrop
+
+            ## 删除定时任务 & 通知
+            if [[ ${AutoDelRawCron} == true ]] && [ -s $ListRawDrop ]; then
+                Output_List_Add_Drop $ListRawDrop "失效"
+                Del_Cron $ListRawDrop $TaskCmd
+            fi
+            ## 新增定时任务 & 通知
+            if [[ ${AutoAddRawCron} == true ]] && [ -s $ListRawAdd ]; then
+                Output_List_Add_Drop $ListRawAdd "新"
+                Add_Cron $ListRawAdd
+                Add_Cron_Notify $ExitStatus $ListAddNames " Raw 脚本"
+            fi
+
+        else
+            perl -i -ne "{print unless / $TaskCmd \/jd\/raw/}" $ListCrontabUser
+        fi
+        ;;
+    all)
+        if [[ ${#Array_Repo_url[*]} -gt 0 ]]; then
+            ## 比对清单
+            grep -v "$RawDir/" $ListAdd 2>/dev/null >$ListRepoAdd
+            grep -v "$RawDir/" $ListDrop 2>/dev/null >$ListRepoDrop
+
+            ## 删除定时任务 & 通知
+            if [[ ${AutoDelRepoCron} == true ]] && [[ $(cat $ListRepoDrop) != '' ]]; then
+                Output_List_Add_Drop $ListRepoDrop "失效"
+                Del_Cron $ListRepoDrop $TaskCmd
+            fi
+            ## 新增定时任务 & 通知
+            if [[ ${AutoAddRepoCron} == true ]] && [[ $(cat $ListRepoAdd) != '' ]]; then
+                Output_List_Add_Drop $ListRepoAdd "新"
+                Add_Cron $ListRepoAdd
+                Add_Cron_Notify $ExitStatus $ListAddNames " Repo 仓库脚本"
+            fi
+        else
+            perl -i -ne "{print unless / $TaskCmd \/jd\/repo/}" $ListCrontabUser
+        fi
+        if [[ ${#RawFile[*]} -gt 0 ]]; then
+            ## 比对清单
+            grep "$RawDir/" $ListAdd 2>/dev/null >$ListRawAdd
+            grep "$RawDir/" $ListDrop 2>/dev/null >$ListRawDrop
+
+            ## 删除定时任务 & 通知
+            if [[ ${AutoDelRawCron} == true ]] && [ -s $ListRawDrop ]; then
+                Output_List_Add_Drop $ListRawDrop "失效"
+                Del_Cron $ListRawDrop $TaskCmd
+            fi
+            ## 新增定时任务 & 通知
+            if [[ ${AutoAddRawCron} == true ]] && [ -s $ListRawAdd ]; then
+                Output_List_Add_Drop $ListRawAdd "新"
+                Add_Cron $ListRawAdd
+                Add_Cron_Notify $ExitStatus $ListAddNames " Raw 脚本"
+            fi
+
+        else
+            perl -i -ne "{print unless / $TaskCmd \/jd\/raw/}" $ListCrontabUser
+        fi
+        ;;
+    esac
+}
+
+## 更新所有仓库
+function Update_Repo() {
     for ((i = 0; i < ${#Array_Repo_url[*]}; i++)); do
         ## 判断仓库是否启用
         [[ ${Array_Repo_status[i]} == "false" ]] && continue
@@ -533,50 +609,50 @@ function Update_OwnRepo() {
 ## 更新所有 Raw 脚本
 function Update_RawFile() {
     local RawFileName RemoveMark FormatUrl ReformatUrl RepoBranch RepoUrl RepoPlatformUrl DownloadUrl
-    for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
+    for ((i = 0; i < ${#RawFile[*]}; i++)); do
         ## 定义脚本名称
-        RawFileName[$i]=$(echo ${OwnRawFile[i]} | awk -F "/" '{print $NF}')
+        RawFileName[$i]=$(echo ${RawFile[i]} | awk -F "/" '{print $NF}')
 
         ## 判断脚本来源（ 托管仓库 or 普通网站 ）
-        echo ${OwnRawFile[i]} | grep -Eq "github|gitee|gitlab"
+        echo ${RawFile[i]} | grep -Eq "github|gitee|gitlab"
         if [ $? -eq 0 ]; then
             ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
-            echo ${OwnRawFile[i]} | grep "\.com\/.*\/blob\/.*" -q
+            echo ${RawFile[i]} | grep "\.com\/.*\/blob\/.*" -q
             if [ $? -eq 0 ]; then
-                case $(echo ${OwnRawFile[i]} | grep -Eo "github|gitee|gitlab") in
+                case $(echo ${RawFile[i]} | grep -Eo "github|gitee|gitlab") in
                 github)
-                    echo ${OwnRawFile[i]} | grep "github\.com\/.*\/blob\/.*" -q
+                    echo ${RawFile[i]} | grep "github\.com\/.*\/blob\/.*" -q
                     if [ $? -eq 0 ]; then
-                        DownloadUrl=$(echo ${OwnRawFile[i]} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
+                        DownloadUrl=$(echo ${RawFile[i]} | perl -pe "{s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g}")
                     else
-                        DownloadUrl=${OwnRawFile[i]}
+                        DownloadUrl=${RawFile[i]}
                     fi
                     ;;
                 gitee)
-                    echo ${OwnRawFile[i]} | grep "gitee\.com\/.*\/blob\/.*" -q
+                    echo ${RawFile[i]} | grep "gitee\.com\/.*\/blob\/.*" -q
                     if [ $? -eq 0 ]; then
-                        DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                        DownloadUrl=$(echo ${RawFile[i]} | sed "s/\/blob\//\/raw\//g")
                     else
-                        DownloadUrl=${OwnRawFile[i]}
+                        DownloadUrl=${RawFile[i]}
                     fi
                     ;;
                 gitlab)
-                    echo ${OwnRawFile[i]} | grep "gitlab\.com\/.*\/blob\/.*" -q
+                    echo ${RawFile[i]} | grep "gitlab\.com\/.*\/blob\/.*" -q
                     if [ $? -eq 0 ]; then
-                        DownloadUrl=$(echo ${OwnRawFile[i]} | sed "s/\/blob\//\/raw\//g")
+                        DownloadUrl=$(echo ${RawFile[i]} | sed "s/\/blob\//\/raw\//g")
                     else
-                        DownloadUrl=${OwnRawFile[i]}
+                        DownloadUrl=${RawFile[i]}
                     fi
                     ;;
                 esac
             else
                 ## 原始链接
-                DownloadUrl=${OwnRawFile[i]}
+                DownloadUrl=${RawFile[i]}
             fi
 
             echo ${DownloadUrl} | grep -E "git.*\.io/" -q
             if [ $? -eq 0 ]; then
-                echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
+                echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${RawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             else
                 ## 处理仓库地址
                 FormatUrl=$(echo ${DownloadUrl} | perl -pe "{s|${RawFileName[$i]}||g;}" | awk -F '.com' '{print$NF}' | sed 's/.$//')
@@ -606,15 +682,15 @@ function Update_RawFile() {
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         else
             ## 拉取脚本
-            DownloadUrl=${OwnRawFile[i]}
-            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${OwnRawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
+            DownloadUrl=${RawFile[i]}
+            echo -e "\n$WORKING 开始从网站 ${BLUE}$(echo ${RawFile[i]} | perl -pe "{s|\/${RawFileName[$i]}||g;}")${PLAIN} 下载 ${BLUE}${RawFileName[$i]}${PLAIN} 脚本..."
             wget -q --no-check-certificate -O "$RawDir/${RawFileName[$i]}.new" ${DownloadUrl} -T 20
         fi
         if [ $? -eq 0 ]; then
             mv -f "$RawDir/${RawFileName[$i]}.new" "$RawDir/${RawFileName[$i]}"
             echo -e "$COMPLETE ${RawFileName[$i]} 下载完成，脚本保存路径：$RawDir/${RawFileName[$i]}"
         else
-            echo -e "$FAIL 下载 ${RawFileName[$i]} 失败，保留之前正常下载的版本...\n"
+            echo -e "$FAIL ${RawFileName[$i]} 下载异常，保留之前正常下载的版本...\n"
             [ -f "$RawDir/${RawFileName[$i]}.new" ] && rm -f "$RawDir/${RawFileName[$i]}.new"
         fi
     done
@@ -647,7 +723,7 @@ function Update_Shell() {
     git pull
     git reset --hard origin/$(git status | head -n 1 | awk -F ' ' '{print$NF}')
     if [[ $ExitStatus -eq 0 ]]; then
-        echo -e "\n$COMPLETE 源码更新完成\n"
+        echo -e "\n$COMPLETE 源码已更新\n"
     else
         echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
     fi
@@ -665,11 +741,12 @@ function Update_Shell() {
     Detect_Config_Version
 }
 
-## 更新 Own Repo 仓库和 Own RawFile 脚本
-function Update_Own() {
+## 更新 Repo 仓库和 RawFile 脚本
+function UpdateMain() {
+    Make_Dir $RepoDir
     Make_Dir $RawDir
-    Count_OwnRepoSum
-    Gen_Own_Repo_Conf
+    Count_RepoSum
+    Gen_RepoConf
     local EnableRepoUpdate EnableRawUpdate
     case $1 in
     all)
@@ -679,7 +756,7 @@ function Update_Own() {
     repo)
         EnableRepoUpdate="true"
         EnableRawUpdate="false"
-        if [[ $OwnRepoSum -eq 0 ]]; then
+        if [[ $RepoSum -eq 0 ]]; then
             Processing_Crontab
             Notice
             exit ## 终止退出
@@ -688,66 +765,28 @@ function Update_Own() {
     raw)
         EnableRepoUpdate="false"
         EnableRawUpdate="true"
-        if [[ ${#OwnRawFile[*]} -eq 0 ]]; then
-            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 Own RawFile 脚本！\n"
+        if [[ ${#RawFile[*]} -eq 0 ]]; then
+            echo -e "\n$ERROR 请先在 $FileConfUser 中配置好您的 RawFile 脚本！\n"
             exit ## 终止退出
         fi
         Title $1
         ;;
     esac
 
-    if [[ ${#Array_Repo_url[*]} -gt 0 ]]; then
-        echo -e "-------------------------------------------------------------"
-        ## 更新仓库
+    if [[ ${EnableRepoUpdate} == true ]] && [[ ${EnableRawUpdate} == true ]]; then
+        Update_Repo
+        Update_RawFile
+        Update_Cron "all"
+    else
         if [[ ${EnableRepoUpdate} == true ]]; then
-            Update_OwnRepo
+            Update_Repo
+            Update_Cron "repo"
         fi
         if [[ ${EnableRawUpdate} == true ]]; then
             Update_RawFile
+            Update_Cron "raw"
         fi
-        ## 比较定时任务
-        Gen_ListOwn
-        Diff_Cron $ListOwnAll $ListOwnUser $ListOwnAdd $ListOwnDrop
-        ## Own Repo 仓库
-        if [[ ${EnableRepoUpdate} == true ]]; then
-            ## 比对清单
-            grep -v "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRepoAdd
-            grep -v "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRepoDrop
 
-            ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRepoCron} == true ]] && [[ $(cat $ListOwnRepoDrop) != '' ]]; then
-                Output_List_Add_Drop $ListOwnRepoDrop "失效"
-                Del_Cron $ListOwnRepoDrop $TaskCmd
-            fi
-            ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRepoCron} == true ]] && [[ $(cat $ListOwnRepoAdd) != '' ]]; then
-                Output_List_Add_Drop $ListOwnRepoAdd "新"
-                Add_Cron_Own $ListOwnRepoAdd
-                Add_Cron_Notify $ExitStatus $ListOwnAddNames " Own 仓库脚本"
-            fi
-        fi
-        ## Own Raw 脚本
-        if [[ ${EnableRawUpdate} == true ]]; then
-            ## 比对清单
-            grep "$RawDir/" $ListOwnAdd 2>/dev/null >$ListOwnRawAdd
-            grep "$RawDir/" $ListOwnDrop 2>/dev/null >$ListOwnRawDrop
-
-            ## 删除定时任务 & 通知
-            if [[ ${AutoDelOwnRawCron} == true ]] && [ -s $ListOwnRawDrop ]; then
-                Output_List_Add_Drop $ListOwnRawDrop "失效"
-                Del_Cron $ListOwnRawDrop $TaskCmd
-            fi
-            ## 新增定时任务 & 通知
-            if [[ ${AutoAddOwnRawCron} == true ]] && [ -s $ListOwnRawAdd ]; then
-                Output_List_Add_Drop $ListOwnRawAdd "新"
-                Add_Cron_Own $ListOwnRawAdd
-                Add_Cron_Notify $ExitStatus $ListOwnAddNames " Raw 脚本"
-            fi
-
-        fi
-        echo ''
-    else
-        perl -i -ne "{print unless / $TaskCmd \/jd\/own/}" $ListCrontabUser
     fi
 }
 
@@ -817,14 +856,19 @@ function Update_Designated() {
             Title "shell"
             Update_Shell
         else
+
             Title "designated"
             echo -e "-------------------------------------------------------------"
+
+            Make_Dir $RepoDir
+            Count_RepoSum
+            Gen_RepoConf
             Git_Pull ${AbsolutePath} $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
+            Update_Cron "all"
             if [[ $ExitStatus -eq 0 ]]; then
-                echo -e "\n$COMPLETE ${AbsolutePath} 仓库更新完成\n"
-                echo -e "$WARN 此更新模式下不会附带更新定时任务\n"
+                echo -e "\n$COMPLETE ${BLUE}${Array_Repo_dir[i]}${PLAIN} 仓库更新完成"
             else
-                echo -e "\n$FAIL ${AbsolutePath} 仓库更新失败，请检查原因...\n"
+                echo -e "\n$FAIL ${BLUE}${Array_Repo_dir[i]}${PLAIN} 仓库更新失败，请检查原因..."
             fi
         fi
     else
@@ -855,9 +899,6 @@ function Title() {
     shell)
         RunMod=" 项 目 源 码 "
         ;;
-    own)
-        RunMod=" 扩 展 仓 库 "
-        ;;
     repo)
         RunMod=" 所 有 仓 库 "
         ;;
@@ -865,7 +906,7 @@ function Title() {
         RunMod=" 扩 展 脚 本 "
         ;;
     extra)
-        RunMod="  自定义脚本 "
+        RunMod=" 自 定 脚 本 "
         ;;
     designated)
         RunMod=" 指 定 仓 库 "
@@ -904,23 +945,19 @@ function UpdateMain() {
         all)
             Title $1
             Update_Shell
-            Update_Own "all"
+            UpdateMain "all"
             ExtraShell
             ;;
         shell)
             Title $1
             Update_Shell
             ;;
-        own)
-            Title $1
-            Update_Own "all"
-            ;;
         repo)
             Title $1
-            Update_Own "repo"
+            UpdateMain "repo"
             ;;
         raw)
-            Update_Own "raw"
+            UpdateMain "raw"
             ;;
         extra)
             if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then

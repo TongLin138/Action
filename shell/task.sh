@@ -111,7 +111,7 @@ function Find_Script() {
             ## 添加依赖文件
             [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
             ## 定义日志路径
-            if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "own" ]]; then
+            if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "repo" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
             else
                 LogPath="$LogDir/${FileName}"
@@ -1680,16 +1680,16 @@ function Add_OwnRepo() {
     }
 
     ## 统计 own 仓库数量
-    function Count_OwnRepoSum() {
+    function Count_RepoSum() {
         ## 导入配置文件
         Import_Config_Not_Check
         if [[ -z ${OwnRepoUrl1} ]]; then
-            OwnRepoSum=0
+            RepoSum=0
         else
             for ((i = 1; i <= 0x64; i++)); do
                 local Tmp1=OwnRepoUrl$i
                 local Tmp2=${!Tmp1}
-                [[ $Tmp2 ]] && OwnRepoSum=$i || break
+                [[ $Tmp2 ]] && RepoSum=$i || break
             done
         fi
     }
@@ -1699,8 +1699,8 @@ function Add_OwnRepo() {
         local scripts_path_num="-1"
         local repo_num Tmp1 Tmp2 Tmp3 Tmp4 Tmp5 dir
 
-        if [[ $OwnRepoSum -ge 1 ]]; then
-            for ((i = 1; i <= $OwnRepoSum; i++)); do
+        if [[ $RepoSum -ge 1 ]]; then
+            for ((i = 1; i <= $RepoSum; i++)); do
                 repo_num=$((i - 1))
                 ## 仓库地址
                 Tmp1=OwnRepoUrl$i
@@ -1726,7 +1726,7 @@ function Add_OwnRepo() {
                 fi
             done
         fi
-        if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
+        if [[ ${#RawFile[*]} -ge 1 ]]; then
             let scripts_path_num++
             array_own_scripts_path[$scripts_path_num]=$RawDir
         fi
@@ -1738,10 +1738,10 @@ function Add_OwnRepo() {
         ## 导入用户的定时
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         Make_Dir $LogTmpDir
-        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
-        grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $RepoDir"
+        [ ! -f $ListScripts ] && touch $ListScripts
+        grep -vwf $ListScripts $ListCrontabUser | grep -Eq " $TaskCmd $RepoDir"
         local ExitStatus=$?
-        [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $RepoDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
+        [[ $ExitStatus -eq 0 ]] && grep -vwf $ListScripts $ListCrontabUser | grep -E " $TaskCmd $RepoDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
         rm -rf $LogTmpDir/own*.list
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
@@ -1749,7 +1749,7 @@ function Add_OwnRepo() {
                 if [[ $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
                     for file in $(ls 2>/dev/null | grep -E "\.js$|\.py$|\.ts$" | grep -Ev "${RawDirUtils}"); do
                         if [ -f $file ]; then
-                            echo "$RawDir/$file" >>$ListOwnScripts
+                            echo "$RawDir/$file" >>$ListScripts
                         fi
                     done
                 fi
@@ -1768,25 +1768,25 @@ function Add_OwnRepo() {
                             if [ -f $file ]; then
                                 perl -ne "print if /.*([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*]( |,|\").*\/?$file/" $file |
                                     perl -pe "s|.*(([\d\*]*[\*-\/,\d]*[\d\*] ){4}[\d\*]*[\*-\/,\d]*[\d\*])( \|,\|\").*/?$file.*|${array_own_scripts_path[i]}/$file|g" |
-                                    sort -u | head -1 >>$ListOwnScripts
+                                    sort -u | head -1 >>$ListScripts
                             fi
                         done
                     fi
                 fi
             fi
         done
-        [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
+        [ ! -f $ListScripts ] && touch $ListScripts
         ## 汇总去重
-        echo "$(sort -u $ListOwnScripts)" >$ListOwnScripts
+        echo "$(sort -u $ListScripts)" >$ListScripts
         ## 导入用户的定时
-        cat $ListOwnScripts >$ListOwnAll
-        [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
+        cat $ListScripts >$ListAll
+        [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListAll
 
         if [[ $ExitStatus -eq 0 ]]; then
-            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
-            cat $ListCrontabOwnTmp >>$ListOwnUser
+            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListUser
+            cat $ListCrontabOwnTmp >>$ListUser
         else
-            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListUser
         fi
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
         cd $CurrentDir
@@ -1794,27 +1794,27 @@ function Add_OwnRepo() {
 
     ## 检测cron的差异
     function Diff_Own_Cron() {
-        if [ -s $ListOwnUser ] && [ -s $ListOwnAll ]; then
-            diff $ListOwnAll $ListOwnUser | grep "<" | awk '{print $2}' >$ListOwnAdd
-            diff $ListOwnAll $ListOwnUser | grep ">" | awk '{print $2}' >$ListOwnDrop
-        elif [ ! -s $ListOwnUser ] && [ -s $ListOwnAll ]; then
-            cp -f $ListOwnAll $ListOwnAdd
-        elif [ -s $ListOwnUser ] && [ ! -s $ListOwnAll ]; then
-            cp -f $ListOwnUser $ListOwnDrop
+        if [ -s $ListUser ] && [ -s $ListAll ]; then
+            diff $ListAll $ListUser | grep "<" | awk '{print $2}' >$ListAdd
+            diff $ListAll $ListUser | grep ">" | awk '{print $2}' >$ListDrop
+        elif [ ! -s $ListUser ] && [ -s $ListAll ]; then
+            cp -f $ListAll $ListAdd
+        elif [ -s $ListUser ] && [ ! -s $ListAll ]; then
+            cp -f $ListUser $ListDrop
         fi
         ## 比对清单
-        grep -v "$RawDir/" $ListOwnAdd >$ListOwnRepoAdd
+        grep -v "$RawDir/" $ListAdd >$ListRepoAdd
     }
 
     ## 添加定时
     function Add_Cron_Own() {
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
-        if [ -s $ListOwnRepoAdd ]; then
+        if [ -s $ListRepoAdd ]; then
             if [[ ${AutoAddOwnRepoCron} == true ]]; then
                 echo ''
-                if [ -s $ListOwnRepoAdd ] && [ -s $ListCrontabUser ]; then
-                    local Detail=$(cat $ListOwnRepoAdd)
+                if [ -s $ListRepoAdd ] && [ -s $ListCrontabUser ]; then
+                    local Detail=$(cat $ListRepoAdd)
                     for FilePath in $Detail; do
                         local FileName=$(echo ${FilePath} | awk -F "/" '{print $NF}')
                         if [ -f ${FilePath} ]; then
@@ -1837,7 +1837,7 @@ function Add_OwnRepo() {
                             fi
                         fi
                     done
-                    perl -i -pe "s|(# 自用own任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
+                    perl -i -pe "s|(# 项目定时任务结束.+)|$(cat $ListCrontabOwnTmp)\n\1|" $ListCrontabUser
                     ExitStatus=$?
                 fi
                 ## 判定结果
@@ -1864,7 +1864,7 @@ function Add_OwnRepo() {
     ## 添加变量
     Add_Env_Own
     ## 统计信息
-    Count_OwnRepoSum
+    Count_RepoSum
     ## 生成相关清单
     Gen_Own_Dir_And_Path
     Gen_ListOwn
@@ -1997,12 +1997,12 @@ function Add_RawFile() {
         if [[ ${AutoAddOwnRawCron} == true ]]; then
             FormatRawFilePath=$(echo ${RawFilePath} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
             if [ $(grep -c " $TaskCmd ${FormatRawFilePath}" $ListCrontabUser) -eq 0 ]; then
-                perl -i -pe "s|(# 自用own任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
+                perl -i -pe "s|(# 项目定时任务结束.+)|${FullContent}\n\1|" $ListCrontabUser
                 ## 判断添加结果
                 if [ $? -eq 0 ]; then
                     ## 写进清单
-                    echo "${RawFilePath}" >>$ListOwnAll
-                    echo "${RawFilePath}" >>$ListOwnScripts
+                    echo "${RawFilePath}" >>$ListAll
+                    echo "${RawFilePath}" >>$ListScripts
                     ## 打印定时
                     echo -e "\n${GREEN}+${PLAIN} ${FullContent}"
                     echo -e "\n$COMPLETE 定时任务已添加"
@@ -2017,15 +2017,15 @@ function Add_RawFile() {
         fi
 
         ## 添加变量
-        for ((i = 0; i < ${#OwnRawFile[*]}; i++)); do
-            if [[ ${OwnRawFile[i]} == ${DownloadUrl} ]]; then
-                echo -e "\n$WARN 检测到该脚本已存在于 ${BLUE}OwnRawFile${PLAIN} 变量中，跳过添加"
+        for ((i = 0; i < ${#RawFile[*]}; i++)); do
+            if [[ ${RawFile[i]} == ${DownloadUrl} ]]; then
+                echo -e "\n$WARN 检测到该脚本已存在于 ${BLUE}RawFile${PLAIN} 变量中，跳过添加"
                 echo -e "\n${GREEN}Tips：${PLAIN}请尽量不要尝试重复添加以免产生未知问题！\n"
                 exit ## 终止退出
             fi
         done
         FormatDownloadUrl=$(echo ${DownloadUrl} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
-        sed -i "/^OwnRawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
+        sed -i "/^RawFile=(/a\  ${FormatDownloadUrl}" $FileConfUser
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 变量已添加\n"
         else
@@ -2604,11 +2604,11 @@ function List_Local_Scripts() {
             for ((i = 1; i <= 0x64; i++)); do
                 Tmp1=OwnRepoUrl$i
                 Tmp2=${!Tmp1}
-                [[ $Tmp2 ]] && OwnRepoSum=$i || break
+                [[ $Tmp2 ]] && RepoSum=$i || break
             done
 
-            if [[ $OwnRepoSum -ge 1 ]]; then
-                for ((i = 1; i <= $OwnRepoSum; i++)); do
+            if [[ $RepoSum -ge 1 ]]; then
+                for ((i = 1; i <= $RepoSum; i++)); do
                     repo_num=$((i - 1))
                     Tmp1=OwnRepoUrl$i
                     array_own_repo_url[$repo_num]=${!Tmp1}
@@ -2623,11 +2623,11 @@ function List_Local_Scripts() {
             fi
 
             local ListFiles=($(
-                for ((i = 1; i <= $OwnRepoSum; i++)); do
+                for ((i = 1; i <= $RepoSum; i++)); do
                     repo_num=$((i - 1))
                     ls ${array_own_repo_path[repo_num]} 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${array_own_repo_path[repo_num]}/|g;}"
                 done
-                if [[ ${#OwnRawFile[*]} -ge 1 ]]; then
+                if [[ ${#RawFile[*]} -ge 1 ]]; then
                     ls $RawDir 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|$RawDir/|g;}"
                 fi
             ))

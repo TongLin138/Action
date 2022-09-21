@@ -63,7 +63,7 @@ export CK_AUTO_ADD="true"
 # 标准格式指定的是当脚本的注释内容中同时含有crontab表达式和完整脚本名才可自动增加定时任务，此标准方法能排除许多无用脚本
 # 如果您的设备不能有效连通 GitHub 建议加上代理，否则可能会出现连接缓慢、丢包等情况，非常影响使用
 
-OwnRepoConfig1='{
+RepoConfig1='{
   name: "",
   url: "",
   branch: "",
@@ -78,40 +78,40 @@ OwnRepoConfig1='{
 
 
 # 示例：
-# OwnRepoUrl：仓库地址清单，必须从1开始依次编号
-# OwnRepoBranch：分支清单，不能为 "空" 必须指定分支的名称，编号必须和 OwnRepoUrl 对应。
-# OwnRepoPath：脚本路径清单，要使用的脚本在仓库哪个路径下，请输入仓库下的相对路径，默认空值""代表仓库根目录，编号必须和 OwnRepoUrl 对应。
-#              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中OwnRepoPath3。
+# RepoUrl：仓库地址清单，必须从1开始依次编号
+# RepoBranch：分支清单，不能为 "空" 必须指定分支的名称，编号必须和 RepoUrl 对应。
+# RepoPath：脚本路径清单，要使用的脚本在仓库哪个路径下，请输入仓库下的相对路径，默认空值""代表仓库根目录，编号必须和 RepoUrl 对应。
+#              同一个仓库下不同文件夹之间使用空格分开，如果既包括根目录又包括子目录，填写请见示例中RepoPath3。
 # 所有脚本存放在 own 目录下，三个清单必须一一对应，示例如下：
-# OwnRepoUrl1="https://gitee.com/abc/jdtsa.git"
-# OwnRepoUrl2="https://github.com/nedcd/jxddfsa.git"
-# OwnRepoUrl3="git@github.com:eject/poex.git"
-# OwnRepoBranch1="master"   # 代表第1个仓库 https://gitee.com/abc/jdtsa.git 使用 "master" 主分支
-# OwnRepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
-# OwnRepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
-# OwnRepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
-# OwnRepoPath2="parse/tc normal"    # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 parse/tc 和 normal 文件夹下，必须输入相对路径
-# OwnRepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
+# RepoUrl1="https://gitee.com/abc/jdtsa.git"
+# RepoUrl2="https://github.com/nedcd/jxddfsa.git"
+# RepoUrl3="git@github.com:eject/poex.git"
+# RepoBranch1="master"   # 代表第1个仓库 https://gitee.com/abc/jdtsa.git 使用 "master" 主分支
+# RepoBranch2="main"     # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git 使用 "main" 分支
+# RepoBranch3="master"   # 代表第3个仓库 git@github.com:eject/poex.git 使用 "master" 分支
+# RepoPath1=""                   # 代表第1个仓库https://gitee.com/abc/jdtsa.git，您想使用的脚本就在仓库根目录下。
+# RepoPath2="parse/tc normal"    # 代表第2个仓库 https://github.com/nedcd/jxddfsa.git，您想使用的脚本在仓库的 parse/tc 和 normal 文件夹下，必须输入相对路径
+# RepoPath3="'' cron"            # 代表第3个仓库git@github.com:eject/poex.git，您想使用的脚本在仓库的 根目录 和 cron 文件夹下，必须输入相对路径
 
 ## ❖ Own Repo 扩展仓库脚本定时任务开关（自动增加/自动删除）
-# 自动增加: "AutoAddOwnRepoCron"；自动删除: "AutoDelOwnRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"
+# 自动增加: "AutoAddRepoCron"；自动删除: "AutoDelRepoCron"；如需启用请设置为 "true"，否则请设置为 "false"
 # 默认均为 "true"，项目不一定能完全从脚本中识别出有效的 cron 设置，如果发现不能满足您的需要，请修改为 "false" 以取消自动增加或自动删除
-AutoAddOwnRepoCron="true"
-AutoDelOwnRepoCron="true"
+AutoAddRepoCron="true"
+AutoDelRepoCron="true"
 
 ## ❖ Own Repo 扩展仓库脚本新增定时任务自动禁用功能
 # 当扩展仓库有新脚本时，如果不想让其自动运行，可以使用该功能，会自动注释新的定时任务，如需启用该功能请设置为 "true"
-DisableNewOwnRepoCron=""
+DisableNewRepoCron=""
 
 ## ❖ Own Repo 扩展仓库脚本重复定时任务自动禁用功能
 # 重复脚本依据脚本名判断，自动检测定时清单中 Own 目录下的同名脚本，如需启用该功能请设置为 "true"
 # 启用该功能后如果定时清单中已存在相同脚本名称的定时任务，那么导入的定时任务会被注释，注意只有在拉取单个仓库时有效，同时拉取多个仓库时无效
-DisableDuplicateOwnRepoCron=""
+DisableDuplicateRepoCron=""
 
 ## ❖ Own Repo 扩展仓库脚本定时任务屏蔽功能
 # 如果不想导入某类脚本的定时就在该变量中定义屏蔽关键词，关键词仅限英文和数字不支持符号，多个关键词用空格隔开，注意区分大小写
-# 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 OwnRepoCronShielding="opencard joy"
-OwnRepoCronShielding=""
+# 例如不想自动增加开卡脚本和宠汪汪脚本的定时任务 RepoCronShielding="opencard joy"
+RepoCronShielding=""
 
 
 
@@ -129,20 +129,20 @@ OwnRepoCronShielding=""
 # 如果您的设备不能有效连通 GitHub 则需要使用代理，建议优先使用您的个人代理
 # 如果您没有代理则推荐使用 jsDelivr 公共代理，可使用官方代理链接转换工具 https://www.jsdelivr.com/github
 
-OwnRawFile=(
+RawFile=(
 )
 
 # 示例：
-# OwnRawFile=(
+# RawFile=(
 #   https://gitee.com/wabdwdd/scipts/raw/master/example.js
 #   https://cdn.jsdelivr.net/gh/lonfeg/loon@raw/main/test.js
 #   https://cdn.jsdelivr.net/gh/sunsem/qx@raw/main/utils.js
 # )
 
 ## ❖ Own RawFile 扩展脚本定时任务开关（自动增加/自动删除）
-# 自动增加: "AutoAddOwnRawCron"；自动删除: "AutoDelOwnRawCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
-AutoAddOwnRawCron="true"
-AutoDelOwnRawCron="true"
+# 自动增加: "AutoAddRawCron"；自动删除: "AutoDelRawCron"；如需启用请设置为 "true"，否则请设置为 "false"，默认均为 "true"
+AutoAddRawCron="true"
+AutoDelRawCron="true"
 
 
 

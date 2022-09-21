@@ -15,7 +15,7 @@ LogTmpDir=$LogDir/.tmp
 SignDir=$UtilsDir/.sign
 CodeDir=$LogDir/ShareCodes
 RepoDir=$RootDir/repo
-RawDir=$ScriptsDir
+RawDir=$RootDir/raw
 BotDir=$RootDir/jbot
 BotLogDir=$LogDir/TelegramBot
 BotSrcDir=$UtilsDir/bot_src
@@ -45,16 +45,16 @@ FileUpdateCookie=$UtilsDir/UpdateCookies.js
 ListCronScripts=$ScriptsDir/docker/crontab_list.sh
 ListCrontabUser=$ConfigDir/crontab.list
 ListCrontabSample=$SampleDir/crontab.sample.list
-ListOwnScripts=$LogTmpDir/own_scripts.list
-ListOwnUser=$LogTmpDir/own_user.list
-ListOwnAdd=$LogTmpDir/own_add.list
-ListOwnAddNames=$LogTmpDir/own_add_name.list
-ListOwnRepoAdd=$LogTmpDir/own_repo_add.list
-ListOwnRawAdd=$LogTmpDir/own_raw_add.list
-ListOwnDrop=$LogTmpDir/own_drop.list
-ListOwnRepoDrop=$LogTmpDir/own_repo_drop.list
-ListOwnRawDrop=$LogTmpDir/own_raw_drop.list
-ListOwnAll=$LogTmpDir/own_all.list
+ListScripts=$LogTmpDir/scripts.list
+ListUser=$LogTmpDir/user.list
+ListAdd=$LogTmpDir/add.list
+ListAddNames=$LogTmpDir/add_name.list
+ListRepoAdd=$LogTmpDir/repo_add.list
+ListRepoDrop=$LogTmpDir/repo_drop.list
+ListRawAdd=$LogTmpDir/raw_add.list
+ListRawDrop=$LogTmpDir/raw_drop.list
+ListDrop=$LogTmpDir/drop.list
+ListAll=$LogTmpDir/all.list
 
 ## 字符
 ARCH=$(uname -m)
@@ -223,6 +223,19 @@ function Count_UserSum() {
         local CookieTmp=${!Tmp}
         [[ ${CookieTmp} ]] && UserSum=$i || break
     done
+}
+
+## 统计 own 仓库数量
+function Count_RepoSum() {
+    if [[ -z ${RepoConfig1} ]]; then
+        RepoSum=0
+    else
+        for ((i = 1; i <= 0x64; i++)); do
+            local Tmp1=RepoConfig$i
+            local Tmp2=${!Tmp1}
+            [[ $Tmp2 ]] && RepoSum=$i || break
+        done
+    fi
 }
 
 ## 组合变量
