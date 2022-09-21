@@ -2595,27 +2595,6 @@ function List_Local_Scripts() {
         ;;
     esac
 
-    ## 列出 Scripts 主要仓库中的脚本
-    function List_Scripts() {
-        echo -e "\n❖ Scripts 主要仓库脚本："
-        if [ -d $ScriptsDir/.git ]; then
-            cd $ScriptsDir
-            local ListFiles=($(
-                git ls-files | grep -E "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}"
-            ))
-            local NumTmp=0
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                if [ -f ${ListFiles[i]} ]; then
-                    Query_ScriptName ${ListFiles[i]}
-                    let NumTmp++
-                    printf "%3s  %-30s %s\n" "$NumTmp" "${ListFiles[i]}" "${ScriptName}"
-                fi
-            done
-        else
-            echo -e "请先配置仓库"
-        fi
-    }
-
     ## 列出所有 Own 仓库中的脚本
     function List_Own() {
         local FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
@@ -2777,7 +2756,6 @@ function List_Local_Scripts() {
 
     case $# in
     0)
-        List_Scripts
         List_Own
         List_Other
         ;;
