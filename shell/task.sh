@@ -44,8 +44,8 @@ function Find_Script() {
                 AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|\.\./|${PwdTmp}/|;}")
             else
                 local TmpDirName=$(echo ${InputContent} | awk -F '/' '{printf$1}')
-                if [ -d "$OwnDir/$TmpDirName" ]; then
-                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|^|$OwnDir/|;}")
+                if [ -d "$RepoDir/$TmpDirName" ]; then
+                    AbsolutePath=$(echo "${InputContent}" | perl -pe "{s|^|$RepoDir/|;}")
                 else
                     ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
                     if [[ $(pwd) == "/root" ]]; then
@@ -1562,7 +1562,7 @@ function Accounts_Control() {
 ## 添加 Own 仓库功能
 function Add_OwnRepo() {
     local RepoUrl=$1
-    local RepoDir="$OwnDir/$(echo ${RepoUrl} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
+    local RepoDir="$RepoDir/$(echo ${RepoUrl} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
     case $# in
     1)
         local RepoBranch=""
@@ -1711,14 +1711,14 @@ function Add_OwnRepo() {
                 ## 仓库文件夹名（作者_仓库名）
                 array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
                 ## 仓库路径
-                array_own_repo_path[$repo_num]=$OwnDir/${array_own_repo_dir[$repo_num]}
+                array_own_repo_path[$repo_num]=$RepoDir/${array_own_repo_dir[$repo_num]}
                 Tmp3=OwnRepoPath$i
                 if [[ ${!Tmp3} ]]; then
                     for dir in ${!Tmp3}; do
                         let scripts_path_num++
                         Tmp4="${array_own_repo_dir[repo_num]}/$dir"
                         Tmp5=$(echo $Tmp4 | perl -pe "{s|//|/|g; s|/$||}") # 去掉多余的/
-                        array_own_scripts_path[$scripts_path_num]="$OwnDir/$Tmp5"
+                        array_own_scripts_path[$scripts_path_num]="$RepoDir/$Tmp5"
                     done
                 else
                     let scripts_path_num++
@@ -1739,9 +1739,9 @@ function Add_OwnRepo() {
         local ListCrontabOwnTmp=$LogTmpDir/crontab_own.list
         Make_Dir $LogTmpDir
         [ ! -f $ListOwnScripts ] && touch $ListOwnScripts
-        grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $OwnDir"
+        grep -vwf $ListOwnScripts $ListCrontabUser | grep -Eq " $TaskCmd $RepoDir"
         local ExitStatus=$?
-        [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $OwnDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
+        [[ $ExitStatus -eq 0 ]] && grep -vwf $ListOwnScripts $ListCrontabUser | grep -E " $TaskCmd $RepoDir" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListCrontabOwnTmp
         rm -rf $LogTmpDir/own*.list
         for ((i = 0; i < ${#array_own_scripts_path[*]}; i++)); do
             cd ${array_own_scripts_path[i]}
@@ -1783,10 +1783,10 @@ function Add_OwnRepo() {
         [[ $ExitStatus -eq 0 ]] && cat $ListCrontabOwnTmp >>$ListOwnAll
 
         if [[ $ExitStatus -eq 0 ]]; then
-            grep -E " $TaskCmd $OwnDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | grep -Ev "$(cat $ListCrontabOwnTmp)" | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
             cat $ListCrontabOwnTmp >>$ListOwnUser
         else
-            grep -E " $TaskCmd $OwnDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
+            grep -E " $TaskCmd $RepoDir" $ListCrontabUser | perl -pe "s|.*$TaskCmd ([^\s]+)( .+\|$)|\1|" | sort -u >$ListOwnUser
         fi
         [ -f $ListCrontabOwnTmp ] && rm -f $ListCrontabOwnTmp
         cd $CurrentDir
@@ -1823,7 +1823,7 @@ function Add_OwnRepo() {
                             if [[ ${DisableNewOwnRepoCron} == true ]]; then
                                 echo "${Cron}" | perl -pe '{s|^|# |}' >>$ListCrontabOwnTmp
                             else
-                                grep -E " $TaskCmd $OwnDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
+                                grep -E " $TaskCmd $RepoDir/" $ListCrontabUser | grep -Ev "^#" | awk -F '/' '{print$NF}' | grep "${FileName}" -q
                                 if [ $? -eq 0 ]; then
                                     ## 重复定时任务自动禁用
                                     if [[ ${DisableDuplicateOwnRepoCron} == true ]]; then
@@ -2552,7 +2552,7 @@ function Process_Monitor() {
     ConfigSpaceUsage=$(du -sm $ConfigDir | awk -F ' ' '{print$1}')
     LogFilesSpaceUsage=$(du -sm $LogDir | awk -F ' ' '{print$1}')
     ScriptsRepoSpaceUsage=$(du -sm $ScriptsDir | awk -F ' ' '{print$1}')
-    OwnReposSpaceUsage=$(du -sm $OwnDir | awk -F ' ' '{print$1}')
+    OwnReposSpaceUsage=$(du -sm $RepoDir | awk -F ' ' '{print$1}')
     ReposSpaceUsage=$((${ScriptsRepoSpaceUsage} + ${OwnReposSpaceUsage}))
     echo -e "\n❖  处理器使用率：${YELLOW}${CPUUsage}${PLAIN}   内存使用率：${YELLOW}${MemoryUsage}${PLAIN}   可用内存：${YELLOW}${MemoryAvailable}MB${PLAIN}   空闲内存：${YELLOW}${MemoryFree}MB${PLAIN}   \n\n❖  配置文件占用空间：${YELLOW}${ConfigSpaceUsage}MB${PLAIN}    日志占用空间：${YELLOW}${LogFilesSpaceUsage}MB${PLAIN}    脚本占用空间：${YELLOW}${ReposSpaceUsage}MB${PLAIN}"
     ## 检测占用过高后释放内存
@@ -2615,9 +2615,9 @@ function List_Local_Scripts() {
                     array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
                     Tmp3=OwnRepoPath$i
                     if [[ -z ${!Tmp3} ]]; then
-                        array_own_repo_path[$repo_num]="$OwnDir/${array_own_repo_dir[$repo_num]}"
+                        array_own_repo_path[$repo_num]="$RepoDir/${array_own_repo_dir[$repo_num]}"
                     else
-                        array_own_repo_path[$repo_num]="$OwnDir/${array_own_repo_dir[$repo_num]}/${!Tmp3}"
+                        array_own_repo_path[$repo_num]="$RepoDir/${array_own_repo_dir[$repo_num]}/${!Tmp3}"
                     fi
                 done
             fi

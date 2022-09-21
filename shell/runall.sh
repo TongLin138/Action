@@ -151,7 +151,7 @@ function Main() {
             Import_Config_Not_Check
             echo -e "\n❖ 检测到的仓库："
             if [[ ${OwnRepoUrl1} ]]; then
-                ls $OwnDir | egrep -v "node_modules|package|raw" | perl -pe "{s|^|$OwnDir/|g}"
+                ls $RepoDir | egrep -v "node_modules|package|raw" | perl -pe "{s|^|$RepoDir/|g}"
             fi
             echo -e "\n${GREEN}Tips${PLAIN}：可以指定任何一个目录并非仅限于上方检测到的仓库"
             while true; do
