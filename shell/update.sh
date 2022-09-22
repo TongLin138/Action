@@ -154,34 +154,35 @@ function Gen_RepoConf() {
                 Array_Repo_status[$arr_num]="false"
             fi
 
-            ## 仓库定时任务配置
-            Tmp_cronSettings="$(JSON_Parse "${!TmpConf}" ".cronSettings")"
-
             # 定时启用状态（如若未定义或格式错误则默认禁用）
-            if [[ "$(JSON_Parse "${Tmp_cronSettings}" ".isEnable")" == true ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.isEnable")" == true ]]; then
                 Array_Repo_cronSettings_isEnable[$arr_num]="true"
             else
                 Array_Repo_cronSettings_isEnable[$arr_num]="false"
             fi
             # 定时脚本路径（如若未定义或格式错误则默认为空）
-            if [[ "$(JSON_Parse "${Tmp_cronSettings}" ".scriptsPath")" == "null" ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.scriptsPath")" == '""' ]]; then
                 Array_Repo_cronSettings_scriptsPath[$arr_num]=""
             else
-                Array_Repo_cronSettings_scriptsPath[$arr_num]="$(JSON_Parse "${Tmp_cronSettings}" ".scriptsPath")"
+                Array_Repo_cronSettings_scriptsPath[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.scriptsPath" | sed "s|^\"||g; s|\"$||g")"
             fi
             # 定时脚本白名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${Tmp_cronSettings}" ".whiteList")" == "null" ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.whiteList")" == == '""' ]]; then
                 Array_Repo_cronSettings_whiteList[$arr_num]=""
             else
-                Array_Repo_cronSettings_whiteList[$arr_num]="$(JSON_Parse "${Tmp_cronSettings}" ".whiteList")"
+                Array_Repo_cronSettings_whiteList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.whiteList" | sed "s|^\"||g; s|\"$||g")"
             fi
             # 定时脚本黑名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${Tmp_cronSettings}" ".blackList")" == "null" ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.blackList")" == == '""' ]]; then
                 Array_Repo_cronSettings_blackList[$arr_num]=""
             else
-                Array_Repo_cronSettings_blackList[$arr_num]="$(JSON_Parse "${Tmp_cronSettings}" ".blackList")"
+                Array_Repo_cronSettings_blackList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.blackList" | sed "s|^\"||g; s|\"$||g")"
             fi
-            echo -e "仓库 $i 的定时配置：\n${Array_Repo_cronSettings_isEnable[$arr_num]}\n${Array_Repo_cronSettings_scriptsPath[$arr_num]}\n${Array_Repo_cronSettings_whiteList[$arr_num]}\n${Array_Repo_cronSettings_blackList[$arr_num]}"
+            echo "仓库 $i 的定时配置：
+            ${Array_Repo_cronSettings_isEnable[$arr_num]}
+            ${Array_Repo_cronSettings_scriptsPath[$arr_num]}
+            ${Array_Repo_cronSettings_whiteList[$arr_num]}
+            ${Array_Repo_cronSettings_blackList[$arr_num]}"
         done
     fi
 }
@@ -211,17 +212,17 @@ function Gen_ListCron() {
         ## 黑白名单
         whiteList="${Array_Repo_cronSettings_whiteList[i]}"
         blackList="${Array_Repo_cronSettings_blackList[i]}"
+        echo "仓库 $((i + 1)) 的白名单：${whiteList}"
+        echo "仓库 $((i + 1)) 的黑名单：${blackList}"
 
         ## 脚本路径（循环处理）
-        scriptsPath="${Array_Repo_cronSettings_scriptsPath[i]}"
+        scriptsPath="$(echo ${Array_Repo_cronSettings_scriptsPath[i]} | perl -pe '{s|\"\"|根目录|g}')"
+        echo "仓库 $((i + 1)) 的脚本路径：${scriptsPath}"
 
-        if [ -z ${scriptsPath} ]; then
+        ## 配置为空表示根目录
+        if [[ -z ${scriptsPath} ]]; then
             ## 进入仓库根目录
             cd ${Array_Repo_path[i]}
-
-            FormatPath="$RepoDir/$(echo "${Array_Repo_dir[i]}/$path" | perl -pe "{s|//|/|g; s|/$||}")" # 去掉多余的/
-            ## 判断是否存在子目录（值为空则代表根目录）
-            [[ -d "${FormatPath}" ]] && cd ${FormatPath}
 
             ## 判断路径下是否存在脚本
             if [[ "$(ls | grep -E "${MatchScriptsType}")" ]]; then
@@ -235,7 +236,7 @@ function Gen_ListCron() {
                 for file in ${Matching}; do
                     ## 判断脚本是否存在内容
                     if [ -s $file ]; then
-                        echo "${FormatPath}/${file}" >>$ListScripts
+                        echo "${Array_Repo_dir[i]}/${file}" >>$ListScripts
                     else
                         continue
                     fi
@@ -245,12 +246,23 @@ function Gen_ListCron() {
             fi
         else
             for path in ${scriptsPath}; do
+                # echo "仓库 $((i + 1)) 循环处理路径: $path"
                 ## 进入仓库根目录
                 cd ${Array_Repo_path[i]}
 
-                FormatPath="$RepoDir/$(echo "${Array_Repo_dir[i]}/$path" | perl -pe "{s|//|/|g; s|/$||}")" # 去掉多余的/
-                ## 判断是否存在子目录（值为空则代表根目录）
-                [[ -d "${FormatPath}" ]] && cd ${FormatPath}
+                ## 判断路径
+                if [[ ${path} == '根目录' ]]; then
+                    FormatPath="${Array_Repo_path[i]}" # 根目录
+                else
+                    FormatPath="$RepoDir/$(echo "${Array_Repo_dir[i]}/$path" | perl -pe "{s|//|/|g; s|/$||}")" # 去掉多余的斜杠
+                    ## 判断子目录是否存在
+                    if [ -d "${FormatPath}" ]; then
+                        cd ${FormatPath}
+                    else
+                        echo -e "\n$ERROR 第$((i + 1))的仓库的定时脚本配置路径 ${BLUE}${FormatPath}${PLAIN} 不存在，跳过！\n"
+                        continue
+                    fi
+                fi
 
                 ## 判断路径下是否存在脚本
                 if [[ "$(ls | grep -E "${MatchScriptsType}")" ]]; then
@@ -275,7 +287,6 @@ function Gen_ListCron() {
             done
         fi
     done
-
     if [[ ${#RawFile[*]} -ge 1 ]]; then
         if [[ $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}" 2>/dev/null) ]]; then
             for file in $(ls | grep -E "${MatchScriptsType}" | grep -Ev "${RawDirUtils}"); do
@@ -774,12 +785,12 @@ function UpdateMain() {
     esac
 
     if [[ ${EnableRepoUpdate} == true ]] && [[ ${EnableRawUpdate} == true ]]; then
-        Update_Repo
+        # Update_Repo
         Update_RawFile
         Update_Cron "all"
     else
         if [[ ${EnableRepoUpdate} == true ]]; then
-            Update_Repo
+            # Update_Repo
             Update_Cron "repo"
         fi
         if [[ ${EnableRawUpdate} == true ]]; then

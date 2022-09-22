@@ -349,6 +349,9 @@ function Apply_SendNotify() {
 function JSON_Parse() {
     jq -n "$1" | jq -r "$2"
 }
+function JSON_ParseSting() {
+    jq -n "$1" | jq "$2"
+}
 
 ## 创建目录
 function Make_Dir() {
