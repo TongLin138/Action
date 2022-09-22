@@ -216,7 +216,7 @@ function Gen_ListCron() {
         echo "仓库 $((i + 1)) 的黑名单：${blackList}"
 
         ## 脚本路径（循环处理）
-        scriptsPath="$(echo ${Array_Repo_cronSettings_scriptsPath[i]} | perl -pe '{s|\"\"|根目录|g}')"
+        scriptsPath="$(echo ${Array_Repo_cronSettings_scriptsPath[i]} | perl -pe '{s|\\"\\"|根目录|g}')"
         echo "仓库 $((i + 1)) 的脚本路径：${scriptsPath}"
 
         ## 配置为空表示根目录
@@ -259,7 +259,7 @@ function Gen_ListCron() {
                     if [ -d "${FormatPath}" ]; then
                         cd ${FormatPath}
                     else
-                        echo -e "\n$ERROR 第$((i + 1))的仓库的定时脚本配置路径 ${BLUE}${FormatPath}${PLAIN} 不存在，跳过！\n"
+                        echo -e "\n$ERROR 仓库 $((i + 1)) 的定时脚本配置路径 ${BLUE}${FormatPath}${PLAIN} 不存在，跳过！\n"
                         continue
                     fi
                 fi
@@ -384,7 +384,6 @@ function Npm_Install_Upgrade() {
 function Output_List_Add_Drop() {
     local List=$1
     local Type=$2
-    cat $List
     if [ -s $List ]; then
         echo -e "\n$TIPS 检测到有$Type的定时任务：\n"
         if [[ ${Type} == "新" ]]; then
