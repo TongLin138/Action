@@ -167,13 +167,13 @@ function Gen_RepoConf() {
                 Array_Repo_cronSettings_scriptsPath[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.scriptsPath" | sed "s|^\"||g; s|\"$||g")"
             fi
             # 定时脚本白名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.whiteList")" == == '""' ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.whiteList")" == '""' ]]; then
                 Array_Repo_cronSettings_whiteList[$arr_num]=""
             else
                 Array_Repo_cronSettings_whiteList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.whiteList" | sed "s|^\"||g; s|\"$||g")"
             fi
             # 定时脚本黑名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.blackList")" == == '""' ]]; then
+            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.blackList")" == '""' ]]; then
                 Array_Repo_cronSettings_blackList[$arr_num]=""
             else
                 Array_Repo_cronSettings_blackList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.blackList" | sed "s|^\"||g; s|\"$||g")"
