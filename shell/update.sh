@@ -934,7 +934,7 @@ function Notice() {
 +--------------- 请遵循本项目宗旨 - 低调使用 ---------------+\n"
 }
 
-function UpdateMain() {
+function Main() {
 
     case $# in
     0)
@@ -998,4 +998,4 @@ function UpdateMain() {
     esac
 }
 
-UpdateMain $@ | tee -a $LogDir/update.log
+Main $@ | tee -a $LogDir/update.log
