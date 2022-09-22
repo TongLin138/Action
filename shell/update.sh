@@ -217,6 +217,7 @@ function Gen_ListCron() {
 
         ## 脚本路径（循环处理）
         scriptsPath="$(echo ${Array_Repo_cronSettings_scriptsPath[i]} | perl -pe '{s|\\"\\"|根目录|g}')"
+        scriptsPath="$(echo ${scriptsPath} | sed "s|\\\\\\\|\\\|g")" # 转义字符特殊处理
         echo "仓库 $((i + 1)) 的脚本路径：${scriptsPath}"
 
         ## 配置为空表示根目录
