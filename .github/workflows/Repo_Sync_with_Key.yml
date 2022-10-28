@@ -22,6 +22,15 @@ jobs:
         echo -e "${{ secrets.KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan gitee.com > ~/.ssh/known_hosts
+    - name: Clone stable
+      run: |
+        git clone -b stable git@gitee.com:supermanito/jd_base.git stable
+    - name: Push stable
+      uses: ad-m/github-push-action@master
+      with:
+        directory: stable
+        github_token: ${{ secrets.TOKEN }}
+        branch: stable
     - name: Clone main
       run: |
         git clone -b master git@gitee.com:supermanito/jd_base.git jd_base
