@@ -348,6 +348,8 @@ function Bot_Control() {
             start)
                 ## 删除日志
                 rm -rf $BotLogDir/up.log /root/.pm2/logs/jbot-*.log
+                ## 删除登录信息
+                rm -rf $RootDir/bot.session
                 if [[ ${ExitStatusJbot} -eq 0 ]]; then
                     local ServiceStatus=$(cat $FilePm2List | grep "jbot" -w | awk -F '|' '{print$10}')
                     case ${ServiceStatus} in
