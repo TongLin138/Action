@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-09-20
+## Modified: 2022-11-04
 
 ShellDir=${WORK_DIR}/shell
 . $ShellDir/template.sh
@@ -467,40 +467,40 @@ function Account_ExistenceJudgment() {
 ## 静默执行，不推送通知消息
 function NoPushNotify() {
     ## Server酱
-    declare -x PUSH_KEY=""
-    declare -x SCKEY_WECOM=""
-    declare -x SCKEY_WECOM_URL=""
+    export PUSH_KEY=""
+    export SCKEY_WECOM=""
+    export SCKEY_WECOM_URL=""
     ## Bark
-    declare -x BARK_PUSH=""
-    declare -x BARK_SOUND=""
-    declare -x BARK_GROUP=""
+    export BARK_PUSH=""
+    export BARK_SOUND=""
+    export BARK_GROUP=""
     ## Telegram
-    declare -x TG_BOT_TOKEN=""
-    declare -x TG_USER_ID=""
+    export TG_BOT_TOKEN=""
+    export TG_USER_ID=""
     ## 钉钉
-    declare -x DD_BOT_TOKEN=""
-    declare -x DD_BOT_SECRET=""
+    export DD_BOT_TOKEN=""
+    export DD_BOT_SECRET=""
     ## 企业微信
-    declare -x QYWX_KEY=""
-    declare -x QYWX_AM=""
+    export QYWX_KEY=""
+    export QYWX_AM=""
     ## iGot聚合
-    declare -x IGOT_PUSH_KEY=""
+    export IGOT_PUSH_KEY=""
     ## pushplus
-    declare -x PUSH_PLUS_TOKEN=""
-    declare -x PUSH_PLUS_USER=""
+    export PUSH_PLUS_TOKEN=""
+    export PUSH_PLUS_USER=""
     ## go-cqhttp
-    declare -x GO_CQHTTP_URL=""
-    declare -x GO_CQHTTP_QQ=""
-    declare -x GO_CQHTTP_METHOD=""
-    declare -x GO_CQHTTP_SCRIPTS=""
-    declare -x GO_CQHTTP_LINK=""
-    declare -x GO_CQHTTP_MSG_SIZE=""
-    declare -x GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
+    export GO_CQHTTP_URL=""
+    export GO_CQHTTP_QQ=""
+    export GO_CQHTTP_METHOD=""
+    export GO_CQHTTP_SCRIPTS=""
+    export GO_CQHTTP_LINK=""
+    export GO_CQHTTP_MSG_SIZE=""
+    export GO_CQHTTP_EXPIRE_SEND_PRIVATE=""
     ## WxPusher
-    declare -x WP_APP_TOKEN=""
-    declare -x WP_UIDS=""
-    declare -x WP_TOPICIDS=""
-    declare -x WP_URL=""
+    export WP_APP_TOKEN=""
+    export WP_UIDS=""
+    export WP_TOPICIDS=""
+    export WP_URL=""
 }
 
 ## 普通执行
@@ -606,7 +606,7 @@ function Run_Normal() {
             fi
         done
         ## 声明变量
-        declare -x JD_COOKIE=${COOKIE_TMP}
+        export JD_COOKIE=${COOKIE_TMP}
     }
 
     ## 后台挂起（守护进程）
@@ -743,7 +743,7 @@ function Run_Concurrent() {
     function Main() {
         local Num=$1
         local Tmp=Cookie${Num}
-        declare -x JD_COOKIE=${!Tmp}
+        export JD_COOKIE=${!Tmp}
         ## 定义日志文件路径
         LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_${Num}.log"
         ## 记录执行开始时间
@@ -1174,7 +1174,7 @@ function Accounts_Control() {
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
                     ## 声明变量
-                    declare -x JD_PT_PIN=${PT_PIN_TMP}
+                    export JD_PT_PIN=${PT_PIN_TMP}
                     ## 定义格式化后的pt_pin
                     FormatPin=$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
                     ## 转义pt_pin中的汉字
@@ -1270,7 +1270,7 @@ function Accounts_Control() {
                     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
                     echo -e "\n$WORKING 开始更新第 ${BLUE}$UserNum${PLAIN} 个账号...\n"
                     ## 声明变量
-                    declare -x JD_PT_PIN=${PT_PIN_TMP}
+                    export JD_PT_PIN=${PT_PIN_TMP}
                     ## 转义pt_pin中的汉字
                     EscapePin=$(printf $(echo ${PT_PIN_TMP} | perl -pe "s|%|\\\x|g;"))
                     ## 记录执行开始时间
@@ -1367,7 +1367,8 @@ function Accounts_Control() {
             body="body=$(UrlEncode "{\"pageSize\": \"20\",\"page\": \"${pageNum}\"}")&appid=ld"
             curl -s -X POST "https://api.m.jd.com/client.action?functionId=getJingBeanBalanceDetail" \
             -H "Host: api.m.jd.com" \
-            -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -H "Accept-Charset: UTF-8" \
             -H "User-Agent: jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1" \
             -H "Cookie: ${CK}" \
             --data-raw "$body" | jq .detailList | jq -c '.[]'
@@ -1404,9 +1405,10 @@ function Accounts_Control() {
                         fi
                     done
                 else
-                    echo -e "$FAIL 当前账号已被接口限制或网络环境异常！"
+                    echo -e "$FAIL 查询接口请求异常，目标账号已被官方接口限制或当前网络环境异常！"
                     return
                 fi
+                sleep 1
             done
             if [[ ! -s $TMP_LOG ]]; then
                 echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
@@ -1530,7 +1532,7 @@ function Accounts_Control() {
             Tmp2=${!Tmp1}
             num=$(($n - 1))
             pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")
-            pt_pin_len_add[num]=$(StringLength $(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -] -||g;}'))
+            pt_pin_len_add[num]=$(StringLength $(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
         done
 
         echo ''

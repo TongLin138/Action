@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Author: SuperManito
-## Modified: 2022-09-22
+## Modified: 2022-11-08
 
 ## 目录
 RootDir=${WORK_DIR}
@@ -95,7 +95,6 @@ name_script=(
     jd_fruit
     jd_pet
     jd_plantBean
-    jd_dreamFactory
     jd_jdfactory
     jd_sgmh
     jd_cfd
@@ -111,7 +110,6 @@ name_config=(
     Fruit
     Pet
     Bean
-    DreamFactory
     JdFactory
     Sgmh
     Cfd
@@ -127,7 +125,6 @@ name_chinese=(
     东东农场
     东东萌宠
     京东种豆得豆
-    京喜工厂
     东东工厂
     闪购盲盒
     京喜财富岛
@@ -143,7 +140,6 @@ bot_command=(
     farm
     pet
     bean
-    jxfactory
     ddfactory
     sgmh
     cfd
@@ -270,18 +266,17 @@ function Combin_ShareCodes() {
             . $CodeDir/$LatestLog 2>/dev/null
         fi
     fi
-    declare -x FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
-    declare -x PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
-    declare -x PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
-    declare -x DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
-    declare -x DREAM_FACTORY_SHARE_CODES=$(Combin_Sub ForOtherDreamFactory) ## 京喜工厂 - (jd_dreamFactory.js)
-    declare -x JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
-    declare -x JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
-    declare -x JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
-    declare -x CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
-    declare -x BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
-    declare -x JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
-    declare -x JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
+    export FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
+    export PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
+    export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
+    export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
+    export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
+    export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
+    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
+    export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
+    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
+    export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
+    export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
 }
 
 ## 组合全部Cookie
@@ -322,7 +317,8 @@ function Combin_AllCookie() {
         done
         echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
     }
-    declare -x JD_COOKIE=$(Combin)
+
+    export JD_COOKIE=$(Combin)
 }
 
 ## 推送通知
@@ -486,7 +482,7 @@ function Help() {
    ${BLUE}-l${PLAIN} 或 ${BLUE}--loop${PLAIN}          循环运行，连续多次的执行脚本，参数后需跟循环次数
    ${BLUE}-m${PLAIN} 或 ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
    ${BLUE}-w${PLAIN} 或 ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后需跟时间值
-   ${BLUE}-h${PLAIN} 或 ${BLUE}--hang${PLAIN}          后台挂起，将脚本当作守护进程保持在后台运行，期间中断或结束会自动重新运行
+   ${BLUE}-h${PLAIN} 或 ${BLUE}--hang${PLAIN}          后台挂起，将脚本设置为守护进程保持在后台运行，期间中断或结束会自动重新运行
    ${BLUE}-d${PLAIN} 或 ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
    ${BLUE}-p${PLAIN} 或 ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
    ${BLUE}-r${PLAIN} 或 ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时
@@ -526,7 +522,7 @@ function Help() {
    ${BLUE}-l${PLAIN} 或 ${BLUE}--loop${PLAIN}          循环运行，连续多次的执行脚本，参数后需跟循环次数
    ${BLUE}-m${PLAIN} 或 ${BLUE}--mute${PLAIN}          静默运行，不推送任何通知消息
    ${BLUE}-w${PLAIN} 或 ${BLUE}--wait${PLAIN}          等待执行，等待指定时间后再运行任务，参数后需跟时间值
-   ${BLUE}-h${PLAIN} 或 ${BLUE}--hang${PLAIN}          后台挂起，将脚本当作守护进程保持在后台运行，期间中断或结束会自动重新运行
+   ${BLUE}-h${PLAIN} 或 ${BLUE}--hang${PLAIN}          后台挂起，将脚本设置为守护进程保持在后台运行，期间中断或结束会自动重新运行
    ${BLUE}-d${PLAIN} 或 ${BLUE}--delay${PLAIN}         延迟执行，随机倒数一定秒数后再执行脚本
    ${BLUE}-p${PLAIN} 或 ${BLUE}--proxy${PLAIN}         下载代理，仅适用于执行位于 GitHub 仓库的脚本
    ${BLUE}-r${PLAIN} 或 ${BLUE}--rapid${PLAIN}         迅速模式，不组合互助码等步骤降低脚本执行前耗时

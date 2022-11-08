@@ -27,7 +27,7 @@ function Panel_Control() {
     function Install_TTYD() {
         [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
         ## 增加环境变量
-        declare -x PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
+        export PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
         pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- -p 7685 -t 'theme={"background": "#292A2B"}' -t cursorBlink=true -t fontSize=16 -t disableLeaveAlert=true bash
     }
 
@@ -252,7 +252,7 @@ function Bot_Control() {
                         ## 恢复用户插件
                         if [ -d $BotDir ]; then
                             BackUpUserFiles
-                            Remove
+                            [ ! -x /usr/bin/python3 ] && Remove
                             Install_Bot
                             if [[ -d $RootDir/tmp ]]; then
                                 mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
@@ -277,7 +277,7 @@ function Bot_Control() {
                     ## 恢复用户插件
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        Remove
+                        [ ! -x /usr/bin/python3 ] && Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
@@ -320,7 +320,7 @@ function Bot_Control() {
                     ## 保存用户的脚本
                     if [ -d $BotDir ]; then
                         BackUpUserFiles
-                        Remove
+                        [ ! -x /usr/bin/python3 ] && Remove
                         Install_Bot
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/jbot/diy
