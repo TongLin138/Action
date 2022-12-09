@@ -31,15 +31,6 @@ jobs:
         directory: stable
         github_token: ${{ secrets.TOKEN }}
         branch: stable
-    - name: Clone main
-      run: |
-        git clone -b master git@gitee.com:supermanito/jd_base.git jd_base
-    - name: Push jd_base
-      uses: ad-m/github-push-action@master
-      with:
-        directory: jd_base
-        github_token: ${{ secrets.TOKEN }}
-        branch: jd_base
     - name: Clone Dev
       run: |
         git clone -b dev git@gitee.com:supermanito/jd_base.git jd_base_dev
