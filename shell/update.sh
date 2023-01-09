@@ -81,8 +81,8 @@ function Reset_Romote_Url() {
 # 分支名称 Array_Repo_branch
 # 存放仓库文件夹名 Array_Repo_dir
 # 仓库本地绝对路径 Array_Repo_path
-# 仓库启用状态 Array_Repo_status
-# 仓库脚本定时设置（是否启用定时） Array_Repo_cronSettings_isEnable
+# 仓库启用状态 Array_Repo_Enabled
+# 仓库脚本定时设置（是否启用定时） Array_Repo_cronSettings_Enabled
 # 仓库脚本定时设置（脚本路径） Array_Repo_cronSettings_scriptsPath
 # 仓库脚本定时设置（匹配白名单） Array_Repo_cronSettings_whiteList
 # 仓库脚本定时设置（匹配黑名单） Array_Repo_cronSettings_blackList
@@ -90,21 +90,21 @@ function Reset_Romote_Url() {
 function Gen_RepoConf() {
 
     local scripts_path_num="-1"
-    local arr_num TmpConf Tmp_name Tmp_url Tmp_branch Tmp_isEnable Tmp_cronSettings_isEnable Tmp_cronSettings_scriptsPath Tmp_cronSettings_whiteList Tmp_cronSettings_blackList Tmp_KeysValue
+    local arr_num TmpConf Tmp_name Tmp_url Tmp_branch Tmp_Enabled Tmp_cronSettings_Enabled Tmp_cronSettings_scriptsPath Tmp_cronSettings_whiteList Tmp_cronSettings_blackList Tmp_KeysValue
     if [[ $RepoSum -ge 1 ]]; then
         for ((i = 1; i <= $RepoSum; i++)); do
             arr_num=$((i - 1))
 
             # 读取仓库配置并检测语法
-            TmpConf=RepoConfig$i
-            jq -n "${!TmpConf}" >/dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                echo -e "$ERROR 第$i个仓库配置存在语法错误，跳过..."
-                continue
-            fi
+            # TmpConf=RepoConfig$i
+            # jq -n "${!TmpConf}" >/dev/null 2>&1
+            # if [ $? -ne 0 ]; then
+            #     echo -e "$ERROR 第$i个仓库配置存在语法错误，跳过..."
+            #     continue
+            # fi
 
             ## 仓库地址（如若未定义或格式错误则跳过视为无效配置）
-            Tmp_url="$(JSON_Parse "${!TmpConf}" ".url")"
+            Tmp_url="$(Read_RepoConf ".[$arr_num] | .url")"
             if [[ -z ${Tmp_url} ]] || [[ ${Tmp_url} == "null" ]]; then
                 # echo -e "$ERROR 未检测到第$i个仓库配置的远程地址，跳过..."
                 continue
@@ -112,20 +112,20 @@ function Gen_RepoConf() {
             # 判断仓库地址格式
             echo ${Tmp_url} | grep -Eq "\.git$" # 链接必须以.git结尾
             if [ $? -ne 0 ]; then
-                # echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
+                echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
                 continue
             fi
             echo ${Tmp_url} | grep -Eq "http.*:"
             if [ $? -ne 0 ]; then
                 echo ${Tmp_url} | grep -Eq "^git\@"
                 if [ $? -ne 0 ]; then
-                    # echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
+                    echo -e "$ERROR 检测到第$i个仓库配置的远程地址无效，跳过..."
                     continue
                 fi
             fi
 
             ## 仓库分支（如若未定义或格式错误则跳过视为无效配置）
-            Tmp_branch="$(JSON_Parse "${!TmpConf}" ".branch")"
+            Tmp_branch="$(Read_RepoConf ".[$arr_num] | .branch")"
             if [[ -z ${Tmp_branch} ]] || [[ ${Tmp_branch} == "null" ]]; then
                 # echo -e "$ERROR 未检测到第$i个仓库配置的分支名称，跳过..."
                 continue
@@ -135,7 +135,7 @@ function Gen_RepoConf() {
             Array_Repo_branch[$arr_num]="${Tmp_branch}"
 
             ## 仓库名称（如若未定义则采用远程地址中的仓库名称）
-            Tmp_name="$(JSON_Parse "${!TmpConf}" ".name")"
+            Tmp_name="$(Read_RepoConf ".[$arr_num] | .name")"
             if [[ $Tmp_name == "null" ]]; then
                 Array_Repo_name[$arr_num]="$(echo ${Array_Repo_url[$arr_num]} | perl -pe "s|\.git||" | awk -F "/|:" '{print$NF}')"
             else
@@ -147,39 +147,40 @@ function Gen_RepoConf() {
             Array_Repo_path[$arr_num]="$RepoDir/${Array_Repo_dir[$arr_num]}"
 
             ## 仓库启用状态（默认启用仓库，即使键名键值未定义或键值定义错误）
-            Tmp_isEnable="$(JSON_Parse "${!TmpConf}" ".isEnable")"
-            if [[ $Tmp_isEnable == true ]]; then
-                Array_Repo_status[$arr_num]="true"
+            Tmp_Enabled="$(Read_RepoConf ".[$arr_num] | .enabled")"
+            if [[ $Tmp_Enabled == true ]]; then
+                Array_Repo_Enabled[$arr_num]="true"
             else
-                Array_Repo_status[$arr_num]="false"
+                Array_Repo_Enabled[$arr_num]="false"
             fi
 
             # 定时启用状态（如若未定义或格式错误则默认禁用）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.isEnable")" == true ]]; then
-                Array_Repo_cronSettings_isEnable[$arr_num]="true"
+            if [[ "$(Read_RepoConf ".[$arr_num] | .cronSettings.enabled")" == true ]]; then
+                Array_Repo_cronSettings_Enabled[$arr_num]="true"
             else
-                Array_Repo_cronSettings_isEnable[$arr_num]="false"
+                Array_Repo_cronSettings_Enabled[$arr_num]="false"
             fi
-            # 定时脚本路径（如若未定义或格式错误则默认为空）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.scriptsPath")" == '""' ]]; then
+            # 定时脚本路径（如若未定义则默认为空）
+            if [[ "$(Read_RepoConf ".[$arr_num] | .cronSettings.scriptsPath")" == "null" ]]; then
                 Array_Repo_cronSettings_scriptsPath[$arr_num]=""
             else
-                Array_Repo_cronSettings_scriptsPath[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.scriptsPath" | sed "s|^\"||g; s|\"$||g")"
+                Array_Repo_cronSettings_scriptsPath[$arr_num]="$(Read_RepoConf ".[$arr_num] | .cronSettings.scriptsPath")"
             fi
             # 定时脚本白名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.whiteList")" == '""' ]]; then
+            if [[ "$(Read_RepoConf ".[$arr_num] | .cronSettings.whiteList")" == "null" ]]; then
                 Array_Repo_cronSettings_whiteList[$arr_num]=""
             else
-                Array_Repo_cronSettings_whiteList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.whiteList" | sed "s|^\"||g; s|\"$||g")"
+                Array_Repo_cronSettings_whiteList[$arr_num]="$(Read_RepoConf ".[$arr_num] | .cronSettings.whiteList")"
             fi
             # 定时脚本黑名单（如若未定义则默认为空）
-            if [[ "$(JSON_Parse "${!TmpConf}" ".cronSettings.blackList")" == '""' ]]; then
+            if [[ "$(Read_RepoConf ".[$arr_num] | .cronSettings.blackList")" == "null" ]]; then
                 Array_Repo_cronSettings_blackList[$arr_num]=""
             else
-                Array_Repo_cronSettings_blackList[$arr_num]="$(JSON_ParseSting "${!TmpConf}" ".cronSettings.blackList" | sed "s|^\"||g; s|\"$||g")"
+                Array_Repo_cronSettings_blackList[$arr_num]="$(Read_RepoConf ".[$arr_num] | .cronSettings.blackList")"
             fi
+
             echo "仓库 $i 的定时配置：
-            ${Array_Repo_cronSettings_isEnable[$arr_num]}
+            ${Array_Repo_cronSettings_Enabled[$arr_num]}
             ${Array_Repo_cronSettings_scriptsPath[$arr_num]}
             ${Array_Repo_cronSettings_whiteList[$arr_num]}
             ${Array_Repo_cronSettings_blackList[$arr_num]}"
@@ -189,7 +190,7 @@ function Gen_RepoConf() {
 
 ## 生成定时任务脚本的绝对路径清单
 function Gen_ListCron() {
-    local Matching isEnable scriptsPath whiteList blackList FormatPath
+    local Matching enabled scriptsPath whiteList blackList FormatPath
     local MatchScriptsType="\.js$|\.py$|\.ts$"
     local CurrentDir=$(pwd)
 
@@ -205,9 +206,9 @@ function Gen_ListCron() {
     ## 循环处理各个仓库配置
     for ((i = 0; i < ${#Array_Repo_name[*]}; i++)); do
         # 判断仓库是否启用
-        [[ ${Array_Repo_status[i]} == false ]] && continue
+        [[ ${Array_Repo_Enabled[i]} == false ]] && continue
         # 判断仓库是否启用定时
-        [[ ${Array_Repo_cronSettings_isEnable[i]} == false ]] && continue
+        [[ ${Array_Repo_cronSettings_Enabled[i]} == false ]] && continue
 
         ## 黑白名单
         whiteList="${Array_Repo_cronSettings_whiteList[i]}"
@@ -216,12 +217,11 @@ function Gen_ListCron() {
         echo "仓库 $((i + 1)) 的黑名单：${blackList}"
 
         ## 脚本路径（循环处理）
-        scriptsPath="$(echo ${Array_Repo_cronSettings_scriptsPath[i]} | perl -pe '{s|\\"\\"|根目录|g}')"
         scriptsPath="$(echo ${scriptsPath} | sed "s|\\\\\\\|\\\|g")" # 转义字符特殊处理
         echo "仓库 $((i + 1)) 的脚本路径：${scriptsPath}"
 
-        ## 配置为空表示根目录
-        if [[ -z ${scriptsPath} ]]; then
+        ## 仅根目录
+        if [[ -z ${scriptsPath} ]] || [[ ${scriptsPath} -eq "/" ]]; then
             ## 进入仓库根目录
             cd ${Array_Repo_path[i]}
 
@@ -252,7 +252,7 @@ function Gen_ListCron() {
                 cd ${Array_Repo_path[i]}
 
                 ## 判断路径
-                if [[ ${path} == '根目录' ]]; then
+                if [[ ${path} == '/' ]]; then
                     FormatPath="${Array_Repo_path[i]}" # 根目录
                 else
                     FormatPath="$RepoDir/$(echo "${Array_Repo_dir[i]}/$path" | perl -pe "{s|//|/|g; s|/$||}")" # 去掉多余的斜杠
@@ -597,7 +597,7 @@ function Update_Cron() {
 function Update_Repo() {
     for ((i = 0; i < ${#Array_Repo_url[*]}; i++)); do
         ## 判断仓库是否启用
-        [[ ${Array_Repo_status[i]} == "false" ]] && continue
+        [[ ${Array_Repo_Enabled[i]} == "false" ]] && continue
         if [ -d ${Array_Repo_path[i]}/.git ]; then
             Reset_Romote_Url ${Array_Repo_path[i]} ${Array_Repo_url[i]} ${Array_Repo_branch[i]}
             Git_Pull ${Array_Repo_path[i]} ${Array_Repo_branch[i]}

@@ -136,16 +136,16 @@ function Panel_Control() {
         ;;
     ## 登录信息
     info)
-        if [ ! -f $FileAuth ]; then
-            cp -f $FileAuthSample $FileAuth
+        if [ ! -f $FileAuthUser ]; then
+            cp -f $FileAuthSample $FileAuthUser
         fi
         echo ''
-        jq '.' $FileAuth | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"openApiToken\"|[openApiToken]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
+        jq '.' $FileAuthUser | perl -pe '{s|\"user\"|[用户名]|g; s|\"password\"|[密码]|g; s|\"openApiToken\"|[openApiToken]|g; s|\"lastLoginInfo\"|\n    最后一次登录信息|g; s|\"loginIp\"|[ IP 地址]|g; s|\"loginAddress\"|[地理位置]|g; s|\"loginTime\"|[登录时间]|g; s|\"authErrorCount\"|[认证失败次数]|g; s|[{},"]||g;}'
         echo -e '\n'
         ;;
     ## 重置密码
     respwd)
-        cp -f $FileAuthSample $FileAuth
+        cp -f $FileAuthSample $FileAuthUser
         echo -e "\n$COMPLETE 已重置控制面板的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： passwd\n"
         ;;
     esac
@@ -377,9 +377,9 @@ function Check_Files() {
     fi
     if [ ! -s $FileConfUser ]; then
         cp -fv $FileConfSample $FileConfUser
-        echo -e "检测到 $ConfigDir 配置文件目录下不存在 config.sh 配置文件，已生成...\n"
+        echo -e "检测到 $ConfigDir 配置文件目录下不存在 config.sh 主配置文件，已生成...\n"
     fi
-    JsonFiles="auth.json bot.json account.json"
+    JsonFiles="auth.json bot.json account.json repo_config.yml"
     for file in $JsonFiles; do
         if [ ! -s "$ConfigDir/$file" ]; then
             cp -fv "$SampleDir/$file" "$ConfigDir/$file"

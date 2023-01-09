@@ -1,0 +1,11 @@
+repoConf:
+  -
+    name: "" # 仓库名称
+    url: "" # 仓库远程地址
+    branch: "" # 分支名称
+    enabled: true # 是否启用该配置
+    cronSettings:
+      enabled: false # 是否为该配置启用定时任务
+      scriptsPath: "" # 定时脚本路径（默认为仓库根目录）
+      whiteList: "" # 定时脚本匹配白名单（默认为所有脚本）
+      blackList: "" # 定时脚本匹配黑名单（默认为空）

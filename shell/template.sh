@@ -27,9 +27,11 @@ FileCode=$ShellDir/code.sh
 FileRunAll=$ShellDir/runall.sh
 FileConfUser=$ConfigDir/config.sh
 FileConfSample=$SampleDir/config.sample.sh
-FileAuth=$ConfigDir/auth.json
+FileRepoConfUser=$ConfigDir/repo_config.yml
+FileRepoConfSample=$SampleDir/repo_config.yml
+FileAuthUser=$ConfigDir/auth.json
 FileAuthSample=$SampleDir/auth.json
-FileAccountConf=$ConfigDir/account.json
+FileAccountConfUser=$ConfigDir/account.json
 FileAccountConfSample=$SampleDir/account.json
 FileExtra=$ConfigDir/extra.sh
 FileNotify=$UtilsDir/notify.js
@@ -223,14 +225,13 @@ function Count_UserSum() {
 
 ## 统计仓库数量
 function Count_RepoSum() {
-    if [[ -z ${RepoConfig1} ]]; then
-        RepoSum=0
+    cat $FileRepoConfUser | yq >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        RepoSum="$(cat $FileRepoConfUser | yq '.[] | length')"
     else
-        for ((i = 1; i <= 0x64; i++)); do
-            local Tmp1=RepoConfig$i
-            local Tmp2=${!Tmp1}
-            [[ $Tmp2 ]] && RepoSum=$i || break
-        done
+        echo -e "\n$ERROR 仓库配置文件 $FileRepoConfUser 存在语法错误，请检查后重试！\n"
+        exit
+
     fi
 }
 
@@ -266,17 +267,17 @@ function Combin_ShareCodes() {
             . $CodeDir/$LatestLog 2>/dev/null
         fi
     fi
-    export FRUITSHARECODES=$(Combin_Sub ForOtherFruit)                  ## 东东农场 - (jd_fruit.js)
-    export PETSHARECODES=$(Combin_Sub ForOtherPet)                      ## 东东萌宠 - (jd_pet.js)
-    export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)             ## 种豆得豆 - (jd_plantBean.js)
-    export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory)         ## 东东工厂 - (jd_jdfactory.js)
-    export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)                 ## 闪购盲盒 - (jd_sgmh.js)
-    export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)             ## 东东健康社区 - (jd_health.js)
-    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)                ## 签到领现金 - (jd_cash.js)
-    export CITY_SHARECODES=$(Combin_Sub ForOtherCity)                   ## 城城分现金 - (jd_city.js)
-    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)           ## 口袋书店 - (jd_bookshop.js)
-    export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)             ## 环球挑战赛 - (jd_global.js)
-    export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)                 ## 手机狂欢城 - (jd_carnivalcity.js)
+    export FRUITSHARECODES=$(Combin_Sub ForOtherFruit)          ## 东东农场 - (jd_fruit.js)
+    export PETSHARECODES=$(Combin_Sub ForOtherPet)              ## 东东萌宠 - (jd_pet.js)
+    export PLANT_BEAN_SHARECODES=$(Combin_Sub ForOtherBean)     ## 种豆得豆 - (jd_plantBean.js)
+    export DDFACTORY_SHARECODES=$(Combin_Sub ForOtherJdFactory) ## 东东工厂 - (jd_jdfactory.js)
+    export JDSGMH_SHARECODES=$(Combin_Sub ForOtherSgmh)         ## 闪购盲盒 - (jd_sgmh.js)
+    export JDHEALTH_SHARECODES=$(Combin_Sub ForOtherHealth)     ## 东东健康社区 - (jd_health.js)
+    export JD_CASH_SHARECODES=$(Combin_Sub ForOtherCash)        ## 签到领现金 - (jd_cash.js)
+    export CITY_SHARECODES=$(Combin_Sub ForOtherCity)           ## 城城分现金 - (jd_city.js)
+    export BOOKSHOP_SHARECODES=$(Combin_Sub ForOtherBookShop)   ## 口袋书店 - (jd_bookshop.js)
+    export JDGLOBAL_SHARECODES=$(Combin_Sub ForOtherGlobal)     ## 环球挑战赛 - (jd_global.js)
+    export JD818_SHARECODES=$(Combin_Sub ForOtherCarni)         ## 手机狂欢城 - (jd_carnivalcity.js)
 }
 
 ## 组合全部Cookie
@@ -347,6 +348,10 @@ function JSON_Parse() {
 }
 function JSON_ParseSting() {
     jq -n "$1" | jq "$2"
+}
+
+function Read_RepoConf() {
+    cat $FileRepoConfUser | yq '.[]' | jq -r "$1"
 }
 
 ## 创建目录

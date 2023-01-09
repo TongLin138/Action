@@ -1023,12 +1023,12 @@ function Accounts_Control() {
 
             ## 检测 wskey
             ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
-            local ArrayLength=$(cat $FileAccountConf | jq 'length')
+            local ArrayLength=$(cat $FileAccountUser | jq 'length')
             if [[ ${ArrayLength} -ge 1 ]]; then
                 num=1
                 for ((i = 0; i < ${ArrayLength}; i++)); do
-                    PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
-                    WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
+                    PT_PIN_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     if [ -z ${WS_KEY_TMP} ]; then
@@ -1040,8 +1040,8 @@ function Accounts_Control() {
                 done
 
                 for ((i = 0; i < ${ArrayLength}; i++)); do
-                    local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
-                    local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
+                    local PT_PIN_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
@@ -1083,14 +1083,14 @@ function Accounts_Control() {
             echo -en "Cookie => ${State}"
 
             ## 检测 wskey
-            grep -q "${pt_pin}" $FileAccountConf
+            grep -q "${pt_pin}" $FileAccountUser
             if [[ $? -eq 0 ]]; then
                 ## 统计 account.json 数组中的元素数量，即最多配置了多少个账号，即使元素为空值
-                local ArrayLength=$(cat $FileAccountConf | jq 'length')
+                local ArrayLength=$(cat $FileAccountUser | jq 'length')
 
                 for ((i = 0; i < ${ArrayLength}; i++)); do
-                    local PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
-                    local WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
+                    local PT_PIN_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    local WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     if [[ ${PT_PIN_TMP} == ${pt_pin} ]]; then
@@ -1161,10 +1161,10 @@ function Accounts_Control() {
         function UpdateCookie_All() {
             local UserNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin EscapePin_Length_Add CookieTmp LogFile
             ## 统计 account.json 的数组总数，即最多配置了多少个账号，即使数组为空值
-            local ArrayLength=$(cat $FileAccountConf | jq 'length')
+            local ArrayLength=$(cat $FileAccountUser | jq 'length')
             ## 生成 pt_pin 数组
             local pt_pin_array=(
-                $(cat $FileAccountConf | jq -r '.[] | {pt_pin:.pt_pin,} | .pt_pin' | grep -Ev "pt_pin的值|null|^$")
+                $(cat $FileAccountUser | jq -r '.[] | {pt_pin:.pt_pin,} | .pt_pin' | grep -Ev "pt_pin的值|null|^$")
             )
             if [[ ${#pt_pin_array[@]} -ge 1 ]]; then
                 local num=1
@@ -1175,8 +1175,8 @@ function Accounts_Control() {
                 echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
 
                 for ((i = 0; i < ${ArrayLength}; i++)); do
-                    PT_PIN_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
-                    WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
+                    PT_PIN_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .pt_pin" | sed "s/null//g; s/ //g")
+                    WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$i] | .ws_key" | sed "s/null//g; s/ //g")
                     ## 没有配置相应值就跳出当前循环
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
@@ -1248,7 +1248,7 @@ function Accounts_Control() {
                     echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
                 exit ## 终止退出
             fi
         }
@@ -1264,13 +1264,13 @@ function Accounts_Control() {
             ## 定义格式化后的pt_pin
             FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')"
             ## 判定在 account.json 中是否存在该 pt_pin
-            grep "${FormatPin}" -q $FileAccountConf
+            grep "${FormatPin}" -q $FileAccountUser
             if [ $? -eq 0 ]; then
-                ArrayNum=$(($(cat $FileAccountConf | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
-                WS_KEY_TMP=$(cat $FileAccountConf | jq -r ".[$ArrayNum] | .ws_key" | sed "s/null//g; s/ //g")
+                ArrayNum=$(($(cat $FileAccountUser | jq 'map_values(.pt_pin)' | grep -n "${FormatPin}" | awk -F ':' '{print$1}') - 2))
+                WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$ArrayNum] | .ws_key" | sed "s/null//g; s/ //g")
                 ## 没有配置 ws_key 就退出
                 if [ -z ${WS_KEY_TMP} ]; then
-                    echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！\n"
+                    echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！\n"
                     exit ## 终止退出
                 else
                     ## 定义日志文件路径
@@ -1328,14 +1328,14 @@ function Accounts_Control() {
                     fi
                 fi
             else
-                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置该账号的 ${BLUE}pt_pin${PLAIN} ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}pt_pin${PLAIN} ！\n"
                 exit ## 终止退出
             fi
         }
 
         ## 汇总
         if [ -f $FileUpdateCookie ]; then
-            if [[ $(cat $FileAccountConf | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
+            if [[ $(cat $FileAccountUser | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
                 UpdateSign
                 if [[ $ExitStatus -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
@@ -1359,7 +1359,7 @@ function Accounts_Control() {
                     echo -e "\n$FAIL 签名更新异常，请检查网络环境后重试！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountConf${PLAIN} 中配置好 ${BLUE}ws_key${PLAIN} ！\n"
+                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置好 ${BLUE}ws_key${PLAIN} ！\n"
             fi
         else
             echo -e "\n$ERROR 账号更新脚本不存在，请确认是否移动！\n"
