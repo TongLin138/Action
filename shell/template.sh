@@ -221,7 +221,7 @@ function Count_UserSum() {
     done
 }
 
-## 统计 own 仓库数量
+## 统计仓库数量
 function Count_RepoSum() {
     if [[ -z ${RepoConfig1} ]]; then
         RepoSum=0
@@ -573,7 +573,7 @@ function Help() {
 ❖ 更新指令：
 
    ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+   ${BLUE}$UpdateCmd <args/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
                                                  自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 ❋ 指令参数注释：
@@ -586,7 +586,7 @@ function Help() {
 ❖ 更新指令：
 
    ${BLUE}$UpdateCmd all${PLAIN}                        ✧ 全部更新，包括项目源码，所有仓库和脚本，自定义脚本等
-   ${BLUE}$UpdateCmd <cmd/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
+   ${BLUE}$UpdateCmd <args/path>${PLAIN}                 ✧ 指定更新，项目源码 ${BLUE}shell${PLAIN}，扩展仓库 ${BLUE}own${PLAIN}，所有仓库 ${BLUE}repo${PLAIN}，扩展脚本 ${BLUE}raw${PLAIN}
                                                  自定义脚本 ${BLUE}extra${PLAIN}，指定仓库 ${BLUE}<path>${PLAIN}
 
 ❋ 指令参数注释：

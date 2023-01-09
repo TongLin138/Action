@@ -730,44 +730,6 @@ app.post('/api/sms/checkCode', async function (request, response) {
     }
 });
 
-/**
- * 删除CK
- * {"ptPins":[]}
- */
- app.post('/api/deleteCK', function (request, response) {
-    try {
-        response.send(API_STATUS_CODE.okData(removeCookie(request.body.ptPins)));
-    } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
-    }
-});
-
-/**
- * 添加或者更新账号
- * {"ptPin":"",ptKey:"",wsKey:"","remarks":"","phone":""}
- * ptPin 必填
- * */
-app.post('/api/updateCK', function (request, response) {
-    try {
-        let {
-            ptPin,
-            ptKey,
-            wsKey,
-            remarks,
-            phone
-        } = request.body;
-        response.send(API_STATUS_CODE.okData(updateAccount({
-            ptPin: ptPin,
-            ptKey: ptKey,
-            wsKey: wsKey,
-            remarks: remarks,
-            phone: phone
-        })))
-    } catch (e) {
-        response.send(API_STATUS_CODE.fail(e.message));
-    }
-});
-
 
 /**
  * 更新已经存在的cookie & 自动添加新用户
@@ -801,7 +763,7 @@ app.post('/openApi/cookie/delete', function (request, response) {
 
 /**
  * 添加或者更新账号
- * {"ptPin":"",ptKey:"",wsKey:"","remarks":"","phone":""}
+ * {"ptPin":"",ptKey:"",wsKey:"","remarks":""}
  * ptPin 必填
  * */
 app.post('/openApi/addOrUpdateAccount', function (request, response) {
@@ -823,6 +785,7 @@ app.post('/openApi/addOrUpdateAccount', function (request, response) {
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message));
     }
+
 });
 
 /**

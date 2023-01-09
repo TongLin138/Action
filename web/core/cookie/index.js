@@ -24,7 +24,7 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("YYYY-
         return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
     };
     this.tipStr = () => {
-        return `## 用户名=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
+        return `## pt_pin=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
     };
 
     this.convert = (cookie, tips, phone = '无') => {
@@ -168,7 +168,7 @@ function removeCookie(ptPins) {
     let cookieList = readCookies();
     let deleteCount = 0
     if (ptPins && ptPins.length > 0) {
-        for (let i = 0, len = cookieList.length; i < len; i++) {
+        for (let i = 0; i < cookieList.length; i++) {
             let cookieObj = cookieList[i];
             if (ptPins.indexOf(cookieObj.ptPin) > -1) {
                 cookieList.splice(i, 1);
@@ -189,7 +189,7 @@ function removeCookie(ptPins) {
  * @param phone 联系方式
  * @return {number} ck数量
  */
-function updateCookie({ck, remarks = '无', phone}) {
+function updateCookie({ck, remarks, phone}) {
     let cookieList = readCookies();
     let cookieObj = new CookieObj().convert(ck, remarks, phone);
     let isUpdate = false;
@@ -211,6 +211,7 @@ function updateCookie({ck, remarks = '无', phone}) {
         if (!ckAutoAddOpen()) {
             throw new Error(`添加 Cookie 失败，当前服务器已关闭自动添加`);
         } else {
+            !remarks && (cookieObj.remark = '无');
             //新增CK
             cookieList.push(cookieObj)
         }

@@ -172,7 +172,7 @@ $(document).ready(function () {
                 sendSmsBtnEle.addEventListener('click', function () {
                     let phone = smsLoginPhoneEle.value;
                     if (!new RegExp('\\d{11}').test(phone)) {
-                        tipsMobileEle.innerText = "联系方式格式不正确"
+                        tipsMobileEle.innerText = "联系方式码格式不正确"
                     } else {
                         tipsMobileEle.innerText = "";
                         //发送验证码
@@ -197,7 +197,7 @@ $(document).ready(function () {
                 let tipsMobileEle = document.getElementById('tips-mobile');
                 let tipsCheckEle = document.getElementById('tips-check');
                 if (!new RegExp('\\d{11}').test(phone)) {
-                    tipsMobileEle.innerText = "联系方式格式不正确"
+                    tipsMobileEle.innerText = "联系方式码格式不正确"
                     return false;
                 } else {
                     tipsMobileEle.innerText = "";

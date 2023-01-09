@@ -181,7 +181,7 @@ function Bot_Control() {
     function Install_Bot() {
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖...\n"
-        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc jpeg-dev musl-dev freetype-dev
+        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc g++ jpeg-dev musl-dev freetype-dev
         if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 依赖安装完成\n"
         else
@@ -196,7 +196,7 @@ function Bot_Control() {
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotSrcDir/jbot $RootDir
         cd $BotDir
-        pip3 --default-timeout=3600 install -r requirements.txt
+        pip3 --default-timeout=3600 install -r requirements.txt --no-cache-dir
         if [[ $? -eq 0 ]]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
         else
@@ -465,8 +465,8 @@ function Environment_Deployment() {
                 echo -e "\n$WORKING 开始安装 ${BLUE}Python3${PLAIN} 运行环境...\n"
                 apk --no-cache add -f python3 py3-pip sudo build-base pkgconfig pixman-dev cairo-dev pango-dev
                 pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-                pip3 install --upgrade pip
-                pip3 install requests
+                pip3 install --upgrade pip --no-cache-dir
+                pip3 install requests --no-cache-dir
             fi
             if [ ! -x /usr/bin/ts-node ]; then
                 echo -e "\n$WORKING 开始安装 ${BLUE}TypeScript${PLAIN} 运行环境...\n"
