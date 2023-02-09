@@ -31,15 +31,15 @@ jobs:
         directory: stable
         github_token: ${{ secrets.TOKEN }}
         branch: stable
-    - name: Clone jd_base_main
+    - name: Clone dev.3.0
       run: |
-        git clone -b main git@gitee.com:supermanito/jd_base.git jd_base_main
-    - name: Push jd_base_main
+        git clone -b main git@gitee.com:supermanito/jd_base.git dev.3.0
+    - name: Push dev.3.0
       uses: ad-m/github-push-action@master
       with:
-        directory: jd_base_main
+        directory: dev.3.0
         github_token: ${{ secrets.TOKEN }}
-        branch: jd_base_main
+        branch: dev.3.0
     - name: Clone panel_sign_json
       run: |
         git clone -b master git@gitee.com:supermanito/panel_sign_json.git panel_sign_json
