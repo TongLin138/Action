@@ -60,7 +60,6 @@ let sessionMiddleware = expressJwt({
 }).unless({
     path: [
         '/',
-        '/shell',
         '/index.html',
         '/favicon.ico',
         '/_app.config.js',
@@ -84,7 +83,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
-    '/shell',
+    '/api/shell',
     createProxyMiddleware({
         target: 'http://127.0.0.1:7685',
         ws: true,

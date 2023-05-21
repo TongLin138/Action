@@ -4,7 +4,7 @@ const {Server} = require("socket.io")
 module.exports = (server, sessionMiddleware) => {
     const io = new Server(server, {
         cors: true,
-        path: '/ws',
+        path: '/api/ws',
         allowEIO3: true
     });
 
