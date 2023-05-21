@@ -8,7 +8,7 @@ log4js.configure({
     appenders: {
         MAIN: {
             type: "file",
-            filename: "logs/main.log"
+            filename: "/arcadia/logs/Arcadia/server.log"
         }
     },
     categories: {
