@@ -1,7 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const expressJwt = require('express-jwt')
-
+const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser');
 const path = require('path');
 const random = require('string-random');
@@ -41,25 +41,26 @@ if (!jwtSecret || jwtSecret === "") {
     authConfig["jwtSecret"] = jwtSecret;
     saveNewConf(CONFIG_FILE_KEY.AUTH, authConfig);
 }
-
+let getToken = function fromHeaderOrQuerystring(req) {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.split(" ")[0] === "Bearer"
+    ) {
+        return req.headers.authorization.split(" ")[1];
+    } else if (req.query && req.query.token) {
+        return req.query.token;
+    }
+    return null;
+};
 let sessionMiddleware = expressJwt({
     secret: jwtSecret,
     algorithms: ['HS256'],
     credentialsRequired: true,
-    getToken: function fromHeaderOrQuerystring(req) {
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.split(" ")[0] === "Bearer"
-        ) {
-            return req.headers.authorization.split(" ")[1];
-        } else if (req.query && req.query.token) {
-            return req.query.token;
-        }
-        return null;
-    }
+    getToken: getToken
 }).unless({
     path: [
         '/',
+        '/shell',
         '/index.html',
         '/favicon.ico',
         '/_app.config.js',
@@ -82,7 +83,33 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use(
+    '/shell',
+    createProxyMiddleware({
+        target: 'http://127.0.0.1:7685',
+        ws: true,
+        changeOrigin: true,
+        pathRewrite: {
+            '^/shell': '/',
+        },
+        onProxyReq: function(proxyReq, req, res) {
+            const token = getToken(req);
+            if (token) {
+                jwt.verify(token, jwtSecret, function(err, decoded) {
+                    if (err) {
+                        // JWT 验证失败
+                        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code));
+                    } else {
+                        // JWT 验证成功
+                        proxyReq.setHeader('Authorization', token); // 将 token 传递给目标服务器
+                    }
+                });
+            } else {
+                res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code));
+            }
+        }
+    })
+);
 app.use('/api/cronFile', require("./api/cron").cronFileAPI);
 
 const {openAPI, openApiHandler} = require("./api/open");
@@ -97,17 +124,7 @@ app.use(function (err, req, res, next) {
     next();
 });
 
-app.use(
-    '/shell',
-    createProxyMiddleware({
-        target: 'http://127.0.0.1:7685',
-        ws: true,
-        changeOrigin: true,
-        pathRewrite: {
-            '^/shell': '/',
-        },
-    })
-);
+
 
 
 app.use('/api', require("./api/main").mainAPI);
