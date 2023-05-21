@@ -4,7 +4,7 @@ const express = require('express');
 let api = express();
 const {errorCount} = require("../core");
 const {API_STATUS_CODE, getClientIP} = require("../core/http");
-const {saveNewConf, CONFIG_FILE_KEY, getJsonFile} = require("../core/file");
+const {saveNewConf, CONFIG_FILE_KEY, getJsonFile, DIR_KEY} = require("../core/file");
 const {ip2Address} = require("../core");
 const random = require("string-random");
 const util = require("../utils");
@@ -21,11 +21,6 @@ api.post('/auth', async (request, response) => {
     let con = getJsonFile(CONFIG_FILE_KEY.AUTH);
     let curTime = new Date();
     let authErrorCount = con['authErrorCount'] || 0;
-    if (authErrorCount >= 30) {
-        //错误次数超过30次，直接禁止登录
-        response.send(API_STATUS_CODE.failData('面板错误登录次数到达30次，已禁止登录!', {showCaptcha: true}))
-        return;
-    }
     if (authErrorCount >= 3 && con.authErrorTime) {
         let authErrorTime = con.authErrorTime;
         // 判断登录是否间隔一分钟
@@ -76,17 +71,6 @@ api.post('/auth', async (request, response) => {
             response.send(API_STATUS_CODE.okData(result));
         } else {
             authErrorCount++;
-
-            try {
-                if (authErrorCount === 10 || authErrorCount === 20) {
-                    panelSendNotify(`异常登录提醒`, `您的面板登录验证错误次数已达到${authErrorCount}次，为了保障您的面板安全，请进行检查！温馨提示：请定期修改账号和密码，并将面板更新至最新版本`);
-                } else if (authErrorCount === 30) {
-                    panelSendNotify(`异常登录提醒`, `您的面板登录验证错误次数已达到${authErrorCount}次，已禁用面板登录。请手动设置/jd/config/auth.json文件里面的“authErrorCount”为0来恢复面板登录！`);
-                }
-            }catch (e) {
-                logger.error(`发送异常登录提醒失败：${e.message}`)
-            }
-
             con['authErrorCount'] = authErrorCount;
             con['authErrorTime'] = curTime.getTime();
             saveNewConf(CONFIG_FILE_KEY.AUTH, con, false);

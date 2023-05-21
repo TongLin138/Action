@@ -13,7 +13,7 @@ const {
     CONFIG_FILE_KEY,
     getFile,
     getJsonFile,
-    getNeatContent,
+    getNeatContent, DIR_KEY,
 } = require("../core/file");
 const random = require('string-random');
 const util = require('../utils/index');
@@ -98,16 +98,16 @@ api.get('/runLog', function (request, response) {
     if (jsName.indexOf(".") > -1) {
         jsName = jsName.substring(0, jsName.lastIndexOf("."));
     }
-    let pathUrl = `log/${jsName}/`;
-    if (jsName.startsWith("scripts/")) {
+    let pathUrl = DIR_KEY.LOG + `${jsName}/`;
+    if (jsName.startsWith(DIR_KEY.SCRIPTS)) {
         jsName = jsName.substring(jsName.indexOf("/") + 1);
-        pathUrl = `log/${jsName}/`;
-    } else if (jsName.startsWith("own/")) {
+        pathUrl = DIR_KEY.LOG +`${jsName}/`;
+    } else if (jsName.startsWith(DIR_KEY.REPO)) {
         jsName = jsName.substring(jsName.indexOf("/") + 1);
-        pathUrl = `log/${jsName.replace(new RegExp('[/\\-]', "gm"), '_')}/`;
+        pathUrl = DIR_KEY.LOG + `${jsName.replace(new RegExp('[/\\-]', "gm"), '_')}/`;
     } else {
         if (!fs.existsSync(path.join(rootPath, pathUrl))) {
-            pathUrl = `log/jd_${jsName}/`;
+            pathUrl = DIR_KEY.LOG + `jd_${jsName}/`;
         }
     }
     logFile = getLastModifyFilePath(

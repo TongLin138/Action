@@ -3,22 +3,31 @@ let fs = require('fs');
 const archiver = require('archiver');
 
 let rootPath = path.resolve(__dirname, '../../../');
-
+const DIR_NAME = {
+    ROOT: "arcadia",
+    CONFIG: "config",
+    SAMPLE: "sample",
+    SCRIPTS: "scripts",
+    LOG: "log",
+    REPO: "repo",
+    BAK: "config/bak"
+}
 const DIR_KEY = {
-    CONFIG: "config/",
-    SAMPLE: "sample/",
-    SCRIPTS: "scripts/",
-    LOG: "log/",
-    OWN: "own/",
-    BAK: "config/bak/"
+    ROOT: DIR_NAME.ROOT + "/",
+    CONFIG: DIR_NAME.CONFIG + "/",
+    SAMPLE: DIR_NAME.SAMPLE + "/",
+    SCRIPTS: DIR_NAME.SCRIPTS + "/",
+    LOG: DIR_NAME.LOG + "/",
+    REPO: DIR_NAME.REPO + "/",
+    BAK: DIR_NAME.BAK + "/"
 }
 
 // 日志目录
 let logPath = path.join(rootPath, DIR_KEY.LOG);
 // 脚本目录
 let scriptsPath = path.join(rootPath, DIR_KEY.SCRIPTS);
-// own目录
-let ownPath = path.join(rootPath, DIR_KEY.OWN);
+// repo目录
+let repoPath = path.join(rootPath, DIR_KEY.REPO);
 //config 目录
 let configPath = path.join(rootPath, DIR_KEY.CONFIG);
 //sample目录
@@ -95,7 +104,7 @@ const getOptions = (options) => {
  * @param query
  */
 const getDirectory = (dir, query) => {
-    if(!fs.existsSync(dir)){
+    if (!fs.existsSync(dir)) {
         throw new Error(`目录 ${dir} 不存在`);
     }
     let parentDir = dir;
@@ -150,14 +159,14 @@ const dirQueryAfter = (parentDir, item, options) => {
 
 /**
  * 目录数
- * @param type 类型 all、config、own、scripts、own_scripts、sample、log、dirs
+ * @param type 类型 all、config、repo、scripts、repo_scripts、sample、log、dirs
  * @param dir
  * @param query 参数
  * @returns {*[]}
  */
 const getDirTree = (type, dir, query) => {
     let filesNameArr = []
-    if(!fs.existsSync(dir)){
+    if (!fs.existsSync(dir)) {
         return filesNameArr
     }
     let parentDir = dir;
@@ -210,13 +219,13 @@ const getDirTree = (type, dir, query) => {
         }), true)
         return result //返回数据
     }
-    if (type === "own_scripts" || type === "all") {
+    if (type === "repo_scripts" || type === "all") {
         if (type === "all") {
-            filesNameArr.push(readDirs(dir + "/config", dir + "/config"))
-            filesNameArr.push(readDirs(dir + "/sample", dir + "/sample"))
+            filesNameArr.push(readDirs(dir + "/" + DIR_NAME.CONFIG, dir + "/" + DIR_NAME.CONFIG))
+            filesNameArr.push(readDirs(dir + "/" + DIR_NAME.SAMPLE, dir + "/" + DIR_NAME.SAMPLE))
         }
-        filesNameArr.push(readDirs(dir + "/scripts", dir + "/scripts"))
-        filesNameArr.push(readDirs(dir + "/own", dir + "/own"))
+        filesNameArr.push(readDirs(dir + "/" + DIR_NAME.SCRIPTS, dir + "/" + DIR_NAME.SCRIPTS))
+        filesNameArr.push(readDirs(dir + "/" + DIR_NAME.REPO, dir + "/" + DIR_NAME.REPO))
     } else {
         filesNameArr.push(readDirs(dir, dir))
     }
@@ -587,9 +596,9 @@ function loadFileTree(loadPath, dirName, keywords, onlyRunJs) {
  * @return {*[]}
  */
 function loadScripts(keywords, onlyRunJs) {
-    let rootFiles = [], scriptsDir = 'scripts', ownDir = 'own', dirList = [scriptsDir];
+    let rootFiles = [], scriptsDir = DIR_NAME.SCRIPTS, repoDir = DIR_NAME.REPO, dirList = [scriptsDir];
     if (!onlyRunJs) {
-        dirList.push(ownDir);
+        dirList.push(repoDir);
     }
     dirList.forEach((dirName) => {
         rootFiles.push({
@@ -599,14 +608,14 @@ function loadScripts(keywords, onlyRunJs) {
         })
     })
     if (onlyRunJs) {
-        let ownFileList = fs.readdirSync(ownPath, {withFileTypes: true});
-        ownFileList.forEach((item) => {
+        let repoFileList = fs.readdirSync(repoPath, {withFileTypes: true});
+        repoFileList.forEach((item) => {
             let name = item.name;
             if (item.isDirectory()) {
                 rootFiles.push({
                     dirName: name,
-                    dirPath: ownDir + "/" + name,
-                    files: loadFileTree(ownDir + "/" + name, name, keywords, onlyRunJs),
+                    dirPath: repoDir + "/" + name,
+                    files: loadFileTree(repoDir + "/" + name, name, keywords, onlyRunJs),
                 })
             }
         })

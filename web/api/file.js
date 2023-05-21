@@ -38,7 +38,7 @@ let queryOptions = (request) => {
  *
  * @apiHeader {String} Authorization   Bearer "your access token"
  *
- * @apiQuery {String} type      可选值 config、own、scripts、own_scripts、sample、log
+ * @apiQuery {String} type      可选值 config、repo、scripts、repo_scripts、sample、log
  * @apiQuery {String} keywords  关键字
  * @apiQuery {String} startTime  开始时间 用于日志查询 yyyy-MM-dd hh:mm:ss  path 为 log 生效
  * @apiQuery {String} endTime  结束时间 用于日志查询 yyyy-MM-dd hh:mm:ss path 为 log 生效
@@ -117,7 +117,7 @@ api.get('/tree/scripts', function (request, response) {
     let keywords = request.query.keywords || "";
     let startTime = request.query.startTime || "";
     let endTime = request.query.endTime || "";
-    response.send(API_STATUS_CODE.okData(getDirTree("own_scripts", rootPath, {
+    response.send(API_STATUS_CODE.okData(getDirTree("repo_scripts", rootPath, {
         keywords,
         startTime,
         endTime

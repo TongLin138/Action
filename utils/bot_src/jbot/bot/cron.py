@@ -109,7 +109,7 @@ async def my_addcron(event):
     try:
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, f'🕙 正在查询，请稍后...')
-        info = '```0 0 * * * task /jd/own/abcd.js```'
+        info = '```0 0 * * * task /arcadia/repo/abcd.js```'
         auth = {'token': ''}
         markup = [Button.inline('是', data='yes'),
                   Button.inline('否', data='cancel')]

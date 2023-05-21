@@ -43,7 +43,7 @@ function registerSync(type, handler) {
 
 
 function checkRuntimeDir() {
-    let dir = _path.resolve("/tmp/jd_base_server/sync/");
+    let dir = _path.resolve("/tmp/arcadia_server/sync/");
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, {recursive: true});
     }
@@ -51,13 +51,13 @@ function checkRuntimeDir() {
 
 function saveInfo(name, info) {
     checkRuntimeDir()
-    fs.writeFileSync(_path.resolve("/tmp/jd_base_server/sync/", name.replaceAll("/", "$$") + ".json"), JSON.stringify(info))
+    fs.writeFileSync(_path.resolve("/tmp/arcadia_server/sync/", name.replaceAll("/", "$$") + ".json"), JSON.stringify(info))
 }
 
 function cleanInfo(name) {
     try {
         checkRuntimeDir()
-        fs.unlinkSync(_path.resolve("/tmp/jd_base_server/sync/", name.replaceAll("/", "$$") + ".json"))
+        fs.unlinkSync(_path.resolve("/tmp/arcadia_server/sync/", name.replaceAll("/", "$$") + ".json"))
     } catch {
     }
 }
@@ -65,7 +65,7 @@ function cleanInfo(name) {
 function getInfo(name) {
     try {
         checkRuntimeDir()
-        return JSON.parse(fs.readFileSync(_path.resolve("/tmp/jd_base_server/sync/", name.replaceAll("/", "$$") + ".json"), "utf-8"))
+        return JSON.parse(fs.readFileSync(_path.resolve("/tmp/arcadia_server/sync/", name.replaceAll("/", "$$") + ".json"), "utf-8"))
     } catch (e) {
         return null;
     }

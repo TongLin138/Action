@@ -9,6 +9,7 @@
 
 const querystring = require('querystring');
 const fs = require('fs');
+const {DIR_KEY} = require("../web/core/file");
 const $ = new Env();
 const timeout = 15000; //超时时间(单位毫秒)
 // =======================================微信server酱通知设置区域===========================================
@@ -236,8 +237,9 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
     //提供6种通知
     desp += author;//增加作者信息，防止被贩卖等
     try {
-        fs.accessSync('/jd/config/account.json')
-        accounts = JSON.parse(fs.readFileSync('/jd/config/account.json').toString())
+        let accountFile = DIR_KEY.ROOT + DIR_KEY.CONFIG + 'account.json';
+        fs.accessSync(accountFile)
+        accounts = JSON.parse(fs.readFileSync(accountFile).toString())
     } catch (e) {
     }
     if (accounts && accounts.length > 0) {

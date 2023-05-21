@@ -7,6 +7,7 @@ const curd = require('../core/cron/curd')
 const {API_STATUS_CODE} = require('../core/http')
 const {logger} = require('../core/logger')
 const scriptResolve = require('../core/file/scriptResolve')
+const {DIR_KEY} = require("../core/file");
 
 /**
  * 获取定时任务列表
@@ -140,8 +141,8 @@ api.get('/bindGroup', async function (request, response) {
                 await curd.db.exec(`
                     select bind, count(*) count
                     from (SELECT SUBSTR(bind, INSTR(bind, '#') + 1,
-                                        INSTR(SUBSTR(bind, INSTR(bind, '#') + 1), '#') - 1) AS bind
-                          FROM tasks)
+                        INSTR(SUBSTR(bind, INSTR(bind, '#') + 1), '#') - 1) AS bind
+                        FROM tasks)
                     GROUP BY bind
                 `)
             )
@@ -156,8 +157,9 @@ let fileApi = express()
 fileApi.post('/updateAll', async function (request, response) {
     try {
         function toBind(type, s) {
-            if (s.startsWith("/jd/repo/")) {
-                s=s.replace("/jd/repo/","")
+            let repoPath = "/" + DIR_KEY.ROOT + DIR_KEY.REPO;
+            if (s.startsWith(repoPath)) {
+                s = s.replace(repoPath, "")
             }
             return type + '#' + s.substring(0, s.indexOf('/')) + '#' + s.substring(s.indexOf('/') + 1)
         }

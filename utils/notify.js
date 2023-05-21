@@ -1,4 +1,5 @@
-const notify = require('/jd/scripts/sendNotify');
+const {DIR_KEY} = require("../web/core/file");
+const notify = require(DIR_KEY.ROOT + DIR_KEY.SCRIPTS + 'sendNotify');
 const title = process.argv[2];
 const content = process.argv[3];
 
