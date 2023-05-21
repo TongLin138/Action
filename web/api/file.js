@@ -84,14 +84,19 @@ let queryOptions = (request) => {
 api.get('/tree', function (request, response) {
     let query = queryOptions(request)
     let type = query.type;
-    if (Object.keys(DIR_KEY).includes(type.toUpperCase()) || type === 'all') {
-        response.send(API_STATUS_CODE.okData(getDirTree(type,
-            type === 'all' ? rootPath : path.join(rootPath, type),
-            query
-        )));
-    } else {
-        response.send(API_STATUS_CODE.fail("参数错误"))
+    try {
+        if (Object.keys(DIR_KEY).includes(type.toUpperCase()) || type === 'all') {
+            response.send(API_STATUS_CODE.okData(getDirTree(type,
+                type === 'all' ? rootPath : path.join(rootPath, type),
+                query
+            )));
+        } else {
+            response.send(API_STATUS_CODE.fail("参数错误"))
+        }
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
     }
+
 });
 
 /**
@@ -117,12 +122,15 @@ api.get('/tree/scripts', function (request, response) {
     let keywords = request.query.keywords || "";
     let startTime = request.query.startTime || "";
     let endTime = request.query.endTime || "";
-    response.send(API_STATUS_CODE.okData(getDirTree("repo_scripts", rootPath, {
-        keywords,
-        startTime,
-        endTime
-    })));
-
+    try {
+        response.send(API_STATUS_CODE.okData(getDirTree("repo_scripts", rootPath, {
+            keywords,
+            startTime,
+            endTime
+        })));
+    } catch (e) {
+        response.send(API_STATUS_CODE.fail(e.message));
+    }
 });
 
 
