@@ -645,6 +645,9 @@ function saveFileByPath(filePath, content) {
         saveNewConf(CONFIG_FILE_KEY.CONFIG, content, true)
         return;
     }
+    if(filePath.endsWith(".js") || filePath.endsWith(".sh") || filePath.endsWith(".py") || filePath.endsWith(".ts")) {
+        content = content.replace(/\r\n/g, '\n');
+    }
     fs.writeFileSync(filePath, content);
 }
 
