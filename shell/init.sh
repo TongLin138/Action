@@ -1,3 +1,3 @@
 #!/bin/bash
 
-. ${WORK_DIR}/shell/init/main.sh "$@"
+source ${WORK_DIR}/shell/init/main.sh "$@"

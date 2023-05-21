@@ -1,7 +1,7 @@
 #!/bin/bash
 ## Modified: 2023-05-21
 
-. ${WORK_DIR}/shell/core/main.sh
+source ${WORK_DIR}/shell/core/main.sh
 
 ## 选择执行模式
 function ChooseRunMod() {

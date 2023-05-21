@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ${WORK_DIR}/shell/core/main.sh
+source ${WORK_DIR}/shell/core/main.sh
 
 ## 导入配置文件（不检查）
 Import_Config_Not_Check "jd_bean_change"
