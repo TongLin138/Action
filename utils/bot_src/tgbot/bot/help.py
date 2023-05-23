@@ -12,12 +12,10 @@ async def bot_help(event):
         text = 'mhelp'
     mhelp = '''
 a-自定义快捷按钮
-addcron-增加定时
 bean-获取收支
 beaninfo-获取今日豆子详细收支
 clearboard-删除快捷按钮
 chart-统计收支变化
-cron-管理定时设定
 code-解析京东APP口令
 cmd-执行cmd命令
 edit-编辑文件
@@ -48,7 +46,5 @@ start-开始使用本程序'''
             - 使用，或者空格等符号进行用户id区隔
         - 机器人黑名单垃圾话
             - 加入机器人黑名单后，使用 | 区隔设置垃圾话，会随机挑选垃圾话回复该用户'''
-    cron = '''    - /cron 命令
-        - /cron 加关键字 可进行cron管理'''
-    help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node, 'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
+    help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node, 'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset}
     await tgbot.send_message(chat_id, help_me[text])

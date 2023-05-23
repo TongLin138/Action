@@ -21,7 +21,7 @@ logger.info('loading user module...')
 load_module('user', BOT_U_DIR)
 
 async def new_ver():
-    text = "🔔 叮咚~  机器人上线了✅\n\n获取帮助以快速开始使用 /start\n\n服务控制指令（在终端执行）\n启动/重启： `taskctl tgbot start`\n关闭/停止： `taskctl tgbot stop`\n更新/重装： `taskctl tgbot update`\n\n🐶 [Powered by Arcadia](https://github.com/SuperManito/Arcadia)"
+    text = "🔔 叮咚~  机器人上线了✅\n\n获取帮助以快速开始使用 /start\n\n服务控制指令（在终端执行）\n启动/重启： `arcadia tgbot start`\n关闭/停止： `arcadia tgbot stop`\n更新/重装： `arcadia tgbot update`\n\n💪 [Powered by Arcadia](https://github.com/SuperManito/Arcadia)"
     document_url = 'https://arcadia.cool/docs/configuration/tgbot'
     if os.path.exists(BOT_UP_LOG):
         is_new = False

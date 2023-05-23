@@ -266,15 +266,15 @@ async def run_btn(conv, sender, path, msg, page, files_list):
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
         return None, None, None, None
 
-
-def mycron(lines):
+# 获取内容中的定时表达式
+def get_cron(lines):
     cronreg = re.compile(r'([0-9\-\*/,]{1,} ){4,5}([0-9\-\*/,]){1,}')
     return cronreg.search(lines).group()
 
 
 async def add_cron(tgbot, conv, resp, filename, msg, sender, markup, path):
     try:
-        crondata = f'{mycron(resp)} task {path}/{filename}'
+        crondata = f'{get_cron(resp)} task {path}/{filename}'
         msg = await tgbot.edit_message(msg, f'已识别定时\n```{crondata}```\n是否需要修改', buttons=markup)
     except:
         crondata = f'0 0 * * * task {path}/{filename}'
@@ -295,60 +295,3 @@ async def add_cron(tgbot, conv, resp, filename, msg, sender, markup, path):
     ## 定时任务添加（待编写）
 
     await tgbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
-
-
-def cron_manage_api(fun, crondata):
-    file = f'{CONFIG_DIR}/crontab.list'
-    with open(file, 'r', encoding='utf-8') as f:
-        crons = f.readlines()
-    try:
-        if fun == 'search':
-            res = {'code': 200, 'data': {}}
-            for cron in crons:
-                if str(crondata) in cron:
-                    res['data'][cron.split(
-                        'task ')[-1].split(' ')[0].split('/')[-1].replace('\n', '')] = cron
-        elif fun == 'add':
-            crons.append(crondata)
-            res = {'code': 200, 'data': 'success'}
-        elif fun == 'run':
-            cmd(f'task {crondata.split("task")[-1]}')
-            res = {'code': 200, 'data': 'success'}
-        elif fun == 'edit':
-            ocron, ncron = crondata.split('-->')
-            i = crons.index(ocron)
-            crons.pop(i)
-            crons.insert(i, ncron)
-            res = {'code': 200, 'data': 'success'}
-        elif fun == 'disable':
-            i = crons.index(crondata)
-            crondatal = list(crondata)
-            crondatal.insert(0, '#')
-            ncron = ''.join(crondatal)
-            crons.pop(i)
-            crons.insert(i, ncron)
-            res = {'code': 200, 'data': 'success'}
-        elif fun == 'enable':
-            i = crons.index(crondata)
-            ncron = crondata.replace('#', '')
-            crons.pop(i)
-            crons.insert(i, ncron)
-            res = {'code': 200, 'data': 'success'}
-        elif fun == 'del':
-            i = crons.index(crondata)
-            crons.pop(i)
-            res = {'code': 200, 'data': 'success'}
-        else:
-            res = {'code': 400, 'data': '未知功能'}
-        with open(file, 'w', encoding='utf-8') as f:
-            f.write(''.join(crons))
-    except Exception as e:
-        res = {'code': 400, 'data': str(e)}
-    finally:
-        return res
-
-
-def cron_manage(fun, crondata, token):
-    res = cron_manage_api(fun, crondata)
-    return res
-

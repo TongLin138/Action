@@ -9,16 +9,14 @@ async def bot_start(event):
     /help 获取全部支持的命令，可直接发送至BotFather命令设置（Edit Bot - Edit Commands）菜单。
     /start 开始使用本程序。
     /a 使用你的自定义快捷按钮。
-    /addcron 增加cron，例：0 0 * * * task example。
     /bean 统计一周的收支变化。
     /beaninfo 获取今日豆子详细收支。
     /clearboard 删除快捷输入按钮。
     /chart-统计一周的收支变化并生成图片。
     /cmd 在系统命令行执行指令，例：/cmd task 查看命令帮助。
-    /cron 进行cron管理。
     /code 解析京东APP口令。
     /dl 下载文件，例：/dl 
-    /edit 从目录选择文件并编辑，需要将编辑好信息全部发给BOT，BOT会根据你发的信息进行替换。建议仅编辑config或crontab.list，其他文件慎用！
+    /edit 从目录选择文件并编辑，需要将编辑好信息全部发给BOT，BOT会根据你发的信息进行替换。建议仅编辑config，其他文件慎用！
     /getfile 获取项目文件。
     /log 查看脚本执行日志。
     /task 执行脚本，例：/task example.js。此命令会等待脚本执行完毕，期间不能使用BOT，建议使用run命令。
