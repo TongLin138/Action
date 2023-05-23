@@ -24,10 +24,10 @@ function Init() {
   ## 更新源码
   $UpdateCmd source
 
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➀ 同步最新源码结束 -----\n"
 
   # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 二 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➁ 启动控制面板和网页终端开始 -----\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➁ 启动控制面板和网页终端开始 -----\n"
   cd ${ARCADIA_DIR}
   [ ! -x /usr/bin/npm ] && apk add -f nodejs-lts npm >/dev/null 2>&1
   export PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
@@ -42,7 +42,7 @@ function Init() {
     -t macOptionIsMeta=true \
     -t macOptionClickForcesSelection=true \
     bash
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} 网页终端启动成功 $SUCCESS\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} 网页终端启动成功 $SUCCESS\n"
 
   cd ./web
   echo -e "$WORKING 开始安装面板依赖模块...\n"
@@ -50,11 +50,11 @@ function Init() {
   echo -e "\n$SUCCESS 模块安装完成\n"
   pm2 start ecosystem.config.js
   cd ${ARCADIA_DIR}
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} 控制面板启动成功 $SUCCESS\n"
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➁ 启动控制面板和网页终端结束 -----\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} 控制面板启动成功 $SUCCESS\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➁ 启动控制面板和网页终端结束 -----\n"
 
   # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 三 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➂ 启动电报机器人开始 -----\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➂ 启动电报机器人开始 -----\n"
   case $(uname -m) in
   armv7l | armv6l)
     echo -e "宿主机的处理器架构不支持使用此功能"
@@ -67,10 +67,10 @@ function Init() {
     fi
     ;;
   esac
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➂ 启动电报机器人结束 -----\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➂ 启动电报机器人结束 -----\n"
 
   echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
-  echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
   echo -e "$TIPS 请退出查看容器初始化日志\n"
 
   crond -f >/dev/null

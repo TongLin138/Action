@@ -9,7 +9,7 @@ if [ ! -d ${ARCADIA_DIR}/config ]; then
 fi
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 一 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-echo -e "\n\033[1;34m$(date "${TIME_FORMAT}")${PLAIN} ----- ➀ 同步最新源码开始 -----\n"
+echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➀ 同步最新源码开始 -----\n"
 cd ${ARCADIA_DIR}
 sleep 2
 git fetch --all
