@@ -22,8 +22,8 @@ let SCKEY = '';
 let BARK_PUSH = '';
 //BARK app推送铃声,铃声列表去APP查看复制填写
 let BARK_SOUND = '';
-//BARK app推送消息的分组, 默认为"Helloworld"
-let BARK_GROUP = 'Helloworld';
+//BARK app推送消息的分组, 默认为"Arcadia"
+let BARK_GROUP = 'Arcadia';
 
 // =======================================telegram机器人通知设置区域===========================================
 //此处填你telegram bot 的Token，telegram机器人通知推送必填项.例如：1077xxx4424:AAFjv0FcqxxxxxxgEMGfi22B4yh15R5uw
@@ -200,7 +200,7 @@ if (process.env.GO_CQHTTP_EXPIRE_SEND_PRIVATE) {
     GO_CQHTTP_EXPIRE_SEND_PRIVATE = process.env.GO_CQHTTP_EXPIRE_SEND_PRIVATE === "true";
 }
 
-let end_txt = "本通知 By：https://hub.docker.com/r/supermanito/helloworld";
+let end_txt = "本通知 By：https://github.com/SuperManito/Arcadia";
 if (process.env.NOTIFY_TAIL) {
     end_txt = process.env.NOTIFY_TAIL;
 }

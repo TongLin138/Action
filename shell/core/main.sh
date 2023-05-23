@@ -147,10 +147,10 @@ function Output_Command_Error() {
     local Mod=$1
     case $Mod in
     1)
-        echo -e "$COMMAND_ERROR\n"
+        echo -e "\n$COMMAND_ERROR\n"
         ;;
     2)
-        echo -e "$TOO_MANY_COMMANDS\n"
+        echo -e "\n$TOO_MANY_COMMANDS\n"
         ;;
     esac
 }

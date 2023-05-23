@@ -30,7 +30,7 @@ function Init() {
   echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➁ 启动控制面板和网页终端开始 -----\n"
   cd ${ARCADIA_DIR}
   [ ! -x /usr/bin/npm ] && apk add -f nodejs-lts npm >/dev/null 2>&1
-  export PS1="\[\e[32;1m\]@Helloworld Cli\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
+  export PS1="\[\e[32;1m\]@Arcadia CLI\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
   pm2 start ttyd --name "web_terminal" --log-date-format "YYYY-MM-DD HH:mm:ss" -- \
     -p 7685 \
     -t rendererType=canvas \

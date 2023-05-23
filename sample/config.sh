@@ -1,6 +1,6 @@
-## Version: v1.0.0
-## Date: 2023-05-01
-## Update Content: New
+## Version: v0.0.1
+## Date: 2023-05-23
+## Update Content: First release
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 # 可在下方编写你需要用到的环境变量，格式：export 变量名="变量值"
@@ -174,7 +174,6 @@ export TG_USER_ID=""
 
 ## ❖ 4. 钉钉
 # 官方文档：https://developers.dingtalk.com/document/app/custom-robot-access
-# 参考图片：https://github.com/chinnkarahoi/jd_scripts/blob/master/icon/DD_bot.png
 # "DD_BOT_TOKEN" 和 "DD_BOT_SECRET" 必须同时赋值
 # 下方填写token后面的内容，只需 https://oapi.dingtalk.com/robot/send?access_token=XXX 等于=符号后面的XXX即可
 export DD_BOT_TOKEN=""
