@@ -66,6 +66,7 @@ let sessionMiddleware = expressJwt({
         /^\/resource\/*/,
         /^\/assets\/*/,
         '/api/common/cookie/check',
+        '/api/common/health',
         '/api/user/auth',
         '/api/captcha',
         /^\/api\/captcha\/.*/,
