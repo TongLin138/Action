@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Modified: 2023-04-12
-ShellDir=${WORK_DIR}/shell
+ShellDir=${ARCADIA_DIR}/shell
 . $ShellDir/template.sh
 
 ## 克隆仓库

@@ -1,5 +1,5 @@
 from telethon import events
-from .. import jdbot, chat_id, WORK_DIR, BOT_SET, ch_name
+from .. import jdbot, chat_id, ARCADIA_DIR, BOT_SET, ch_name
 from .utils import cmd, run_btn
 
 
@@ -7,7 +7,7 @@ from .utils import cmd, run_btn
 async def my_run(event):
     '''定义run命令'''
     SENDER = event.sender_id
-    path = WORK_DIR
+    path = ARCADIA_DIR
     page = 0
     filelist = None
     async with jdbot.conversation(SENDER, timeout=60) as conv:

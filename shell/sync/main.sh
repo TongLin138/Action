@@ -38,7 +38,7 @@ function Count_RawSum() {
 # 仓库脚本定时设置 - 脚本过滤文件格式 Array_Repo_cronSettings_scriptsType
 # 仓库脚本定时设置 - 过滤白名单 Array_Repo_cronSettings_whiteList
 # 仓库脚本定时设置 - 过滤黑名单 Array_Repo_cronSettings_blackList
-function Gen_RepoConf() {
+function Gen_RepoConfArray() {
 
     # 读取脚本仓库配置
     function Get_RepoConf() {
@@ -158,7 +158,7 @@ function Gen_RepoConf() {
 # 脚本远程地址 Array_Raw_url
 # 脚本路径 Array_Raw_path
 # 脚本定时设置 - 定时任务启用状态 Array_Raw_cronSettings_updateTaskList
-function Gen_RawConf() {
+function Gen_RawConfArray() {
 
     # 读取扩展脚本配置
     function Get_RawConf() {

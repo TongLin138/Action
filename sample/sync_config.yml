@@ -8,13 +8,13 @@ repo:
     enable: true # 是否启用该仓库配置
     cronSettings:
       updateTaskList: false # 是否为该配置启用定时任务（默认不启用）
-      scriptsPath: "" # 定时脚本路径（默认为仓库根目录）
+      scriptsPath: '' # 定时脚本路径（默认为仓库根目录）
       scriptsType: # 定时脚本文件格式（默认为 JavaScript、Python、TypeScript 脚本）
         - js
         - ts
         - py
-      whiteList: "" # 定时脚本匹配白名单（默认为空，即所有脚本）
-      blackList: "" # 定时脚本匹配黑名单（默认为空）
+      whiteList: '' # 定时脚本匹配白名单（默认为空，即所有脚本）
+      blackList: '' # 定时脚本匹配黑名单（默认为空）
       autoDisable: false # 是否自动禁用新的定时任务
       addNotify: true # 是否为新增定时任务推送通知提醒
       delNotify: true # 是否为过期定时任务推送通知提醒

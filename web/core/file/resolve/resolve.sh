@@ -55,7 +55,7 @@ function Query_ScriptName() {
         if [ $? -eq 0 ]; then
             local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
         else
-            local Tmp=$(grep -E "^活动名称|^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
+            local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
         fi
         ;;
     esac
@@ -70,11 +70,11 @@ function Query_ScriptName() {
 ## 获取标签
 function Get_Tag() {
     local path="$1"
-    echo "$path" | grep "^${WORK_DIR}/repo/" -q
+    echo "$path" | grep "^${ARCADIA_DIR}/repo/" -q
     if [ $? -eq 0 ]; then
         echo "$path" | awk -F '/' '{print$4}'
     else
-        echo "$path" | grep "^${WORK_DIR}/raw/" -q
+        echo "$path" | grep "^${ARCADIA_DIR}/raw/" -q
         if [ $? -eq 0 ]; then
             echo "raw"
         else
@@ -87,7 +87,7 @@ function Main() {
     local path="$1"
     local CronString="$(Get_Cron "${path}")"
     local ScriptName="$(Query_ScriptName "${path}")"
-    local FormatPath="$(echo "${path}" | sed "s|^${WORK_DIR}/repo/||g")"
+    local FormatPath="$(echo "${path}" | sed "s|^${ARCADIA_DIR}/repo/||g")"
     local Tags=$(Get_Tag "${path}")
 
     ## 返回json格式

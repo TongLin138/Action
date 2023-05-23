@@ -1,3 +1,3 @@
 #!/bin/bash
 
-source ${WORK_DIR}/shell/utils/runall.sh "$@"
+source ${ARCADIA_DIR}/shell/utils/runall.sh "$@"

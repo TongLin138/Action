@@ -3,13 +3,13 @@ import json
 import os
 import logging
 
-WORK_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-CONFIG_DIR = f'{WORK_DIR}/config'
-SCRIPTS_DIR = f'{WORK_DIR}/scripts'
-OWN_DIR = f'{WORK_DIR}/own'
-BOT_DIR = f'{WORK_DIR}/jbot'
-_DiyScripts = f'{WORK_DIR}/diyscripts'
-LOG_DIR = f'{WORK_DIR}/log'
+ARCADIA_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+CONFIG_DIR = f'{ARCADIA_DIR}/config'
+SCRIPTS_DIR = f'{ARCADIA_DIR}/scripts'
+OWN_DIR = f'{ARCADIA_DIR}/own'
+BOT_DIR = f'{ARCADIA_DIR}/tgbot'
+_DiyScripts = f'{ARCADIA_DIR}/diyscripts'
+LOG_DIR = f'{ARCADIA_DIR}/log'
 SHORTCUT_FILE = f'{CONFIG_DIR}/shortcut.list'
 BOT_LOG_FILE = f'{LOG_DIR}/TelegramBot/run.log'
 BOT_JSON_FILE = f'{CONFIG_DIR}/bot.json'

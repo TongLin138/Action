@@ -1,14 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-21
-
-## 清空定时任务关联脚本清单内容
-function CleanListScripts() {
-    local Dirs=("$ListOldScripts $ListNewScripts $ListAddScripts $ListDelScripts $ListConfScripts")
-    for file in ${Dirs}; do
-        [ -f $file ] && sed -i '1,$d' $file || touch $file
-    done
-    echo "{}" >$ListConfScripts
-}
+## Modified: 2023-05-23
 
 ## 更新定时任务（后端处理）
 function Update_Cron() {
@@ -92,48 +83,5 @@ function Update_Cron() {
         echo -e "\n${result}"
     else
         echo -e "\n$ERROR 更新定时任务失败，接口未响应！\n"
-    fi
-}
-
-## 更新所有仓库
-function Update_AllRepo() {
-    local Repo_Name Repo_Url Repo_Branch Repo_Dir Repo_Path Repo_Enable
-    ## 统计仓库数量并生成配置
-    Count_RepoSum
-    Gen_RepoConf
-
-    if [[ $RepoSum -ge 1 && ${#Array_Repo_url[*]} -ge 1 ]]; then
-        ## 遍历仓库配置数组
-        for ((i = 0; i < ${#Array_Repo_url[*]}; i++)); do
-            ## 判断仓库是否启用
-            [[ ${Array_Repo_enable[i]} == "false" ]] && continue
-
-            ## 更新/克隆仓库
-            if [ -d "${Array_Repo_path[i]}/.git" ]; then
-                # 生成旧的定时脚本清单
-                [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && Gen_RepoCronList "old" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
-
-                Reset_Romote_Url ${Array_Repo_path[i]} ${Array_Repo_url[i]} ${Array_Repo_branch[i]}
-                Git_Pull ${Array_Repo_path[i]} ${Array_Repo_branch[i]} "开始更新仓库 ${BLUE}${Array_Repo_name[i]}${PLAIN}"
-                if [[ $ExitStatus -eq 0 ]]; then
-                    echo -e "\n$COMPLETE ${BLUE}${Array_Repo_name[i]}${PLAIN} 仓库更新完成"
-                else
-                    echo -e "\n$FAIL ${BLUE}${Array_Repo_name[i]}${PLAIN} 仓库更新失败，请检查原因..."
-                fi
-            else
-                Git_Clone ${Array_Repo_url[i]} ${Array_Repo_path[i]} ${Array_Repo_branch[i]} "开始克隆仓库 ${BLUE}${Array_Repo_name[i]}${PLAIN}"
-                if [[ $ExitStatus -eq 0 ]]; then
-                    echo -e "\n$SUCCESS ${BLUE}${Array_Repo_name[i]}${PLAIN} 仓库克隆成功"
-                else
-                    echo -e "\n$FAIL ${BLUE}${Array_Repo_name[i]}${PLAIN} 仓库克隆失败，请检查原因..."
-                    continue
-                fi
-            fi
-
-            # 生成新的定时脚本清单
-            [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && Gen_RepoCronList "new" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
-        done
-    else
-        echo -e "$ERROR 未检测到任何有效的仓库配置，跳过更新仓库..."
     fi
 }

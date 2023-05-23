@@ -1,7 +1,7 @@
 #!/bin/bash
 ## Modified: 2023-05-21
 
-source ${WORK_DIR}/shell/core/main.sh
+source ${ARCADIA_DIR}/shell/core/main.sh
 
 ## 选择执行模式
 function ChooseRunMod() {

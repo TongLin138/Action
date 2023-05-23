@@ -1,7 +1,7 @@
 import re,os,datetime,asyncio
 from functools import wraps
 from telethon import events, Button
-from .. import jdbot, chat_id, LOG_DIR, logger, WORK_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
+from .. import jdbot, chat_id, LOG_DIR, logger, ARCADIA_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
 
 row = int(BOT_SET['每页列数'])
 CRON_FILE = f'{CONFIG_DIR}/crontab.list'
@@ -151,7 +151,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
                 new_markup.append(buttons)
             else:
                 new_markup = markup
-                if path == WORK_DIR:
+                if path == ARCADIA_DIR:
                     new_markup.append([Button.inline('取消', data='cancel')])
                 else:
                     new_markup.append(
@@ -176,7 +176,7 @@ async def log_btn(conv, sender, path, msg, page, files_list):
         elif res == 'updir':
             path = '/'.join(path.split('/')[:-1])
             if path == '':
-                path = WORK_DIR
+                path = ARCADIA_DIR
             return path, msg, page, None
         elif os.path.isfile(f'{path}/{res}'):
             msg = await jdbot.edit_message(msg, '文件发送中，请注意查收')
@@ -224,7 +224,7 @@ async def run_btn(conv, sender, path, msg, page, files_list):
                 new_markup.append(buttons)
             else:
                 new_markup = markup
-                if path == WORK_DIR:
+                if path == ARCADIA_DIR:
                     new_markup.append([Button.inline('取消', data='cancel')])
                 else:
                     new_markup.append(
@@ -249,7 +249,7 @@ async def run_btn(conv, sender, path, msg, page, files_list):
         elif res == 'updir':
             path = '/'.join(path.split('/')[:-1])
             if path == '':
-                path = WORK_DIR
+                path = ARCADIA_DIR
             return path, msg, page, None
         elif os.path.isfile(f'{path}/{res}'):
             conv.cancel()
