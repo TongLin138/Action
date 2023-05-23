@@ -2,11 +2,11 @@ from telethon import events, Button
 import os
 import shutil
 from asyncio import exceptions
-from .. import jdbot, chat_id, ARCADIA_DIR, BOT_SET, ch_name
+from .. import tgbot, chat_id, ARCADIA_DIR, BOT_SET, ch_name
 from .utils import split_list, logger, press_event
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern='/edit'))
+@tgbot.on(events.NewMessage(from_users=chat_id, pattern='/edit'))
 async def my_edit(event):
     '''定义编辑文件操作'''
     logger.info(f'即将执行{event.raw_text}命令')
@@ -26,23 +26,23 @@ async def my_edit(event):
                 filelist = split_list(lines, 15)
                 path = text
         except Exception as e:
-            await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
+            await tgbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
     elif text and os.path.isdir(text):
         path = text
         filelist = None
     elif text:
-        await jdbot.send_message(chat_id, 'please marksure it\'s a dir or a file')
+        await tgbot.send_message(chat_id, 'please marksure it\'s a dir or a file')
         filelist = None
     else:
         filelist = None
-    async with jdbot.conversation(SENDER, timeout=120) as conv:
+    async with tgbot.conversation(SENDER, timeout=120) as conv:
         msg = await conv.send_message('🕙 正在查询，请稍后...')
         while path:
             path, msg, page, filelist = await edit_file(conv, SENDER, path, msg, page, filelist)
 
 
 if ch_name:
-    jdbot.add_event_handler(my_edit, events.NewMessage(
+    tgbot.add_event_handler(my_edit, events.NewMessage(
         from_users=chat_id, pattern=BOT_SET['命令别名']['edit']))
 
 
@@ -56,7 +56,7 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
         if filelist and type(filelist[0][0]) == str:
             markup = filelist
             newmarkup = markup[page]
-            msg = await jdbot.edit_message(msg, "".join(newmarkup), buttons=mybtn2)
+            msg = await tgbot.edit_message(msg, "".join(newmarkup), buttons=mybtn2)
         else:
             if filelist:
                 markup = filelist
@@ -80,11 +80,11 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
                     else:
                         newmarkup.append(
                             [Button.inline('上级', data='updir'), Button.inline('取消', data='cancel')])
-            msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=newmarkup)
+            msg = await tgbot.edit_message(msg, '请做出您的选择：', buttons=newmarkup)
         convdata = await conv.wait_event(press_event(SENDER))
         res = bytes.decode(convdata.data)
         if res == 'cancel':
-            msg = await jdbot.edit_message(msg, '对话已取消')
+            msg = await tgbot.edit_message(msg, '对话已取消')
             conv.cancel()
             return None, None, None, None
         elif res == 'next':
@@ -113,13 +113,13 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
                 path = ARCADIA_DIR
             return path, msg, page,  None
         elif res == 'edit':
-            await jdbot.send_message(chat_id, '请复制并修改以下内容，修改完成后发回机器人，2分钟内有效\n发送`cancel`或`取消`取消对话')
-            await jdbot.delete_messages(chat_id, msg)
+            await tgbot.send_message(chat_id, '请复制并修改以下内容，修改完成后发回机器人，2分钟内有效\n发送`cancel`或`取消`取消对话')
+            await tgbot.delete_messages(chat_id, msg)
             msg = await conv.send_message(f'`{"".join(newmarkup)}`')
             resp = await conv.get_response()
             if resp.raw_text == 'cancel' or resp.raw_text == '取消':
-                await jdbot.delete_messages(chat_id,msg)
-                await jdbot.send_message(chat_id, '对话已取消')
+                await tgbot.delete_messages(chat_id,msg)
+                await tgbot.send_message(chat_id, '对话已取消')
                 conv.cancel()
                 return
             markup[page] = resp.raw_text.split('\n')
@@ -129,11 +129,11 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
             with open(path, 'w+', encoding='utf-8') as f:
                 markup = ["".join(a) for a in markup]
                 f.writelines(markup)
-            await jdbot.send_message(chat_id, f'文件已修改成功，原文件备份为{path}.bak')
+            await tgbot.send_message(chat_id, f'文件已修改成功，原文件备份为{path}.bak')
             conv.cancel()
             return None, None, None, None
         elif os.path.isfile(f'{path}/{res}'):
-            msg = await jdbot.edit_message(msg, '文件读取中...请稍候')
+            msg = await tgbot.edit_message(msg, '文件读取中...请稍候')
             with open(f'{path}/{res}', 'r', encoding='utf-8') as f:
                 lines = f.readlines()
             lines = split_list(lines, 15)
@@ -142,9 +142,9 @@ async def edit_file(conv, SENDER, path, msg, page, filelist):
         else:
             return f'{path}/{res}', msg, page, None
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，本次对话已停止')
+        msg = await tgbot.edit_message(msg, '选择已超时，本次对话已停止')
         return None, None, None, None
     except Exception as e:
-        msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
+        msg = await tgbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
         return None, None, None, None

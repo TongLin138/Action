@@ -1,8 +1,8 @@
 from telethon import events
-from .. import jdbot, chat_id,ch_name
+from .. import tgbot, chat_id,ch_name
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern='/start'))
+@tgbot.on(events.NewMessage(from_users=chat_id, pattern='/start'))
 async def bot_start(event):
     '''接收/start命令后执行程序'''
     msg = '''使用方法如下：
@@ -28,7 +28,7 @@ async def bot_start(event):
     /run 选择脚本运行，支持所有路径，选择完后直接后台运行，不影响BOT响应其他命令。
 
     直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。'''
-    await jdbot.send_message(chat_id, msg)
+    await tgbot.send_message(chat_id, msg)
 
 if ch_name:
-    jdbot.add_event_handler(bot_start,events.NewMessage(from_users=chat_id, pattern='开始'))
+    tgbot.add_event_handler(bot_start,events.NewMessage(from_users=chat_id, pattern='开始'))

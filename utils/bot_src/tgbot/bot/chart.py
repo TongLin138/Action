@@ -4,8 +4,8 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 # 引入库文件，基于telethon
 from telethon import events
-# 从上级目录引入 jdbot,chat_id变量
-from .. import jdbot, chat_id, LOG_DIR, logger, BOT_DIR, ch_name, BOT_SET
+# 从上级目录引入 tgbot,chat_id变量
+from .. import tgbot, chat_id, LOG_DIR, logger, BOT_DIR, ch_name, BOT_SET
 from ..bot.utils import CONFIG_SH_FILE, get_cks
 from ..bot.quickchart import QuickChart, QuickChartFunction
 from .beandata import get_bean_data
@@ -143,8 +143,7 @@ def createChart(income, out, label):
 # 格式基本固定，本例子表示从chat_id处接收到包含hello消息后，要做的事情
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=(r'^/chart')))
-# 定义自己的函数名称
+@tgbot.on(events.NewMessage(from_users=chat_id, pattern=(r'^/chart')))
 async def chart(event):
     msg_text = event.raw_text.split(' ')
     chat_id = event.sender_id
@@ -154,13 +153,13 @@ async def chart(event):
         else:
             text = None
         if text and int(text) and (int(text) > 0):
-            msg = await jdbot.send_message(chat_id, '🕙 正在查询，请稍后...')
+            msg = await tgbot.send_message(chat_id, '🕙 正在查询，请稍后...')
             res = get_bean_data(int(text))
             # logger.info(res)
             if res['code'] != 200:
                 logger.error("data error")
                 await msg.delete()
-                await jdbot.send_message(chat_id, "❌ 序号不存在或单次请求过多\n\n" + res['data'])
+                await tgbot.send_message(chat_id, "❌ 序号不存在或单次请求过多\n\n" + res['data'])
             else:
                 aver = round((res["data"][0][0]+res["data"][0][1]+res["data"][0][2]+res["data"]
                              [0][3]+res["data"][0][4]+res["data"][0][5]+res["data"][0][6])/7, 2)
@@ -172,17 +171,17 @@ async def chart(event):
                     createpic(res['data'][4], res['data'][2][-1], res['data'][5])
                 logger.info("chart ok")
                 await msg.delete()
-                result = await jdbot.send_message(chat_id, f'近七天平均收入{aver}豆⚡', file=BEAN_IMG)
+                result = await tgbot.send_message(chat_id, f'近七天平均收入{aver}豆⚡', file=BEAN_IMG)
                 # time.sleep(period)
                 # await result.delete()
         else:
-            await jdbot.send_message(chat_id, '请在 /chart 后面加上账号序号使用哦~')
+            await tgbot.send_message(chat_id, '请在 /chart 后面加上账号序号使用哦~')
     except Exception as e:
         logger.error(str(e))
         line = e.__traceback__.tb_lineno
-        await jdbot.send_message(chat_id, "错误类型：" + str(e)+f'\n错误发生在第{line}行\n\n' + str(e))
+        await tgbot.send_message(chat_id, "错误类型：" + str(e)+f'\n错误发生在第{line}行\n\n' + str(e))
         logger.error(f'错误发生在第{line}行')
 
 if ch_name:
-    jdbot.add_event_handler(chart, events.NewMessage(
+    tgbot.add_event_handler(chart, events.NewMessage(
         from_users=chat_id, pattern=BOT_SET['命令别名']['chart']))

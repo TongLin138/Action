@@ -1,10 +1,9 @@
 import re,os,datetime,asyncio
 from functools import wraps
 from telethon import events, Button
-from .. import jdbot, chat_id, LOG_DIR, logger, ARCADIA_DIR, OWN_DIR, CONFIG_DIR, BOT_SET
+from .. import tgbot, chat_id, LOG_DIR, logger, ARCADIA_DIR, CONFIG_DIR, BOT_SET
 
 row = int(BOT_SET['每页列数'])
-CRON_FILE = f'{CONFIG_DIR}/crontab.list'
 BEAN_LOG_DIR = f'{LOG_DIR}/jd_bean_change/'
 CONFIG_SH_FILE = f'{CONFIG_DIR}/config.sh'
 TASK_CMD = 'task'
@@ -61,29 +60,29 @@ def reContent_INVALID(text):
 async def cmd(cmdtext, FotmatCode = False):
     '''定义执行cmd命令'''
     try:
-        msg = await jdbot.send_message(chat_id, '开始执行命令')
+        msg = await tgbot.send_message(chat_id, '开始执行命令')
         p = await asyncio.create_subprocess_shell(
             cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'" + ' 2>&1', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()
         res = res_bytes.decode('utf-8')
         res = reContent_INVALID(res)
         if len(res) == 0:
-            await jdbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
+            await tgbot.edit_message(msg, '❌ 已执行命令但返回值为空，可能遇到了某些错误～')
         elif len(res) <= 4000:
-            await jdbot.delete_messages(chat_id, msg)
+            await tgbot.delete_messages(chat_id, msg)
             if FotmatCode:
-                await jdbot.send_message(chat_id, f"```{res}```", link_preview=False)
+                await tgbot.send_message(chat_id, f"```{res}```", link_preview=False)
             else:
-                await jdbot.send_message(chat_id, res, link_preview=False)
+                await tgbot.send_message(chat_id, res, link_preview=False)
         elif len(res) > 4000:
             tmp_log = f'{LOG_DIR}/TelegramBot/{cmdtext.split("/")[-1].split(".js")[0]}-{datetime.datetime.now().strftime("%H-%M-%S")}.log'
             with open(tmp_log, 'w+', encoding='utf-8') as f:
                 f.write(res)
-            await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, '执行结果较长，具体请查看日志文件内容', file=tmp_log)
+            await tgbot.delete_messages(chat_id, msg)
+            await tgbot.send_message(chat_id, '执行结果较长，具体请查看日志文件内容', file=tmp_log)
             os.remove(tmp_log)
     except Exception as e:
-        await jdbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
+        await tgbot.send_message(chat_id, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
 
 
@@ -156,11 +155,11 @@ async def log_btn(conv, sender, path, msg, page, files_list):
                 else:
                     new_markup.append(
                         [Button.inline('上级', data='updir'), Button.inline('取消', data='cancel')])
-        msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=new_markup)
+        msg = await tgbot.edit_message(msg, '请做出您的选择：', buttons=new_markup)
         convdata = await conv.wait_event(press_event(sender))
         res = bytes.decode(convdata.data)
         if res == 'cancel':
-            msg = await jdbot.edit_message(msg, '对话已取消')
+            msg = await tgbot.edit_message(msg, '对话已取消')
             conv.cancel()
             return None, None, None, None
         elif res == 'next':
@@ -179,18 +178,18 @@ async def log_btn(conv, sender, path, msg, page, files_list):
                 path = ARCADIA_DIR
             return path, msg, page, None
         elif os.path.isfile(f'{path}/{res}'):
-            msg = await jdbot.edit_message(msg, '文件发送中，请注意查收')
+            msg = await tgbot.edit_message(msg, '文件发送中，请注意查收')
             await conv.send_file(f'{path}/{res}')
-            msg = await jdbot.edit_message(msg, f'{res} 发送成功，请查收')
+            msg = await tgbot.edit_message(msg, f'{res} 发送成功，请查收')
             conv.cancel()
             return None, None, None, None
         else:
             return f'{path}/{res}', msg, page, None
     except asyncio.exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，本次对话已停止')
+        msg = await tgbot.edit_message(msg, '选择已超时，本次对话已停止')
         return None, None, None, None
     except Exception as e:
-        msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
+        msg = await tgbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
         return None, None, None, None
 
@@ -229,11 +228,11 @@ async def run_btn(conv, sender, path, msg, page, files_list):
                 else:
                     new_markup.append(
                         [Button.inline('上级', data='updir'), Button.inline('取消', data='cancel')])
-        msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=new_markup)
+        msg = await tgbot.edit_message(msg, '请做出您的选择：', buttons=new_markup)
         convdata = await conv.wait_event(press_event(sender))
         res = bytes.decode(convdata.data)
         if res == 'cancel':
-            msg = await jdbot.edit_message(msg, '对话已取消')
+            msg = await tgbot.edit_message(msg, '对话已取消')
             conv.cancel()
             return None, None, None, None
         elif res == 'next':
@@ -254,16 +253,16 @@ async def run_btn(conv, sender, path, msg, page, files_list):
         elif os.path.isfile(f'{path}/{res}'):
             conv.cancel()
             logger.info(f'{path}/{res} 脚本即将在后台运行')
-            msg = await jdbot.edit_message(msg, f'{res} 已部署后台任务')
+            msg = await tgbot.edit_message(msg, f'{res} 已部署后台任务')
             cmdtext = f'{TASK_CMD} {path}/{res} now -b'
             return None, None, None, f'CMD-->{cmdtext}'
         else:
             return f'{path}/{res}', msg, page, None
     except asyncio.exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止')
+        msg = await tgbot.edit_message(msg, '选择已超时，对话已停止')
         return None, None, None, None
     except Exception as e:
-        msg = await jdbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
+        msg = await tgbot.edit_message(msg, f'something wrong,I\'m sorry\n{str(e)}')
         logger.error(f'something wrong,I\'m sorry\n{str(e)}')
         return None, None, None, None
 
@@ -273,13 +272,13 @@ def mycron(lines):
     return cronreg.search(lines).group()
 
 
-async def add_cron(jdbot, conv, resp, filename, msg, sender, markup, path):
+async def add_cron(tgbot, conv, resp, filename, msg, sender, markup, path):
     try:
         crondata = f'{mycron(resp)} task {path}/{filename}'
-        msg = await jdbot.edit_message(msg, f'已识别定时\n```{crondata}```\n是否需要修改', buttons=markup)
+        msg = await tgbot.edit_message(msg, f'已识别定时\n```{crondata}```\n是否需要修改', buttons=markup)
     except:
         crondata = f'0 0 * * * task {path}/{filename}'
-        msg = await jdbot.edit_message(msg, f'未识别到定时，默认定时\n```{crondata}```\n是否需要修改', buttons=markup)
+        msg = await tgbot.edit_message(msg, f'未识别到定时，默认定时\n```{crondata}```\n是否需要修改', buttons=markup)
     convdata3 = await conv.wait_event(press_event(sender))
     res3 = bytes.decode(convdata3.data)
     if res3 == 'yes':
@@ -288,23 +287,14 @@ async def add_cron(jdbot, conv, resp, filename, msg, sender, markup, path):
         crondata = crondata.raw_text
         if crondata == 'cancel' or crondata == '取消':
             conv.cancel()
-            await jdbot.send_message(chat_id, '对话已取消')
+            await tgbot.send_message(chat_id, '对话已取消')
             return
-        await jdbot.delete_messages(chat_id, convmsg)
-    await jdbot.delete_messages(chat_id, msg)
+        await tgbot.delete_messages(chat_id, convmsg)
+    await tgbot.delete_messages(chat_id, msg)
 
-    owninfo = '# 用户定时任务区'
-    with open(CRON_FILE, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    for line in lines:
-        if owninfo in line:
-            i = lines.index(line)
-            lines.insert(i + 4, crondata+'\n')
-            break
-    with open(CRON_FILE, 'w', encoding='utf-8') as f:
-        f.write(''.join(lines))
+    ## 定时任务添加（待编写）
 
-    await jdbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
+    await tgbot.send_message(chat_id, f'{filename}已保存到{path}，并已尝试添加定时任务')
 
 
 def cron_manage_api(fun, crondata):

@@ -135,8 +135,6 @@ function TGBot_Control() {
                         Install_Bot
                     fi
                     cp -rf $BotSrcDir/tgbot $RootDir
-                    ## 软链接
-                    [ ! -x /usr/local/bin/jcsv ] && ln -sf $UtilsDir/jcsv.sh /usr/local/bin/jcsv
                     ## 启动 bot
                     cd $BotDir && pm2 start ecosystem.config.js && sleep 1
                     local ServiceStatus=$(pm2 describe tgbot | grep status | awk '{print $4}')

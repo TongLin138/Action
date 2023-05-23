@@ -2,7 +2,7 @@
 # _*_ coding:utf-8 _*_
 
 import json
-from . import jdbot, chat_id, logger, LOG_DIR, BOT_SET_JSON_FILE_USER, BOT_SET_JSON_FILE, BOT_SET, BOT_DIR
+from . import tgbot, chat_id, logger, LOG_DIR, BOT_SET_JSON_FILE_USER, BOT_SET_JSON_FILE, BOT_SET, BOT_DIR
 from .utils import load_module
 import os
 import random
@@ -33,11 +33,11 @@ async def new_ver():
         if not is_new:
             with open(BOT_UP_LOG, 'a', encoding='utf-8') as f:
                 f.writelines([version, botlog])
-            await jdbot.send_message(chat_id, text, buttons=[Button.url("📖 使用教程", document_url)], link_preview=False)
+            await tgbot.send_message(chat_id, text, buttons=[Button.url("📖 使用教程", document_url)], link_preview=False)
     else:
         with open(BOT_UP_LOG, 'w+', encoding='utf-8') as f:
             f.writelines([version, botlog])
-        await jdbot.send_message(chat_id, text, buttons=[Button.url("📖 使用教程", document_url)], link_preview=False)
+        await tgbot.send_message(chat_id, text, buttons=[Button.url("📖 使用教程", document_url)], link_preview=False)
 
 
 
@@ -71,12 +71,12 @@ async def hello():
         info = '在呢～'
         hello_words = BOT_SET["启动问候语"].split("|")
         hello_word = hello_words[random.randint(0, len(hello_words) - 1)]
-        await jdbot.send_message(chat_id, f'{str(hello_word)}\n\n\t{info}', link_preview=False)
+        await tgbot.send_message(chat_id, f'{str(hello_word)}\n\n\t{info}', link_preview=False)
 
 
 if __name__ == "__main__":
-    with jdbot:
-        jdbot.loop.create_task(new_ver())
-        jdbot.loop.create_task(bot_set_init())
-        jdbot.loop.create_task(hello())
-        jdbot.loop.run_forever()
+    with tgbot:
+        tgbot.loop.create_task(new_ver())
+        tgbot.loop.create_task(bot_set_init())
+        tgbot.loop.create_task(hello())
+        tgbot.loop.run_forever()

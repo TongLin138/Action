@@ -6,7 +6,6 @@ import logging
 ARCADIA_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 CONFIG_DIR = f'{ARCADIA_DIR}/config'
 SCRIPTS_DIR = f'{ARCADIA_DIR}/scripts'
-OWN_DIR = f'{ARCADIA_DIR}/own'
 BOT_DIR = f'{ARCADIA_DIR}/tgbot'
 _DiyScripts = f'{ARCADIA_DIR}/diyscripts'
 LOG_DIR = f'{ARCADIA_DIR}/log'
@@ -65,13 +64,13 @@ else:
 
 # 开启tg对话
 if PROXY_START and BOT.get('noretry') and BOT['noretry']:
-    jdbot = TelegramClient('bot', API_ID, API_HASH, connection=connectionType,
+    tgbot = TelegramClient('bot', API_ID, API_HASH, connection=connectionType,
                            proxy=proxy).start(bot_token=TOKEN)
 elif PROXY_START:
-    jdbot = TelegramClient('bot', API_ID, API_HASH, connection=connectionType,
+    tgbot = TelegramClient('bot', API_ID, API_HASH, connection=connectionType,
                            proxy=proxy, connection_retries=None).start(bot_token=TOKEN)
 elif BOT.get('noretry') and BOT['noretry']:
-    jdbot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=TOKEN)
+    tgbot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=TOKEN)
 else:
-    jdbot = TelegramClient('bot', API_ID, API_HASH,
+    tgbot = TelegramClient('bot', API_ID, API_HASH,
                            connection_retries=None).start(bot_token=TOKEN)

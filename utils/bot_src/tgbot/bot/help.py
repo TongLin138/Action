@@ -1,8 +1,8 @@
 from telethon import events
-from .. import jdbot, chat_id
+from .. import tgbot, chat_id
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern='^/help'))
+@tgbot.on(events.NewMessage(from_users=chat_id, pattern='^/help'))
 async def bot_help(event):
     '''接收/help命令后执行程序'''
     msg_text = event.raw_text.split(' ')
@@ -51,4 +51,4 @@ start-开始使用本程序'''
     cron = '''    - /cron 命令
         - /cron 加关键字 可进行cron管理'''
     help_me = {'bean': bean, 'cmd': cmd, 'edit': edit, 'node': node, 'getfile': getfile, 'setshort': setshort, 'run': run, 'chart': chart, 'mhelp': mhelp, 'set': botset, 'cron': cron}
-    await jdbot.send_message(chat_id, help_me[text])
+    await tgbot.send_message(chat_id, help_me[text])

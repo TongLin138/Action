@@ -1,5 +1,5 @@
 from telethon import events
-from .. import jdbot, chat_id
+from .. import tgbot, chat_id
 import re, requests, json
 
 ## Nolan 公益API
@@ -8,15 +8,15 @@ API = 'http://api.nolanstore.top/JComExchange'
 requests.adapters.DEFAULT_RETRIES = 1
 session = requests.session()
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern='/code'))
+@tgbot.on(events.NewMessage(from_users=chat_id, pattern='/code'))
 async def code(event):
     parameter = re.split(r'\/code ', event.raw_text, re.S)
     if len(parameter) == 1:
         ## 消息为空
-        await jdbot.send_message(chat_id, ("请输入需要解析的口令"))
+        await tgbot.send_message(chat_id, ("请输入需要解析的口令"))
         return
     else:
-        msg = await jdbot.send_message(chat_id, ("🕙 正在解析中，请稍后..."))
+        msg = await tgbot.send_message(chat_id, ("🕙 正在解析中，请稍后..."))
         text = parameter[1]
 
     try:
@@ -41,4 +41,4 @@ async def code(event):
     except KeyError:
         push_msg = "❌ 接口回传数据异常"
 
-    await jdbot.edit_message(msg, push_msg, link_preview=False)
+    await tgbot.edit_message(msg, push_msg, link_preview=False)
