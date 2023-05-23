@@ -1,6 +1,8 @@
 #!/bin/bash
 ## 容器 EntryPoint 入口脚本
 
+source ${ARCADIA_DIR}/shell/core/main.sh
+
 if [ ! -d ${ARCADIA_DIR}/config ]; then
     echo -e "$ERROR 没有映射 config 配置文件目录给本容器，请先按教程映射该目录...\n"
     exit 1
