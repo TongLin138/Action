@@ -22,6 +22,10 @@ const DIR_KEY = {
     BAK: DIR_NAME.BAK + "/"
 }
 
+//创建scripts目录
+
+
+
 // 日志目录
 let logPath = path.join(rootPath, DIR_KEY.LOG);
 // 脚本目录
