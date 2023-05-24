@@ -32,7 +32,12 @@ let repoPath = path.join(rootPath, DIR_KEY.REPO);
 let configPath = path.join(rootPath, DIR_KEY.CONFIG);
 //sample目录
 let samplePath = path.join(rootPath, DIR_KEY.SAMPLE);
-
+if (!fs.existsSync(scriptsPath)) {
+    fs.mkdirSync(scriptsPath);
+}
+if (!fs.existsSync(repoPath)) {
+    fs.mkdirSync(repoPath);
+}
 // config.sh 文件所在目录
 let configFile = path.join(configPath, 'config.sh');
 
