@@ -5,7 +5,7 @@
 function Check_Files() {
     echo ''
     Make_Dir $LogDir
-    JsonFiles="config.sh auth.json bot.json account.json sync_config.yml"
+    JsonFiles="config.sh auth.json bot.json account.json sync.yml"
     for file in $JsonFiles; do
         if [ ! -s "$ConfigDir/$file" ]; then
             cp -fv "$SampleDir/$file" "$ConfigDir/$file"
