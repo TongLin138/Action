@@ -7,8 +7,7 @@ function Count_RepoSum() {
     if [[ $? -eq 0 ]]; then
         RepoSum="$(cat $FileSyncConfUser | yq '.repo | length')"
     else
-        echo -e "\n$ERROR 配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！\n"
-        exit 1
+        Output_Error "配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！"
     fi
 }
 
@@ -18,8 +17,7 @@ function Count_RawSum() {
     if [[ $? -eq 0 ]]; then
         RawSum="$(cat $FileSyncConfUser | yq '.raw | length')"
     else
-        echo -e "\n$ERROR 配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！\n"
-        exit 1
+        Output_Error "配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！"
     fi
 }
 

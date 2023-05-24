@@ -72,8 +72,6 @@ FAIL="[\033[1;31m失败${PLAIN}]"
 WORKING="[\033[1;36m >_ ${PLAIN}]"
 EXAMPLE="[\033[1;35m参考命令${PLAIN}]"
 TIPS="[\033[1;32m提示${PLAIN}]"
-COMMAND_ERROR="$ERROR 命令不正确，请确认后重试！"
-TOO_MANY_COMMANDS="$ERROR 输入命令过多，请确认后重试！"
 ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
 ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 RawDirUtils="node_modules|${ShieldingKeywords}"
@@ -143,14 +141,18 @@ function StringLength() {
 }
 
 ## 输出命令错误提示
+function Output_Error() {
+    [ "$1" ] && echo -e "\n$ERROR $1\n"
+    exit 1
+}
 function Output_Command_Error() {
     local Mod=$1
     case $Mod in
     1)
-        echo -e "\n$COMMAND_ERROR\n"
+        echo -e "\n$ERROR 命令不正确，请确认后重试！\n"
         ;;
     2)
-        echo -e "\n$TOO_MANY_COMMANDS\n"
+        echo -e "\n$ERROR 输入命令过多，请确认后重试！\n"
         ;;
     esac
 }

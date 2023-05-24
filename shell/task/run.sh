@@ -425,8 +425,7 @@ function Account_ExistenceJudgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
-        echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
-        exit 1 ## 终止退出
+            Output_Error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
     fi
 }
 

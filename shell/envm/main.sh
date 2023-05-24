@@ -411,8 +411,7 @@ function Main() {
             grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | sed "s|^|第|g; s|:|行：|g; s|${Keys}|${RED}${Keys}${PLAIN}|g"
             echo -e "\n$COMPLETE 查询完毕\n"
         else
-            echo -e "\n$ERROR 未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！\n"
-            exit 1
+            Output_Error "未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！"
         fi
         ;;
     esac

@@ -137,8 +137,7 @@ function List_Local_Scripts() {
                 exit ## 终止退出
             fi
         else
-            echo -e "\n$ERROR 目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！\n"
-            exit 1 ## 终止退出
+            Output_Error "目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！"
         fi
 
         cd $WorkDir
