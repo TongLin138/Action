@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-25
 
 source ${ARCADIA_DIR}/shell/core/main.sh
 
@@ -28,7 +28,7 @@ function ChooseRunMod() {
                 read -p "$(echo -e "\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}")" Input2
                 echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
                 if [ $? -eq 0 ]; then
-                    echo -e "\n$COMMAND_ERROR 无效参数 ，请确认后重新输入！"
+                    echo -e "\n$ERROR 无效的账号序号，请确认后重新输入！"
                 else
                     local Accounts=$(echo ${Input2} | perl -pe '{s|,| |g}')
                     for UserNum in ${Accounts}; do
@@ -92,7 +92,7 @@ function ChooseRunMod() {
         echo -e "\n$ERROR 输入错误，请重新执行！\n"
     done
     ## 组合命令
-    RunMode="now${TmpParam1}${TmpParam2}${TmpParam3}"
+    RunMode="${TmpParam1}${TmpParam2}${TmpParam3}"
 }
 
 function Main() {
@@ -191,7 +191,7 @@ function Main() {
         [Yy] | [Yy][Ee][Ss])
             ChooseRunMod
             ## 补全命令
-            sed -i "s/^/$TaskCmd &/g" $RunFile
+            sed -i "s/^/$TaskCmd run &/g" $RunFile
             sed -i "s/$/& ${RunMode}/g" $RunFile
             sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
