@@ -8,7 +8,7 @@ repo:
     enable: true # 是否启用该仓库配置
     cronSettings:
       updateTaskList: false # 是否为该配置启用定时任务（默认不启用）
-      scriptsPath: '' # 定时脚本路径（默认为仓库根目录）
+      scriptsPath: "" # 定时脚本路径（默认为仓库根目录）
       scriptsType: # 定时脚本文件格式（默认为 JavaScript、Python、TypeScript 脚本）
         - js
         - ts
@@ -30,4 +30,4 @@ raw:
 # 全局配置
 gobal:
   autoDisableRepoDuplicateCron: true # 自动禁用来自脚本仓库的重复定时任务
-  rawDependencyFilter: "" # 远程脚本依赖文件过滤（白名单）
+  rawDependencyFilter: '' # 远程脚本依赖文件过滤（白名单）
