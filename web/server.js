@@ -110,7 +110,6 @@ app.use(
         }
     })
 );
-app.use('/api/cronFile', require("./api/cron").cronFileAPI);
 
 const {openAPI, openApiHandler} = require("./api/open");
 app.use('/api/open', openApiHandler, openAPI);

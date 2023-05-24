@@ -152,9 +152,9 @@ api.get('/bindGroup', async function (request, response) {
     }
 })
 
-let fileApi = express()
+let innerCornApi = express()
 
-fileApi.post('/updateAll', async function (request, response) {
+innerCornApi.post('/updateAll', async function (request, response) {
     try {
         function toBind(type, s) {
             let repoPath = "/" + DIR_KEY.ROOT + DIR_KEY.REPO;
@@ -217,4 +217,4 @@ fileApi.post('/updateAll', async function (request, response) {
 })
 
 module.exports.cronAPI = api
-module.exports.cronFileAPI = fileApi
+module.exports.innerCornApi = innerCornApi

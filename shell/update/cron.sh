@@ -14,7 +14,7 @@ function Update_Cron() {
     # $2 Body / json
     function cronFile_updateAll() {
         local data=$1
-        local response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "http://127.0.0.1:5678/api/cronFile/updateAll?_t=$(date +%s)000")
+        local response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "http://127.0.0.1:15678/inner/cron/updateAll?_t=$(date +%s)000")
         echo "${response}"
     }
 
