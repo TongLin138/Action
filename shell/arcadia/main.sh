@@ -11,10 +11,12 @@ case $# in
     case $1 in
     repo)
         import arcadia/repo
+        shift
         Add_Repo "$@"
         ;;
     raw)
         import arcadia/raw
+        shift
         Add_Raw "$@"
         ;;
     *)
