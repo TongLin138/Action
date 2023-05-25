@@ -64,7 +64,7 @@ function Add_Raw() {
 
     # 生成配置文件模板
     function CreateTemplate() {
-        echo '{ "name": "", "url": "", "cronSettings": { "updateTaskList": true } }' | jq | yq -y >$tmp_file
+        echo '{ "name": "", "url": "", "cronSettings": { "updateTaskList": false } }' | jq | yq -y >$tmp_file
         # 插入缩进空格
         local LineSum="$(cat $tmp_file | grep "" -c)"
         for ((i = 1; i <= $LineSum; i++)); do
