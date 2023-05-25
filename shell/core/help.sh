@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-25
 
 ## 命令帮助
 function Help() {
@@ -124,5 +124,41 @@ function Help() {
     ${BLUE}<path>${PLAIN} 相对路径或绝对路径
 "
         ;;
+    "${ContrlCmd}_repo")
+        echo -e "
+❖ 导入脚本仓库配置命令
+
+使用方法：
+
+  ${BLUE}$ContrlCmd repo <name> <url> <branch> [--options]${PLAIN}    ✧ 必须提供名称、地址、分支，其它通过命令参数控制
+
+命令选项：
+
+  ${BLUE}--enable${PLAIN}             是否启用仓库
+  ${BLUE}--updateTaskList${PLAIN}     是否更新定时任务
+  ${BLUE}--scriptsPath${PLAIN}        定时脚本路径
+  ${BLUE}--scriptsType${PLAIN}        定时脚本文件格式，多个用 \"|\" 分开
+  ${BLUE}--whiteList${PLAIN}          定时脚本匹配白名单
+  ${BLUE}--blackList${PLAIN}          定时脚本匹配黑名单
+  ${BLUE}--autoDisable${PLAIN}        是否自动禁用新的定时任务
+  ${BLUE}--addNotify${PLAIN}          是否为新增定时任务推送通知提醒
+  ${BLUE}--delNotify${PLAIN}          是否为过期定时任务推送通知提醒
+  ${BLUE}--help${PLAIN}               查看命令帮助
+"
+    ;;
+    "${ContrlCmd}_raw")
+        echo -e "
+❖ 导入远程脚本配置命令
+
+使用方法：
+
+  ${BLUE}$ContrlCmd raw <name> <url> [--options]${PLAIN}    ✧ 必须提供名称、地址，其它通过命令参数控制
+
+命令选项：
+
+  ${BLUE}--updateTaskList${PLAIN}     是否更新定时任务
+  ${BLUE}--help${PLAIN}               查看命令帮助
+"
+    ;;
     esac
 }

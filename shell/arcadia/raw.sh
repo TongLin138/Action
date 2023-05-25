@@ -14,16 +14,18 @@ function Add_Raw() {
         0)
             import core/help
             Help "${ContrlCmd}_raw"
+            exit
             ;;
         1)
             case "$1" in
             -h | --help)
                 import core/help
                 Help "${ContrlCmd}_raw"
+                exit
                 ;;
             *)
                 echo -e "\n$ERROR 缺少必须提供的 url 参数！\n"
-                exit ## 终止退出
+                exit
                 ;;
             esac
             ;;

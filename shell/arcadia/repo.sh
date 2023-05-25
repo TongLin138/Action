@@ -14,22 +14,24 @@ function Add_Repo() {
         0)
             import core/help
             Help "${ContrlCmd}_repo"
+            exit
             ;;
         1)
             case "$1" in
             -h | --help)
                 import core/help
                 Help "${ContrlCmd}_repo"
+                exit
                 ;;
             *)
                 echo -e "\n$ERROR 缺少必须提供的 url 和 branch 参数！\n"
-                exit ## 终止退出
+                exit
                 ;;
             esac
             ;;
         2)
             echo -e "\n$ERROR 缺少必须提供的 branch 参数！\n"
-            exit ## 终止退出
+            exit
             ;;
         *)
             ## 必填参数
