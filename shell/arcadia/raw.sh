@@ -1,9 +1,65 @@
 #!/bin/bash
 ## Modified: 2023-05-25
 
+## 一键添加远程脚本命令
+# arcadia repo <name> <url> [--options]
 function Add_Raw() {
+    local name url updateTaskList
     # 定义临时文件
     local tmp_file="${ARCADIA_DIR}/.raw.yml"
+
+    ## 处理命令选项
+    function CommandOptions() {
+        case $# in
+        0)
+            import core/help
+            Help "${ContrlCmd}_raw"
+            ;;
+        1)
+            case "$1" in
+            -h | --help)
+                import core/help
+                Help "${ContrlCmd}_raw"
+                ;;
+            *)
+                echo -e "\n$ERROR 缺少必须提供的 url 参数！\n"
+                exit ## 终止退出
+                ;;
+            esac
+            ;;
+        *)
+            ## 必填参数
+            name="$1"
+            shift
+            url="$1"
+            shift
+
+            ## 判断命令选项
+            while [ $# -gt 0 ]; do
+                case "$1" in
+                --updateTaskList)
+                    if [ "$2" ]; then
+                        echo "$2" | grep -Eqw "true|false"
+                        if [ $? -eq 0 ]; then
+                            updateTaskList="$2"
+                            shift
+                        else
+                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                        fi
+                    else
+                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                    fi
+                    ;;
+                *)
+                    Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    ;;
+                esac
+                shift
+            done
+            ;;
+        esac
+    }
+
     # 生成配置文件模板
     function CreateTemplate() {
         echo '{ "name": "", "url": "", "cronSettings": { "updateTaskList": true } }' | jq | yq -y >$tmp_file
@@ -14,6 +70,51 @@ function Add_Raw() {
         done
     }
 
+    # 替换用户配置
+    function ReplaceUserConf() {
+        sed -i "s|name: \'\'|name: \"${name}\"|g" $tmp_file
+        sed -i "s|url: \'\'|url: \"${url}\"|g" $tmp_file
+        [ "${updateTaskList}" ] && sed -i "s|updateTaskList: false|updateTaskList: ${updateTaskList}|g" $tmp_file
+        echo -e "\n$TIPS 自动生成的配置内容如下：\n"
+        cat $tmp_file | sed "s/^  //g"
+        echo ''
+    }
+
+    # 保存配置（写入至配置文件）
+    function SaveConf() {
+        local LinesInfo="$(cat $FileSyncConfUser | grep -n "" | grep -Ev "^[0-9]{1,4}:  ")"
+        # 判断是否有设置 raw 键值对
+        echo "${LinesInfo}" | grep -Eq ":raw:$"
+        if [ $? -eq 0 ]; then
+            # 判断是否在最后
+            if [[ "$(echo "${LinesInfo}" | grep -E ":raw:$" -A 1 | tail -n 1 | awk -F ':' '{print$2}')" == "raw" ]]; then
+                echo -e "\n$(cat $tmp_file)\n" >>$FileSyncConfUser
+            else
+                local writeLineNum=$(echo "${LinesInfo}" | grep -E ":raw:$" -A 1 | tail -n 1 | awk -F ':' '{print$1}')
+                writeLineNum=$(($writeLineNum - 1))
+                sed -i "$writeLineNum r $tmp_file" $FileSyncConfUser
+            fi
+        else
+            echo -e "raw:\n$(cat $tmp_file)\n" >>$FileSyncConfUser
+        fi
+        if [ $? -eq 0 ]; then
+            echo -e "$SUCCESS 已写入至 ${BLUE}${FileSyncConfUser##*/}${PLAIN} 配置文件，你可以在之后执行更新命令 ${BLUE}${UpdateCmd} raw${PLAIN} 来使该配置生效\n"
+        else
+            echo -e "$ERROR 已写入至 ${BLUE}${FileSyncConfUser##*/}${PLAIN} 配置文件失败！\n"
+        fi
+    }
+
+    # 处理命令选项
+    CommandOptions "$@"
+    # 判断重复性
+    cat $FileSyncConfUser | grep -Eq "url: [\"\']?${url}[\"\']?"
+    [ $? -eq 0 ] && Output_Error "检测到该配置已存在，请勿重复添加！"
+    # 生成配置文件模板
     CreateTemplate
+    # 替换用户配置
+    ReplaceUserConf
+    # 保存配置
+    SaveConf
+    # 删除临时文件
     [ -f $tmp_file ] && rm -rf $tmp_file
 }
