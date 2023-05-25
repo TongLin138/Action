@@ -31,6 +31,15 @@ jobs:
         directory: stable
         github_token: ${{ secrets.TOKEN }}
         branch: stable
+    - name: Clone Arcadia
+      run: |
+        git clone -b stable git@arcadia:SuperManito/Arcadia.git dev
+    - name: Push Arcadia
+      uses: ad-m/github-push-action@master
+      with:
+        directory: Arcadia
+        github_token: ${{ secrets.TOKEN }}
+        branch: Arcadia
     - name: Clone panel_sign_json
       run: |
         git clone -b master git@gitee.com:supermanito/panel_sign_json.git panel_sign_json
