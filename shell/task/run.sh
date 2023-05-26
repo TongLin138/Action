@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-26
 
 ## 查找脚本
 function Find_Script() {
@@ -425,7 +425,7 @@ function Account_ExistenceJudgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
-            Output_Error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
+        Output_Error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
     fi
 }
 
@@ -510,7 +510,11 @@ function Run_Normal() {
                 python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
                 ;;
             TypeScript)
-                ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+                if [[ ${EnableGlobalProxy} == true ]]; then
+                    ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 &>>${LogFile} &
+                else
+                    ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+                fi
                 ;;
             Shell)
                 bash ${FileName}.sh 2>&1 &>>${LogFile} &
@@ -532,7 +536,11 @@ function Run_Normal() {
                 python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
                 ;;
             TypeScript)
-                ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
+                if [[ ${EnableGlobalProxy} == true ]]; then
+                    ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 | tee -a ${LogFile}
+                else
+                    ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
+                fi
                 ;;
             Shell)
                 bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
