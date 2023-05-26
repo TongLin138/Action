@@ -69,9 +69,17 @@ function Init() {
   esac
   echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➂ 启动电报机器人结束 -----\n"
 
-  echo -e "..." && sleep 1 && echo -e "...." && sleep 1 && echo -e "....." && sleep 1
-  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
-  echo -e "$TIPS 请退出查看容器初始化日志\n"
+  # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
+  if [[ "${EnableInitExtra}" == true ]]; then
+    if [ -f $FileInitExtra ]; then
+      echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➃ 自定义初始化脚本开始 -----\n"
+      source $FileInitExtra
+      echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➃ 自定义初始化脚本结束 -----\n"
+    fi
+  fi
 
-  crond -f >/dev/null
+  # 启动成功
+  echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} \033[1;32m容器启动成功${PLAIN}\n"
+
+  crond -f >/dev/null # 保活
 }

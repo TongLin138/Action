@@ -61,7 +61,7 @@ function Title() {
         RunMod=" 扩 展 脚 本 "
         ;;
     extra)
-        RunMod=" 自 定 脚 本 "
+        RunMod=" 额 外 脚 本 "
         ;;
     designated)
         RunMod=" 指 定 仓 库 "
@@ -117,7 +117,7 @@ function Main() {
             echo ''
             ;;
         extra)
-            if [[ $EnableExtraShellSync == true ]] || [[ $EnableExtraShell == true ]]; then
+            if [[ $EnableUpdateExtraSync == true ]] || [[ $EnableUpdateExtra == true ]]; then
                 Title $1
                 import update/extra
                 UpdateExtra

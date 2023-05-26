@@ -1,5 +1,5 @@
 ## Version: v0.0.1
-## Date: 2023-05-23
+## Date: 2023-05-26
 ## Update Content: First release
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 自 定 义 环 境 变 量 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
@@ -51,38 +51,51 @@ export CK_AUTO_ADD="true"
 
 # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 项 目 功 能 设 置 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
 
-## ❖ 1. 控制删除日志时间
-# 定义在运行删除旧的日志任务时要删除多少天以前的日志，请输入正整数，不填则禁用删除日志的功能
+## ❖ 1. 控制删除日志的时间范围
+# 定义在运行删除日志任务时要保存多少天以内的日志（正整数），即删除多少天以前的日志，默认为一周
 RmLogDaysAgo="7"
 
-## ❖ 2. 自定义 Extra 脚本功能
-# 在每次执行更新脚本时额外运行的 Shell 脚本
-# 必须将脚本命名为 "extra.sh" 并且放置在 config 目录下
+## ❖ 2. 自定义更新功能
+# 在每次执行更新命令时（运行最后）额外运行用户自定义的 Shell 脚本
+# 必须将脚本命名为 "update_extra.sh" 并且放置在 config 目录下
 # 如想启用请赋值为 "true"
-EnableExtraShell=""
-# 定义 Extra 自定义脚本远程同步功能：
+EnableUpdateExtra=""
+# 自定义更新脚本远程同步功能：
 #   1). 功能开关，如想启用请赋值为 "true"
-EnableExtraShellSync=""
+EnableUpdateExtraSync=""
 #   2). 同步地址
-ExtraShellSyncUrl=""
+UpdateExtraSyncUrl=""
 
-## ❖ 3. 更新账号推送通知
+## ❖ 3. 自定义初始化功能
+# 在每次启动容器时（运行最后）额外运行用户自定义的 Shell 脚本
+# 必须将脚本命名为 "init_extra.sh" 并且放置在 config 目录下
+# 如想启用请赋值为 "true"
+EnableInitExtra=""
+
+## ❖ 4. 自定义运行脚本功能
+# 在每次运行任务脚本前后额外运行用户自定义的 Shell 脚本，包括并发任务
+# 必须将脚本命名为 "task_before.sh（运行前）" 或 "task_after.sh（运行后）" 并且放置在 config 目录下
+# 如想启用请赋值为 "true"
+EnableTaskBeforeExtra=""
+EnableTaskAfterExtra=""
+
+## ❖ 5. 更新账号推送通知
 # 控制当使用 wskey 更新 Cookie 后是否推送更新结果内容
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateNotify=""
 
-## ❖ 4. 更新账号异常告警
+## ❖ 6. 更新账号异常告警
 # 控制当使用 wskey 更新 Cookie 失败后是否推送通知提醒，以用于快速处理失效的 wskey
 # 默认不推送，如想要接收推送通知提醒请赋值为 "true"
 EnableCookieUpdateFailureNotify=""
 
-## ❖ 5. 控制是否保存远程执行的脚本
+## ❖ 7. 控制是否保存远程执行的脚本
 # 控制当 task run <url> 任务执行完毕后是否删除脚本（下载的脚本默认存放在 scripts 目录），即是否本地保存执行的脚本
 # 默认不删除，如想要自动删除请赋值为 "true"
 AutoDelRawFiles=""
 
-## ❖ 6. 脚本全局代理
-# Powered by global-agent (仅支持 js 脚本)
+## ❖ 8. 脚本全局代理
+# Powered by global-agent (仅支持 js 和 ts 脚本)
 # 官方仓库：https://github.com/gajus/global-agent
 # 官方文档：https://www.npmjs.com/package/global-agent
 # 全局代理，如想全局启用代理请赋值为 "true"
@@ -110,7 +123,7 @@ EnableGlobalProxy=""
 # 如需使用，请自行解除下一行的注释并赋值并赋值
 # export GLOBAL_AGENT_HTTPS_PROXY=""
 
-## ❖ 7. 自定义推送通知模块功能
+## ❖ 9. 自定义推送通知模块功能
 # 默认使用项目提供的 sendNotify.js 推送通知模块，配置教程详见官网 https://arcadia.cool/docs/configuration/notify
 # 如想使用第三方推送通知模块请将下方变量赋值为 "true" ，并在 config 目录下存放你的 sendNotify.js 脚本
 # 注意如若使用第三方通知模块可能会出现兼容性问题导致项目部分功能不可用

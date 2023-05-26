@@ -484,10 +484,6 @@ function NoPushNotify() {
 function Run_Normal() {
     local InputContent=$1
     local UserNum LogFile
-    ## 匹配脚本
-    Find_Script ${InputContent}
-    ## 导入配置文件
-    Import_Config ${FileName}
     ## 统计账号数量
     Count_UserSum
     ## 静默运行
@@ -704,10 +700,6 @@ function Run_Normal() {
 function Run_Concurrent() {
     local InputContent=$1
     local UserNum LogFile
-    ## 匹配脚本
-    Find_Script ${InputContent}
-    ## 导入配置文件
-    Import_Config ${FileName}
     ## 统计账号数量
     Count_UserSum
     ## 静默运行参数
@@ -827,6 +819,16 @@ function Run_Concurrent() {
 
 function Run_Script() {
     RUN_MODE="${1}"
+    ## 匹配脚本
+    Find_Script "${2}"
+    ## 导入配置文件
+    Import_Config ${FileName}
+    # task_before.sh
+    if [[ "${EnableTaskBeforeExtra}" == true ]]; then
+        if [ -f $FileTaskBeforeExtra ]; then
+            source $FileTaskBeforeExtra
+        fi
+    fi
     case "${RUN_MODE}" in
     run)
         Run_Normal "${2}"
@@ -835,4 +837,10 @@ function Run_Script() {
         Run_Concurrent "${2}"
         ;;
     esac
+    # task_after.sh
+    if [[ "${EnableTaskAfterExtra}" == true ]]; then
+        if [ -f $FileTaskAfterExtra ]; then
+            source $FileTaskAfterExtra
+        fi
+    fi
 }
