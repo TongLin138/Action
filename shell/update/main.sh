@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 清空定时任务关联脚本清单内容
 function clean_list_scripts() {
@@ -13,10 +13,9 @@ function clean_list_scripts() {
 ## 更新 Repo 仓库和 RawFile 脚本
 function update_sync() {
     import sync
-    import update/cron
 
     ## 创建目录
-    make_dir $ReposDir
+    make_dir $RepoDir
     make_dir $RawDir
     make_dir $LogTmpDir
 
@@ -26,8 +25,8 @@ function update_sync() {
     case $1 in
     all)
         import update/repo
-        import update/raw
         update_all_repo
+        import update/raw
         update_raw
         ;;
     repo)
@@ -41,13 +40,13 @@ function update_sync() {
     esac
 
     ## 更新定时任务
+    import update/cron
     update_cron
 }
 
 function print_title_start() {
-    local p=$1
     local update_mod
-    case $1 in
+    case "$1" in
     all)
         update_mod="全部内容"
         ;;
@@ -89,7 +88,7 @@ function main() {
     1)
         case $1 in
         all)
-            print_title_start $1
+            print_title_start "all"
             import update/source
             update_sourcecode
             update_sync "all"
@@ -102,11 +101,11 @@ function main() {
             update_sourcecode
             ;;
         repo)
-            print_title_start $1
+            print_title_start "repo"
             update_sync "repo"
             ;;
         raw)
-            print_title_start $1
+            print_title_start "raw"
             update_sync "raw"
             ;;
         extra)
@@ -115,7 +114,7 @@ function main() {
                 import update/extra
                 update_extra
             else
-                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
+                echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于自定义更新脚本的相关变量！\n"
             fi
             ;;
         *)
@@ -136,7 +135,7 @@ function main() {
                     fi
                 else
                     output_command_error 1 # 命令错误
-                    exit                   ## 终止退出
+                    exit
                 fi
             fi
             ;;

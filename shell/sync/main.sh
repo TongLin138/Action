@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 统计脚本仓库数量
 function count_reposum() {
@@ -81,7 +81,7 @@ function gen_repoconf_array() {
             fi
             ## 仓库路径
             Array_Repo_dir[$arr_num]="$(echo "${Array_Repo_url[$arr_num]}" | sed "s|\.git||g" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
-            Array_Repo_path[$arr_num]="$ReposDir/${Array_Repo_dir[$arr_num]}"
+            Array_Repo_path[$arr_num]="$RepoDir/${Array_Repo_dir[$arr_num]}"
             ## 仓库启用状态（默认启用）
             if [[ "$(get_repoconf ".[$arr_num] | .enable")" == "false" ]]; then
                 Array_Repo_enable[$arr_num]="false"
@@ -346,7 +346,7 @@ function gen_repocron_list() {
             if [[ "${path}" == '/' ]]; then
                 FormatPath="${Array_Repo_path[i]}" # 根目录
             else
-                FormatPath="$ReposDir/$(echo "${repoDir}/$path" | sed "s|//|/|g; s|/$||g")" # 去掉多余的斜杠
+                FormatPath="$RepoDir/$(echo "${repoDir}/$path" | sed "s|//|/|g; s|/$||g")" # 去掉多余的斜杠
                 ## 判断子目录是否存在
                 if [ -d "${FormatPath}" ]; then
                     cd ${FormatPath}

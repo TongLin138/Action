@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 更新项目源码
 # update source
@@ -18,7 +18,7 @@ function update_sourcecode() {
         if [ -f $FileConfUser ] && [[ $VerConfUser != $VerConfSample ]] && [[ $UpdateDate == $(date "+%Y-%m-%d") ]]; then
             if [ ! -f $FileSendMark ]; then
                 local NotifyTitle="配置文件更新通知"
-                local NotifyContent="更新日期: $UpdateDate\n当前版本: $VerConfUser\n新的版本: $VerConfSample\n更新内容: $UpdateContent\n"
+                local NotifyContent="更新日期: $UpdateDate\n当前版本: $VerConfUser\n新的版本: $VerConfSample\n更新内容: $UpdateContent"
                 echo -e $NotifyContent
                 send_notify "$NotifyTitle" "$NotifyContent"
                 echo ''
@@ -36,9 +36,9 @@ function update_sourcecode() {
     cd $RootDir
     git_pull $RootDir "$(git status | head -n 1 | awk -F ' ' '{print$NF}')" "开始更新项目源码"
     if [[ $EXITSTATUS -eq 0 ]]; then
-        echo -e "\n$COMPLETE 源码已更新\n"
+        echo -e "\n$COMPLETE 源码已更新"
     else
-        echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
+        echo -e "\n$FAIL 源码更新失败，请检查原因..."
     fi
     ## 检测依赖变动
     [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)

@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 目录
 RootDir=${ARCADIA_DIR}
@@ -13,7 +13,7 @@ LogDir=$RootDir/log
 LogTmpDir=$LogDir/.tmp
 SignDir=$UtilsDir/.sign
 CodeDir=$LogDir/ShareCodes
-ReposDir=$RootDir/repo
+RepoDir=$RootDir/repo
 RawDir=$RootDir/raw
 BotDir=$RootDir/tgbot
 BotLogDir=$LogDir/TelegramBot

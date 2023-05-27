@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 查找脚本
 function find_script() {
@@ -40,8 +40,8 @@ function find_script() {
                 AbsolutePath=$(echo "${InputContent}" | sed "s|\.\./|${PwdTmp}/|g")
             else
                 local TmpDirName=$(echo ${InputContent} | awk -F '/' '{printf$1}')
-                if [ -d "$ReposDir/$TmpDirName" ]; then
-                    AbsolutePath=$(echo "${InputContent}" | sed "s|^|$ReposDir/|g")
+                if [ -d "$RepoDir/$TmpDirName" ]; then
+                    AbsolutePath=$(echo "${InputContent}" | sed "s|^|$RepoDir/|g")
                 else
                     ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
                     if [[ $(pwd) == "/root" ]]; then
@@ -122,7 +122,7 @@ function find_script() {
     ## 匹配 Scripts 目录下的脚本
     function match_scriptsfile() {
         local FileNameTmp SeekDir SeekExtension
-        ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/utils > /jd/scripts/backUp
+        ## 定义目录范围，优先级为 /arcadia/scripts > /arcadia/scripts/utils > /arcadia/scripts/backUp
         SeekDir="$ScriptsDir $ScriptsDir/utils $ScriptsDir/backUp"
         ## 定义后缀格式
         SeekExtension="js py ts sh"

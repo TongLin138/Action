@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 更新所有仓库
 # update repo
@@ -76,7 +76,7 @@ function update_designated_repo() {
             print_title "source"
             update_sourcecode
         else
-            make_dir $ReposDir
+            make_dir $RepoDir
             make_dir $LogTmpDir
 
             import sync

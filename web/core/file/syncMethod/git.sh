@@ -84,7 +84,7 @@ function main() {
     # 定义仓库文件夹名称
     Repo_Dir="$(echo "$Repo_Url" | sed "s|\.git||g" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
     # 定义仓库路径
-    Repo_Path="$ReposDir/$Repo_Dir"
+    Repo_Path="$RepoDir/$Repo_Dir"
 
     # 处理仓库
     if [ -d ${Repo_Path}/.git ]; then

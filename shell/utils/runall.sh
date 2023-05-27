@@ -1,130 +1,113 @@
 #!/bin/bash
-## Modified: 2023-05-27
-
-source ${ARCADIA_DIR}/shell/core/main.sh
-
-## 选择执行模式
-function ChooseRunMod() {
-    local Input1 Input2 Input3 Input4 UserNum TmpParam1 TmpParam2 TmpParam3
-
-    ## 判定账号是否存在
-    function ExistenceJudgment() {
-        local Num=$1
-        local Tmp=Cookie$Num
-        if [[ -z ${!Tmp} ]]; then
-            echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
-            exit ## 终止退出
-        fi
-    }
-
-    ## 查询脚本名，$1 为脚本名
-    function query_script_name() {
-        local FileName=$1
-        case ${FileName##*.} in
-        js)
-            grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
-            if [ $? -eq 0 ]; then
-                local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
-            else
-                local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
-            fi
-            ;;
-        *)
-            cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
-            if [ $? -eq 0 ]; then
-                local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
-            else
-                local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
-            fi
-            ;;
-        esac
-        if [[ ${Tmp} ]]; then
-            ScriptName=${Tmp}
-        else
-            ScriptName="<未知>"
-        fi
-    }
-
-    ## 指定账号参数
-    while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否指定账号? [Y/n] ${PLAIN}")" Input1
-        [ -z ${Input1} ] && Input1=Y
-        case $Input1 in
-        [Yy] | [Yy][Ee][Ss])
-            ## 导入配置文件
-            import_config ${FileName}
-            while true; do
-                read -p "$(echo -e "\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}")" Input2
-                echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
-                if [ $? -eq 0 ]; then
-                    echo -e "\n$ERROR 无效的账号序号，请确认后重新输入！"
-                else
-                    local Accounts=$(echo ${Input2} | perl -pe '{s|,| |g}')
-                    for UserNum in ${Accounts}; do
-                        echo ${UserNum} | grep "-" -q
-                        if [ $? -eq 0 ]; then
-                            if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
-                                for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
-                                    ExistenceJudgment $i
-                                done
-                            else
-                                echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
-                                exit ## 终止退出
-                            fi
-                        else
-                            ExistenceJudgment $UserNum
-                        fi
-                    done
-                    break
-                fi
-            done
-            TmpParam1=" --cookie ${Input2}"
-            break
-            ;;
-        [Nn] | [Nn][Oo])
-            TmpParam1=""
-            break
-            ;;
-        esac
-        echo -e "\n$ERROR 输入错误，请重新执行！\n"
-    done
-    ## 迅速模式（组合互助码）参数
-    while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否组合互助码? [Y/n] ${PLAIN}")" Input3
-        [ -z ${Input3} ] && Input3=Y
-        case $Input3 in
-        [Yy] | [Yy][Ee][Ss])
-            TmpParam2=""
-            break
-            ;;
-        [Nn] | [Nn][Oo])
-            TmpParam2=" --rapid"
-            break
-            ;;
-        esac
-        echo -e "\n$ERROR 输入错误，请重新执行！\n"
-    done
-    ## 静默推送通知参数
-    while true; do
-        read -p "$(echo -e "\n${BOLD}└ 是否推送通知消息? [Y/n] ${PLAIN}")" Input4
-        [ -z ${Input4} ] && Input4=Y
-        case $Input4 in
-        [Yy] | [Yy][Ee][Ss])
-            TmpParam3=""
-            break
-            ;;
-        [Nn] | [Nn][Oo])
-            TmpParam3=" --mute"
-            break
-            ;;
-        esac
-        echo -e "\n$ERROR 输入错误，请重新执行！\n"
-    done
-    ## 组合命令
-    RunMode="${TmpParam1}${TmpParam2}${TmpParam3}"
-}
+## Modified: 2023-05-28
 
 function main() {
+
+    ## 选择执行模式
+    function choose_run_mod() {
+        local Input1 Input2 Input3 UserNum TmpParam1 TmpParam2
+
+        ## 判定账号是否存在
+        function ExistenceJudgment() {
+            local Num=$1
+            local Tmp=Cookie$Num
+            if [[ -z ${!Tmp} ]]; then
+                echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
+                exit ## 终止退出
+            fi
+        }
+
+        ## 查询脚本名，$1 为脚本名
+        function query_script_name() {
+            local FileName=$1
+            case ${FileName##*.} in
+            js)
+                grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
+                if [ $? -eq 0 ]; then
+                    local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+                else
+                    local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
+                fi
+                ;;
+            *)
+                cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
+                if [ $? -eq 0 ]; then
+                    local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+                else
+                    local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
+                fi
+                ;;
+            esac
+            if [[ ${Tmp} ]]; then
+                ScriptName=${Tmp}
+            else
+                ScriptName="<未知>"
+            fi
+        }
+
+        ## 指定账号参数
+        while true; do
+            read -p "$(echo -e "\n${BOLD}└ 是否指定账号? [Y/n] ${PLAIN}")" Input1
+            [ -z ${Input1} ] && Input1=Y
+            case $Input1 in
+            [Yy] | [Yy][Ee][Ss])
+                ## 导入配置文件
+                import_config ${FileName}
+                while true; do
+                    read -p "$(echo -e "\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}")" Input2
+                    echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
+                    if [ $? -eq 0 ]; then
+                        echo -e "\n$ERROR 无效的账号序号，请确认后重新输入！"
+                    else
+                        local Accounts=$(echo ${Input2} | perl -pe '{s|,| |g}')
+                        for UserNum in ${Accounts}; do
+                            echo ${UserNum} | grep "-" -q
+                            if [ $? -eq 0 ]; then
+                                if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
+                                    for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
+                                        ExistenceJudgment $i
+                                    done
+                                else
+                                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
+                                    exit ## 终止退出
+                                fi
+                            else
+                                ExistenceJudgment $UserNum
+                            fi
+                        done
+                        break
+                    fi
+                done
+                TmpParam1=" --cookie ${Input2}"
+                break
+                ;;
+            [Nn] | [Nn][Oo])
+                TmpParam1=""
+                break
+                ;;
+            esac
+            echo -e "\n$ERROR 输入错误，请重新执行！\n"
+        done
+        ## 静默推送通知参数
+        while true; do
+            read -p "$(echo -e "\n${BOLD}└ 是否推送通知消息? [Y/n] ${PLAIN}")" Input3
+            [ -z ${Input3} ] && Input3=Y
+            case $Input3 in
+            [Yy] | [Yy][Ee][Ss])
+                TmpParam2=""
+                break
+                ;;
+            [Nn] | [Nn][Oo])
+                TmpParam2=" --mute"
+                break
+                ;;
+            esac
+            echo -e "\n$ERROR 输入错误，请重新执行！\n"
+        done
+        ## 组合命令
+        RunOptions="${TmpParam1}${TmpParam2}"
+    }
+
     local CurrentDir=$(pwd)
     local Input3 Input4 Input5 ScriptType Tmp1 Tmp2
     local RunFile=$RootDir/.runall_tmp.sh
@@ -152,26 +135,22 @@ function main() {
     ShieldingKeywords="AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 
     echo -e "\n❖ ${BOLD}RunAll${PLAIN}\n"
-    echo -e '1)   Scripts 目录下的所有脚本'
-    echo -e '2)   指定路径下的所有脚本（非递归）'
+    echo -e '1)   指定路径下的所有脚本（非递归）'
+    echo -e '2)   个人目录下的所有脚本（scripts）'
     while true; do
         read -p "$(echo -e "\n${BOLD}└ 请选择执行脚本范围 [ 1-4 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
-            local WorkDir=$ScriptsDir
-            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
-            break
-            ;;
-        2)
-            import_config_not_check
-            echo -e "\n❖ 检测到的脚本仓库："
-            if [[ ${OwnRepoUrl1} ]]; then
-                ls $ReposDir | egrep -v "node_modules|package" | perl -pe "{s|^|$ReposDir/|g}"
+            import sync
+            count_reposum
+            if [[ $RepoSum -ge 1 ]]; then
+                echo -e "\n❖ 检测到的脚本仓库："
+                ls $RepoDir | egrep -v "node_modules|package" | perl -pe "{s|^|$RepoDir/|g}"
+                echo -e "\n${GREEN}Tips${PLAIN}：可以指定任何一个目录并非仅限于上方检测到的仓库"
             fi
-            echo -e "\n${GREEN}Tips${PLAIN}：可以指定任何一个目录并非仅限于上方检测到的仓库"
             while true; do
                 read -p "$(echo -e "\n${BOLD}└ 请输入绝对路径：${PLAIN}")" Input4
-                local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/jd/||; s|^*|$RootDir/|;}")
+                local AbsolutePath=$(echo "$Input4" | perl -pe "{s|/arcadia/||; s|^*|$RootDir/|;}")
                 if [[ $Input4 ]] && [ -d ${AbsolutePath} ]; then
                     break
                 else
@@ -180,6 +159,11 @@ function main() {
             done
             ls ${AbsolutePath} | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${AbsolutePath}/|g; s|//|/|;}" | sort -u >$RunFile
             local WorkDir=${AbsolutePath}
+            break
+            ;;
+        2)
+            local WorkDir=$ScriptsDir
+            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
             break
             ;;
         esac
@@ -206,10 +190,10 @@ function main() {
         [ -z ${Input5} ] && Input5=Y
         case $Input5 in
         [Yy] | [Yy][Ee][Ss])
-            ChooseRunMod
+            choose_run_mod
             ## 补全命令
             sed -i "s/^/$TaskCmd run &/g" $RunFile
-            sed -i "s/$/& ${RunMode}/g" $RunFile
+            sed -i "s/$/&${RunOptions}/g" $RunFile
             sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
             echo -e "\n$TIP ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
@@ -239,5 +223,7 @@ function main() {
     fi
     rm -rf $RunFile
 }
+
+source ${ARCADIA_DIR}/shell/core/main.sh
 
 main
