@@ -2,7 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 列出本地脚本清单功能
-# task list
+# task list <path>
 function list_local_scripts() {
     local ScriptType Tmp1 Tmp2
     ## 根据处理器架构判断匹配脚本类型
@@ -28,6 +28,34 @@ function list_local_scripts() {
     ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
     ShieldingKeywords="AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 
+    ## 查询脚本名，$1 为脚本名
+    function query_script_name() {
+        local FileName=$1
+        case ${FileName##*.} in
+        js)
+            grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
+            if [ $? -eq 0 ]; then
+                local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+            else
+                local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
+            fi
+            ;;
+        *)
+            cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
+            if [ $? -eq 0 ]; then
+                local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+            else
+                local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
+            fi
+            ;;
+        esac
+        if [[ ${Tmp} ]]; then
+            ScriptName=${Tmp}
+        else
+            ScriptName="<未知>"
+        fi
+    }
+
     ## 查询脚本大小，$1 为脚本名
     function query_script_size() {
         local FileName=$1
@@ -39,76 +67,13 @@ function list_local_scripts() {
         local FileName=$1
         local Data=$(ls -lth | grep "\b$FileName\b" | awk -F 'root' '{print$NF}')
         local MonthTmp=$(echo $Data | awk -F ' ' '{print$2}')
-        local Month="$(echo '{"Jan": 01, "Feb": 02, "Mar": 03, "Apr": 04, "May": 05, "Jun": 06, "Jul": 07, "Aug": 08, "Sept": 09, "Oct": 10, "Nov": 11, "Dec": 12}' | jq -r ".${MonthTmp}")"
+        local Month="$(echo '{"Jan": "1", "Feb": "2", "Mar": "3", "Apr": "4", "May": "5", "Jun": "6", "Jul": "7", "Aug": "8", "Sept": "9", "Oct": "10", "Nov": "11", "Dec": "12"}' | jq -r ".${MonthTmp}")"
         local Day=$(echo $Data | awk -F ' ' '{print$3}')
         if [[ $Day -lt "10" ]]; then
             Day="0$Day"
         fi
         local Time=$(echo $Data | awk -F ' ' '{print$4}')
         ScriptEditTimes="$Month-$Day $Time"
-    }
-
-    ## 列出所有配置中的脚本
-    function list_sync() {
-        local FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
-        import_config_not_check
-
-        if [[ ${OwnRepoUrl1} ]]; then
-            for ((i = 1; i <= 0x64; i++)); do
-                Tmp1=OwnRepoUrl$i
-                Tmp2=${!Tmp1}
-                [[ $Tmp2 ]] && RepoSum=$i || break
-            done
-
-            if [[ $RepoSum -ge 1 ]]; then
-                for ((i = 1; i <= $RepoSum; i++)); do
-                    repo_num=$((i - 1))
-                    Tmp1=OwnRepoUrl$i
-                    array_own_repo_url[$repo_num]=${!Tmp1}
-                    array_own_repo_dir[$repo_num]=$(echo ${array_own_repo_url[$repo_num]} | sed "s|\.git||g" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')
-                    Tmp3=OwnRepoPath$i
-                    if [[ -z ${!Tmp3} ]]; then
-                        array_own_repo_path[$repo_num]="$ReposDir/${array_own_repo_dir[$repo_num]}"
-                    else
-                        array_own_repo_path[$repo_num]="$ReposDir/${array_own_repo_dir[$repo_num]}/${!Tmp3}"
-                    fi
-                done
-            fi
-
-            local ListFiles=($(
-                for ((i = 1; i <= $RepoSum; i++)); do
-                    repo_num=$((i - 1))
-                    ls ${array_own_repo_path[repo_num]} 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sed "s|^|${array_own_repo_path[repo_num]}/|g"
-                done
-                if [[ ${#RawFile[*]} -ge 1 ]]; then
-                    ls $RawDir 2>/dev/null | grep -E "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sed "s|^|$RawDir/|g"
-                fi
-            ))
-
-            echo -e "\n❖ 脚本仓库："
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                FileName=${ListFiles[i]##*/}
-                FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
-                cd $FileDir
-                query_script_name $FileName
-                printf "%4s  %-50s %s\n" "$(($i + 1))" "${ListFiles[i]:8}" "${ScriptName}"
-            done
-        fi
-    }
-
-    ## 列出 scripts 目录下的个人脚本
-    function list_scripts() {
-        cd $ScriptsDir
-        local ListFiles=($(
-            ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
-        ))
-        if [ ${#ListFiles[*]} != 0 ]; then
-            echo -e "\n❖ 个人脚本："
-            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                query_script_name ${ListFiles[i]}
-                printf "%3s  %-36s   %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptName}"
-            done
-        fi
     }
 
     ## 列出指定目录下的脚本
@@ -183,10 +148,10 @@ function list_local_scripts() {
         else
             TmpNum="1"
         fi
-        printf "\n${BLUE}%$((28 + ${TmpNum}))s${PLAIN} ${BLUE}%29s${PLAIN}  ${BLUE}%6s${PLAIN}             ${BLUE}%s${PLAIN}\n" "[文件名称]" "[修改时间]" " [大小]" "[脚本名称]"
+        printf "\n${BLUE}%$((28 + ${TmpNum}))s${PLAIN} ${BLUE}%30s${PLAIN} ${BLUE}%6s${PLAIN}             ${BLUE}%s${PLAIN}\n" "[文件名称]" "[修改时间]" " [大小]" "[脚本名称]"
+        echo ''
 
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            echo ''
             query_script_name ${ListFiles[i]}
             query_script_size ${ListFiles[i]}
             query_script_edittimes ${ListFiles[i]}
@@ -200,18 +165,10 @@ function list_local_scripts() {
             for ((a = 1; a <= ${spacesNums2}; a++)); do
                 ScriptName=" ${ScriptName}"
             done
-            printf "%${TmpNum}s  %-$((34 + ${LengthTmp1}))s %14s %6s  %-$((34 + ${LengthTmp2}))s\n" "$(($i + 1))" "${ListFiles[i]}" "$(echo ${ScriptEditTimes} | sed "s/ /  /g")" "${ScriptSize}" "${ScriptName}"
+            printf "%${TmpNum}s  %-$((34 + ${LengthTmp1}))s %14s %6s  %-$((34 + ${LengthTmp2}))s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptEditTimes}" "${ScriptSize}" "${ScriptName}"
         done
     }
 
-    case $# in
-    0)
-        list_sync
-        list_scripts
-        ;;
-    1)
-        list_designated $1
-        ;;
-    esac
+    list_designated "$1"
     echo ''
 }

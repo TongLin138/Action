@@ -13,10 +13,6 @@ function main() {
             import task/process
             process_status
             ;;
-        list)
-            import task/list
-            list_local_scripts
-            ;;
         rmlog)
             import task/rmlog
             remove_logfiles
