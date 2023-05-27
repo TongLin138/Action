@@ -420,7 +420,8 @@ function main() {
 function main() {
     case $# in
     0)
-        output_command_error 1 # 命令错误
+        import core/help
+        print_help "envm"
         ;;
     1)
         case $1 in

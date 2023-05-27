@@ -9,6 +9,14 @@ function main() {
         ;;
     1)
         case $1 in
+        run)
+            import core/help
+            print_help "${TaskCmd}_run"
+            ;;
+        conc)
+            import core/help
+            print_help "${TaskCmd}_conc"
+            ;;
         ps)
             import task/process
             process_status

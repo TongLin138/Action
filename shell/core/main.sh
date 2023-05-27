@@ -53,11 +53,11 @@ ListDelScripts=$LogTmpDir/scripts_del.list
 ListConfScripts=$LogTmpDir/scripts_conf.json
 
 ## 字符串
-ARCH="$(uname -m)"
 ContrlCmd="arcadia"
 TaskCmd="task"
 UpdateCmd="update"
 EnvManageCmd="envm"
+ARCH="$(uname -m)"
 TIME_FORMAT="+%Y-%m-%d %T:%N"
 RED='\033[31m'
 GREEN='\033[32m'
