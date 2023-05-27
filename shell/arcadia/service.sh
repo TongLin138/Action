@@ -42,7 +42,7 @@ function main_service_manage() {
     local ExitStatusTTYD=$?
     case $1 in
     ## 开启/重启服务
-    on)
+    start)
         ## 删除日志
         rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/inner_server-*.log /root/.pm2/logs/web_terminal-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
@@ -128,7 +128,7 @@ function main_service_manage() {
         fi
         ;;
     ## 关闭服务
-    off)
+    stop)
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
             pm2 stop web_server >/dev/null 2>&1
             if [[ ${ExitStatusTTYD} -eq 0 ]]; then

@@ -30,7 +30,6 @@ function update_sourcecode() {
     }
 
     local PanelDependOld PanelDependNew
-    echo -e "-------------------------------------------------------------"
     ## 更新前先存储 package.json
     [ -f $PanelDir/package.json ] && PanelDependOld=$(cat $PanelDir/package.json)
     ## 更新仓库
