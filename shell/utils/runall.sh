@@ -17,34 +17,6 @@ function main() {
             fi
         }
 
-        ## 查询脚本名，$1 为脚本名
-        function query_script_name() {
-            local FileName=$1
-            case ${FileName##*.} in
-            js)
-                grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
-                if [ $? -eq 0 ]; then
-                    local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
-                else
-                    local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
-                fi
-                ;;
-            *)
-                cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
-                if [ $? -eq 0 ]; then
-                    local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
-                else
-                    local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
-                fi
-                ;;
-            esac
-            if [[ ${Tmp} ]]; then
-                ScriptName=${Tmp}
-            else
-                ScriptName="<未知>"
-            fi
-        }
-
         ## 指定账号参数
         while true; do
             read -p "$(echo -e "\n${BOLD}└ 是否指定账号? [Y/n] ${PLAIN}")" Input1
@@ -106,6 +78,34 @@ function main() {
         done
         ## 组合命令
         RunOptions="${TmpParam1}${TmpParam2}"
+    }
+
+    ## 查询脚本名，$1 为脚本名
+    function query_script_name() {
+        local FileName=$1
+        case ${FileName##*.} in
+        js)
+            grep "\$ \=" $FileName | grep -Eiq ".*new Env\(.*\)"
+            if [ $? -eq 0 ]; then
+                local Tmp=$(grep "\$ \=" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+            else
+                local Tmp=$(grep -w "script-path" $FileName | head -1 | sed "s/\W//g" | sed "s/[0-9a-zA-Z_]//g")
+            fi
+            ;;
+        *)
+            cat $FileName | sed -n "1,10p" | grep -Eiq ".*new Env\(.*\)"
+            if [ $? -eq 0 ]; then
+                local Tmp=$(grep "new Env(" $FileName | grep -Ei ".*new Env\(.*\)" | head -1 | perl -pe "{s|.*nv\([\'\"](.*)[\'\"]\).*|\1|g}")
+            else
+                local Tmp=$(grep -E "^脚本名称" $FileName | head -1 | awk -F "[\'\":,：]" '{print $2}' | awk -F "[\'\":,：]" '{print $1}')
+            fi
+            ;;
+        esac
+        if [[ ${Tmp} ]]; then
+            ScriptName=${Tmp}
+        else
+            ScriptName="<未知>"
+        fi
     }
 
     local CurrentDir=$(pwd)
@@ -170,8 +170,8 @@ function main() {
         echo -e "\n$ERROR 输入错误！"
     done
     if [ -s $RunFile ]; then
-        ## 去除不适合在此执行的活动脚本
-        local ExcludeScripts="bean_change joy_reward blueCoin jd_delCoupon jd_family jd_crazy_joy jd_try jd_cfdtx"
+        ## 去除不适合在此执行的常见脚本
+        local ExcludeScripts="bean_change jd_delCoupon jd_family"
         for del in ${ExcludeScripts}; do
             sed -i "/$del/d" $RunFile
         done
