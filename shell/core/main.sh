@@ -76,9 +76,6 @@ TIP="[\033[1;32m提示${PLAIN}]"
 WORKING="[\033[1;36m >_ ${PLAIN}]"
 EXAMPLE="[\033[1;35m参考命令${PLAIN}]"
 
-## URL
-SignsRepoGitUrl="git@arcadia:supermanito/service_sign_json.git"
-
 ## 导入模块
 function import() {
     if [ -d "$ShellDir/$1" ]; then
@@ -88,7 +85,7 @@ function import() {
     fi
     if [ -s "$target" ]; then
         [ ! -x "$target" ] && chmod +x "$target" >/dev/null 2>&1
-        . "$target"
+        source "$target"
     else
         echo -e "\n$ERROR $target 不存在，跳过导入！\n"
     fi
@@ -97,7 +94,7 @@ function import() {
 ## 导入配置文件
 function import_config() {
     if [ -f $FileConfUser ]; then
-        . $FileConfUser
+        source $FileConfUser
     else
         echo -e "\n$ERROR 配置文件 $FileConfUser 不存在，请检查是否移动过该文件！\n"
         exit
@@ -105,31 +102,8 @@ function import_config() {
 }
 function import_config_not_check() {
     if [ -f $FileConfUser ]; then
-        . $FileConfUser >/dev/null 2>&1
+        source $FileConfUser >/dev/null 2>&1
     fi
-}
-
-## URL编码
-function UrlEncode() {
-    local LANG=C
-    local length="${#1}"
-    local i=0
-    while :; do
-        [ $length -gt $i ] && {
-            local c="${1:$i:1}"
-            case $c in
-            [a-zA-Z0-9.~_-]) printf "$c" ;;
-            *) printf '%%%02X' "'$c" ;;
-            esac
-        } || break
-        let i++
-    done
-}
-
-## URL解码
-function UrlDecode() {
-    local u="${1//+/ }"
-    echo -e "${u//%/\\x}"
 }
 
 ## 计算字符串长度
@@ -171,17 +145,6 @@ function send_notify() {
     if [ -d $ScriptsDir_NodeModules ]; then
         node $FileNotify "$title" "$msg"
     fi
-}
-
-## 解析 json 数据
-function json_parse() {
-    jq -n "$1" | jq -rc "$2"
-}
-
-## 解析 Encode 中文字符串
-function parse_encode_string_to_chinese() {
-    local String=$1
-    printf $(echo ${String} | sed "s|%|\\\x|g")
 }
 
 ## 创建目录

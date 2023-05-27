@@ -13,14 +13,14 @@ function add_raw_conf() {
         case $# in
         0)
             import core/help
-            Help "${ContrlCmd}_raw"
+            print_help "${ContrlCmd}_raw"
             exit
             ;;
         1)
             case "$1" in
             -h | --help)
                 import core/help
-                Help "${ContrlCmd}_raw"
+                print_help "${ContrlCmd}_raw"
                 exit
                 ;;
             *)

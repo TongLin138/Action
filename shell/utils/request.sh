@@ -32,3 +32,37 @@ function delete_request() {
     # echo "$response"
 }
 # response=$(delete_request "https://jsonplaceholder.typicode.com/posts/1")
+
+## URL编码
+function url_encode() {
+    local LANG=C
+    local length="${#1}"
+    local i=0
+    while :; do
+        [ $length -gt $i ] && {
+            local c="${1:$i:1}"
+            case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+            esac
+        } || break
+        let i++
+    done
+}
+
+## URL解码
+function url_decode() {
+    local u="${1//+/ }"
+    echo -e "${u//%/\\x}"
+}
+
+## 解析 Encode 中文字符串
+function parse_encode_string_to_chinese() {
+    local String=$1
+    printf $(echo ${String} | sed "s|%|\\\x|g")
+}
+
+## 解析 json 数据
+function json_parse() {
+    jq -n "$1" | jq -rc "$2"
+}

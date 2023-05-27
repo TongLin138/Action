@@ -257,10 +257,10 @@ function gen_rawconf_array() {
 }
 
 ## 生成定时任务脚本的绝对路径清单
-function Gen_RepoCronList() {
+function gen_repocron_list() {
 
     ## 生成脚本清单对应的配置（对应仓库的配置数据）用于在更新定时请求时携带
-    function Gen_ScriptListConf() {
+    function gen_script_listconf() {
         echo "$(cat $ListConfScripts | jq '."'"$1"'"='"$2"'')" >$ListConfScripts
     }
 
@@ -328,7 +328,7 @@ function Gen_RepoCronList() {
                 ## 判断脚本是否存在内容
                 if [ -s $file ]; then
                     echo "${repoPath}/${file}" >>$writeFile
-                    Gen_ScriptListConf "${repoPath}/${file}" '{"path": "'"${repoPath}"'/'"${file}"'", "autoDisable": "'"${autoDisable}"'", "addNotify": "'"${addNotify}"'", "delNotify": "'"${delNotify}"'"}'
+                    gen_script_listconf "${repoPath}/${file}" '{"path": "'"${repoPath}"'/'"${file}"'", "autoDisable": "'"${autoDisable}"'", "addNotify": "'"${addNotify}"'", "delNotify": "'"${delNotify}"'"}'
                 else
                     continue
                 fi
@@ -367,7 +367,7 @@ function Gen_RepoCronList() {
                     ## 判断脚本是否存在内容
                     if [ -s $file ]; then
                         echo "${FormatPath}/${file}" >>$writeFile
-                        Gen_ScriptListConf "${FormatPath}/${file}" '{"path": "'"${FormatPath}"'/'"${file}"'", "autoDisable": "'"${autoDisable}"'", "addNotify": "'"${addNotify}"'", "delNotify": "'"${delNotify}"'"}'
+                        gen_script_listconf "${FormatPath}/${file}" '{"path": "'"${FormatPath}"'/'"${file}"'", "autoDisable": "'"${autoDisable}"'", "addNotify": "'"${addNotify}"'", "delNotify": "'"${delNotify}"'"}'
                     else
                         continue
                     fi

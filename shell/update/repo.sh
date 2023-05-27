@@ -2,6 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 更新所有仓库
+# update repo
 function update_all_repo() {
     local Repo_Name Repo_Url Repo_Branch Repo_Dir Repo_Path Repo_Enable
     ## 统计仓库数量并生成配置
@@ -17,7 +18,7 @@ function update_all_repo() {
             ## 更新/克隆仓库
             if [ -d "${Array_Repo_path[i]}/.git" ]; then
                 # 生成旧的定时脚本清单
-                [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && Gen_RepoCronList "old" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
+                [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && gen_repocron_list "old" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
 
                 reset_romote_url ${Array_Repo_path[i]} ${Array_Repo_url[i]} ${Array_Repo_branch[i]}
                 git_pull ${Array_Repo_path[i]} ${Array_Repo_branch[i]} "开始更新仓库 ${BLUE}${Array_Repo_name[i]}${PLAIN}"
@@ -37,7 +38,7 @@ function update_all_repo() {
             fi
 
             # 生成新的定时脚本清单
-            [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && Gen_RepoCronList "new" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
+            [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && gen_repocron_list "new" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
         done
     else
         echo -e "$ERROR 未检测到任何有效的仓库配置，跳过更新仓库..."
@@ -45,6 +46,7 @@ function update_all_repo() {
 }
 
 ## 更新指定路径下的仓库
+# update <path>
 function update_designated_repo() {
     local InputContent AbsolutePath PwdTmp
     ## 去掉最后一个/
@@ -99,7 +101,7 @@ function update_designated_repo() {
             if [ $configured_repo == true ]; then
                 # 生成旧的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then
-                    Gen_RepoCronList "old" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
+                    gen_repocron_list "old" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
                 fi
                 reset_romote_url ${Array_Repo_path[current_num]} ${Array_Repo_url[current_num]} ${Array_Repo_branch[current_num]}
                 git_pull ${Array_Repo_path[current_num]} ${Array_Repo_branch[current_num]}
@@ -110,7 +112,7 @@ function update_designated_repo() {
                 fi
                 # 生成新的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then
-                    Gen_RepoCronList "new" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
+                    gen_repocron_list "new" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
                 fi
 
                 ## 更新定时任务

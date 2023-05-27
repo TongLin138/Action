@@ -14,7 +14,7 @@ function remove_logfiles() {
         RmDays=$1
         ;;
     esac
-    function Rm_JsLog() {
+    function rm_script_log() {
         LogFileList=$(ls -l $LogDir/*/*.log 2>/dev/null | awk '{print $9}' | grep -v "log/bot")
         for log in ${LogFileList}; do
             ## 文件名比文件属性获得的日期要可靠
@@ -25,7 +25,7 @@ function remove_logfiles() {
         done
     }
     ## 删除 update 的运行日志
-    function Rm_UpdateLog() {
+    function rm_update_log() {
         if [ -f $LogDir/update.log ]; then
             Stmp=$(($(date "+%s") - 86400 * ${RmDays}))
             DateDelLog=$(date -d "@${Stmp}" "+%Y-%m-%d")
@@ -33,8 +33,8 @@ function remove_logfiles() {
             [ ${LineEndGitPull} -gt 0 ] && perl -i -ne "{print unless 1 .. ${LineEndGitPull} }" $LogDir/update.log
         fi
     }
-    ## 删除 Bot 的运行日志
-    function Rm_BotLog() {
+    ## 删除 Telegram Bot 的运行日志
+    function rm_tgbot_log() {
         if [ -f $BotLogDir/run.log ]; then
             Stmp=$(($(date "+%s") - 86400 * ${RmDays}))
             DateDelLog=$(date -d "@${Stmp}" "+%Y-%m-%d")
@@ -43,7 +43,7 @@ function remove_logfiles() {
         fi
     }
     ## 删除空文件夹
-    function Rm_EmptyDir() {
+    function rm_empty_dir() {
         cd $LogDir
         for dir in $(ls); do
             if [ -d ${dir} ] && [[ $(ls ${dir}) == "" ]]; then
@@ -54,10 +54,10 @@ function remove_logfiles() {
     ## 汇总
     if [ -n "${RmDays}" ]; then
         echo -e "\n$WORKING 开始检索并删除超过 ${BLUE}${RmDays}${PLAIN} 天的日志文件...\n"
-        Rm_JsLog
-        Rm_UpdateLog
-        Rm_BotLog
-        Rm_EmptyDir
+        rm_script_log
+        rm_update_log
+        rm_tgbot_log
+        rm_empty_dir
         [ -f $RootDir/core ] && rm -rf $RootDir/core
         echo -e "\n$COMPLETE 运行结束\n"
     fi

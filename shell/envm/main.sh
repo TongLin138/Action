@@ -417,54 +417,58 @@ function main() {
     esac
 }
 
-case $# in
-0)
-    output_command_error 1 # 命令错误
-    ;;
-1)
-    case $1 in
-    add | del | edit | search)
-        main $1
-        ;;
-    *)
+function main() {
+    case $# in
+    0)
         output_command_error 1 # 命令错误
         ;;
-    esac
-    ;;
-2)
-    case $1 in
-    enable | disable)
-        main "edit" $1 $2
+    1)
+        case $1 in
+        add | del | edit | search)
+            main $1
+            ;;
+        *)
+            output_command_error 1 # 命令错误
+            ;;
+        esac
         ;;
-    del | search)
-        main $1 $2
+    2)
+        case $1 in
+        enable | disable)
+            main "edit" $1 $2
+            ;;
+        del | search)
+            main $1 $2
+            ;;
+        *)
+            output_command_error 1 # 命令错误
+            ;;
+        esac
+        ;;
+    3)
+        case $1 in
+        add | edit)
+            main $1 $2 "$3"
+            ;;
+        *)
+            output_command_error 1 # 命令错误
+            ;;
+        esac
+        ;;
+    4)
+        case $1 in
+        add | edit)
+            main $1 $2 "$3" "$4"
+            ;;
+        *)
+            output_command_error 1 # 命令错误
+            ;;
+        esac
         ;;
     *)
-        output_command_error 1 # 命令错误
+        output_command_error 2 # 命令过多
         ;;
     esac
-    ;;
-3)
-    case $1 in
-    add | edit)
-        main $1 $2 "$3"
-        ;;
-    *)
-        output_command_error 1 # 命令错误
-        ;;
-    esac
-    ;;
-4)
-    case $1 in
-    add | edit)
-        main $1 $2 "$3" "$4"
-        ;;
-    *)
-        output_command_error 1 # 命令错误
-        ;;
-    esac
-    ;;
-*)
-    output_command_error 2 # 命令过多
-    ;;
-esac
+}
+
+main "$@"

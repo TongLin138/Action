@@ -2,7 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 命令帮助
-function Help() {
+function print_help() {
     case $1 in
     task)
         case ${ARCH} in

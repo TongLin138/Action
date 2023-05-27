@@ -2,6 +2,7 @@
 ## Modified: 2023-05-27
 
 ## Telegram Bot 功能
+# arcadia tgbot start/stop/logs/update
 function tgbot_manage() {
 
     ## 安装 Telegram Bot

@@ -2,6 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 后端服务控制
+# arcadia service start/stop/info/respwd
 function main_service_manage() {
 
     ## 更新源码

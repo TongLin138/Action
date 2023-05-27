@@ -13,14 +13,14 @@ function add_repo_conf() {
         case $# in
         0)
             import core/help
-            Help "${ContrlCmd}_repo"
+            print_help "${ContrlCmd}_repo"
             exit
             ;;
         1)
             case "$1" in
             -h | --help)
                 import core/help
-                Help "${ContrlCmd}_repo"
+                print_help "${ContrlCmd}_repo"
                 exit
                 ;;
             *)

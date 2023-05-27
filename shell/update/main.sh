@@ -76,7 +76,6 @@ function print_title() {
 }
 
 function main() {
-
     import update/git
     ## 创建日志文件夹
     make_dir $LogDir
@@ -86,7 +85,7 @@ function main() {
     case $# in
     0)
         import core/help
-        Help $UpdateCmd
+        print_help $UpdateCmd
         ;;
     1)
         case $1 in

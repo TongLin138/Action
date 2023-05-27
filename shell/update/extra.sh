@@ -2,6 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 自定义更新脚本
+# update extra
 function update_extra() {
     if [[ "${EnableUpdateExtra}" == true || "${EnableUpdateExtraSync}" == true ]]; then
         echo -e "-------------------------------------------------------------\n"

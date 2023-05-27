@@ -195,7 +195,7 @@ function main() {
             done
             ## 开始执行
             echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行开始\n"
-            . $RunFile
+            source $RunFile
             echo -e "\n[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行结束\n"
             ;;
         [Nn] | [Nn][Oo])

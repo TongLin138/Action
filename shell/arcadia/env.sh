@@ -2,6 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 检测项目配置文件完整性
+# arcadia check conf
 function check_conf_files() {
     echo ''
     make_dir $LogDir
@@ -15,6 +16,7 @@ function check_conf_files() {
 }
 
 ## 处理环境软件包和模块
+# arcadia env install/repairs
 function environment_package() {
     local npm_packages_armv7="date-fns dotenv png-js ws@7.4.3"
     local npm_packages_full="date-fns dotenv png-js ws@7.4.3 file-system-cache tunnel js-base64 ds ts-md5 tslib"

@@ -2,13 +2,14 @@
 ## Modified: 2023-05-27
 
 ## 账号控制功能
-# task cookie
+# task cookie check/update/beans/list
 function accounts_control() {
     local SUCCESS_ICON="[✔]"
     local FAIL_ICON="[×]"
     local Valid="${GREEN}${SUCCESS_ICON}${PLAIN}"
     local Invalid="${RED}${FAIL_ICON}${PLAIN}"
     local INTERFACE_URL="https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
+    import utils/request
 
     ## 检测
     function CheckCookie() {
@@ -120,7 +121,7 @@ function accounts_control() {
             ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             FormatPin=$(echo ${pt_pin} | sed "s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g")
-            ## 转义 pt_pin 中的 UrlEncode 输出中文
+            ## 转义 pt_pin 中的 url_encode 输出中文
             EscapePin=$(parse_encode_string_to_chinese "${FormatPin}")
             echo -e "账号：${BLUE}${EscapePin}${PLAIN}\n"
             ## 定义账号状态
@@ -192,6 +193,7 @@ function accounts_control() {
 
         ## 更新 sign 签名
         function UpdateSign() {
+            local SignsRepoGitUrl="git@arcadia:supermanito/service_sign_json.git"
             make_dir $SignDir
             if [ ! -d $SignDir/.git ]; then
                 git clone -b master ${SignsRepoGitUrl} $SignDir >/dev/null
@@ -424,7 +426,7 @@ function accounts_control() {
 
         function getJingBeanBalanceDetail() {
             local pageNum=$1
-            body="body=$(UrlEncode "{\"pageSize\": \"20\",\"page\": \"${pageNum}\"}")&appid=ld"
+            body="body=$(url_encode "{\"pageSize\": \"20\",\"page\": \"${pageNum}\"}")&appid=ld"
             curl -s -X POST "https://api.m.jd.com/client.action?functionId=getJingBeanBalanceDetail" \
                 -H "Host: api.m.jd.com" \
                 -H "Content-Type: application/x-www-form-urlencoded" \
@@ -592,7 +594,7 @@ function accounts_control() {
             Tmp2=${!Tmp1}
             num=$(($n - 1))
             pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")
-            pt_pin_len_add[num]=$(string_length $(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
+            pt_pin_len_add[num]=$(string_length $(url_decode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
         done
 
         echo ''
@@ -611,9 +613,9 @@ function accounts_control() {
                 phone_len_add=$(string_length $(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
                 remark_len_add=$(string_length $(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
 
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}%-$((24 + ${remark_len_add}))s${PLAIN} 联系方式：${BLUE}%-s${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "${remark}" "${phone}"
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}%-$((24 + ${remark_len_add}))s${PLAIN} 联系方式：${BLUE}%-s${PLAIN}\n" "$(($i + 1))." "$(url_decode "${pt_pin_arr[i]}")" "${remark}" "${phone}"
             else
-                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}未登记${PLAIN}                联系方式：${BLUE}未登记${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")"
+                printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}未登记${PLAIN}                联系方式：${BLUE}未登记${PLAIN}\n" "$(($i + 1))." "$(url_decode "${pt_pin_arr[i]}")"
             fi
         done
         echo ''
