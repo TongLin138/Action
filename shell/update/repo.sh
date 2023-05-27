@@ -97,7 +97,6 @@ function update_designated_repo() {
                 done
             fi
             print_title "designated"
-            echo -e "-------------------------------------------------------------"
             if [ $configured_repo == true ]; then
                 # 生成旧的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then

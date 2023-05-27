@@ -4,9 +4,7 @@
 ## 自定义更新脚本
 # update extra
 function update_extra() {
-    if [[ "${EnableUpdateExtra}" == true || "${EnableUpdateExtraSync}" == true ]]; then
-        echo -e "-------------------------------------------------------------\n"
-    fi
+    echo ''
     ## 同步
     if [[ "${EnableUpdateExtraSync}" == true ]] && [[ $UpdateExtraSyncUrl ]]; then
         echo -e "$WORKING 开始同步自定义更新脚本：$UpdateExtraSyncUrl\n"

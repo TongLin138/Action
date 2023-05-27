@@ -11,7 +11,7 @@ function clean_list_scripts() {
 }
 
 ## 更新 Repo 仓库和 RawFile 脚本
-function update_main() {
+function update_sync() {
     import sync
     import update/cron
 
@@ -44,35 +44,34 @@ function update_main() {
     update_cron
 }
 
-function print_title() {
+function print_title_start() {
     local p=$1
     local update_mod
     case $1 in
     all)
-        update_mod=" 全 部 内 容 "
+        update_mod="全部内容"
         ;;
     source)
-        update_mod=" 项 目 源 码 "
+        update_mod="项目源码"
         ;;
     repo)
-        update_mod=" 所 有 仓 库 "
+        update_mod="所有仓库"
         ;;
     raw)
-        update_mod=" 扩 展 脚 本 "
+        update_mod="扩展脚本"
         ;;
     extra)
-        update_mod=" 额 外 脚 本 "
+        update_mod="额外脚本"
         ;;
     designated)
-        update_mod=" 指 定 仓 库 "
+        update_mod="指定仓库"
         ;;
     esac
-    echo -e "\n+-------------------- 执 行 更 新 程 序 --------------------+"
-    echo -e ''
-    echo -e "                   更新模式：${BLUE}${update_mod}${PLAIN}  "
-    echo -e ''
-    echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
-    echo -e ''
+    echo -e "\n[\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN}] 执行更新程序开始 - ${update_mod}"
+}
+
+function print_title_end() {
+    echo -e "\n[\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN}] 执行更新程序结束\n"
 }
 
 function main() {
@@ -90,34 +89,29 @@ function main() {
     1)
         case $1 in
         all)
-            print_title $1
+            print_title_start $1
             import update/source
             update_sourcecode
-
-            update_main "all"
-
+            update_sync "all"
             import update/extra
             update_extra
-            echo ''
             ;;
         source)
-            print_title "source"
+            print_title_start "source"
             import update/source
             update_sourcecode
             ;;
         repo)
-            print_title $1
-            update_main "repo"
-            echo ''
+            print_title_start $1
+            update_sync "repo"
             ;;
         raw)
-            print_title $1
-            update_main "raw"
-            echo ''
+            print_title_start $1
+            update_sync "raw"
             ;;
         extra)
             if [[ $EnableUpdateExtraSync == true ]] || [[ $EnableUpdateExtra == true ]]; then
-                print_title $1
+                print_title_start $1
                 import update/extra
                 update_extra
             else
@@ -147,7 +141,7 @@ function main() {
             fi
             ;;
         esac
-        exit ## 终止退出
+        print_title_end
         ;;
     *)
         output_command_error 2 # 命令过多
