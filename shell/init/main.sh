@@ -20,7 +20,7 @@ function Init() {
   done
 
   ## 检测配置文件
-  $ContrlCmd check conf >/dev/null 2>&1
+  $ContrlCmd check config >/dev/null 2>&1
   ## 更新源码
   $UpdateCmd source
 

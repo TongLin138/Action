@@ -72,7 +72,7 @@ function main() {
                     ;;
                 check)
                     case $2 in
-                    conf)
+                    config)
                         import arcadia/env
                         check_conf_files
                         ;;

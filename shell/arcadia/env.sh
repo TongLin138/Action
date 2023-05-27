@@ -2,7 +2,7 @@
 ## Modified: 2023-05-27
 
 ## 检测项目配置文件完整性
-# arcadia check conf
+# arcadia check config
 function check_conf_files() {
     echo ''
     make_dir $LogDir
