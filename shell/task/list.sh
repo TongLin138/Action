@@ -1,9 +1,9 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-27
 
 ## 列出本地脚本清单功能
 # task list
-function List_Local_Scripts() {
+function list_local_scripts() {
     local ScriptType Tmp1 Tmp2
     ## 根据处理器架构判断匹配脚本类型
     case ${ARCH} in
@@ -24,11 +24,34 @@ function List_Local_Scripts() {
         ScriptType="\.js\$${Tmp1}${Tmp2}"
         ;;
     esac
+    ## 内置规则
+    ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
+    ShieldingKeywords="AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 
-    ## 列出所有 Own 仓库中的脚本
-    function List_Own() {
+    ## 查询脚本大小，$1 为脚本名
+    function query_script_size() {
+        local FileName=$1
+        ScriptSize=$(ls -lth | grep "\b$FileName\b" | awk -F ' ' '{print$5}')
+    }
+
+    ## 查询脚本修改时间，$1 为脚本名
+    function query_script_edittimes() {
+        local FileName=$1
+        local Data=$(ls -lth | grep "\b$FileName\b" | awk -F 'root' '{print$NF}')
+        local MonthTmp=$(echo $Data | awk -F ' ' '{print$2}')
+        local Month="$(echo '{"Jan": 01, "Feb": 02, "Mar": 03, "Apr": 04, "May": 05, "Jun": 06, "Jul": 07, "Aug": 08, "Sept": 09, "Oct": 10, "Nov": 11, "Dec": 12}' | jq -r ".${MonthTmp}")"
+        local Day=$(echo $Data | awk -F ' ' '{print$3}')
+        if [[ $Day -lt "10" ]]; then
+            Day="0$Day"
+        fi
+        local Time=$(echo $Data | awk -F ' ' '{print$4}')
+        ScriptEditTimes="$Month-$Day $Time"
+    }
+
+    ## 列出所有配置中的脚本
+    function list_sync() {
         local FileName FileDir Tmp1 Tmp2 Tmp3 repo_num
-        Import_Config_Not_Check
+        import_config_not_check
 
         if [[ ${OwnRepoUrl1} ]]; then
             for ((i = 1; i <= 0x64; i++)); do
@@ -62,36 +85,34 @@ function List_Local_Scripts() {
                 fi
             ))
 
-            echo -e "\n❖ Own 扩展脚本："
+            echo -e "\n❖ 脚本仓库："
             for ((i = 0; i < ${#ListFiles[*]}; i++)); do
                 FileName=${ListFiles[i]##*/}
                 FileDir=$(echo ${ListFiles[i]} | awk -F "$FileName" '{print$1}')
                 cd $FileDir
-                Query_ScriptName $FileName
+                query_script_name $FileName
                 printf "%4s  %-50s %s\n" "$(($i + 1))" "${ListFiles[i]:8}" "${ScriptName}"
             done
         fi
     }
 
-    ## 列出 scripts 目录下的第三方脚本
-    function List_Other() {
-        if [ -d $ScriptsDir/.git ]; then
-            cd $ScriptsDir
-            local ListFiles=($(
-                ls | grep -E "${ScriptType}" | grep -Ev "$(git ls-files)|${ShieldingKeywords}"
-            ))
-            if [ ${#ListFiles[*]} != 0 ]; then
-                echo -e "\n❖ 第三方脚本："
-                for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-                    Query_ScriptName ${ListFiles[i]}
-                    printf "%3s  %-36s   %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptName}"
-                done
-            fi
+    ## 列出 scripts 目录下的个人脚本
+    function list_scripts() {
+        cd $ScriptsDir
+        local ListFiles=($(
+            ls | grep -E "${ScriptType}" | grep -Ev "${ShieldingKeywords}"
+        ))
+        if [ ${#ListFiles[*]} != 0 ]; then
+            echo -e "\n❖ 个人脚本："
+            for ((i = 0; i < ${#ListFiles[*]}; i++)); do
+                query_script_name ${ListFiles[i]}
+                printf "%3s  %-36s   %s\n" "$(($i + 1))" "${ListFiles[i]}" "${ScriptName}"
+            done
         fi
     }
 
     ## 列出指定目录下的脚本
-    function List_Designated() {
+    function list_designated() {
         local InputContent WorkDir PwdTmp LengthTmp spacesNums
         ## 去掉传入参数中的最后一个/
         echo $1 | grep "/$" -q
@@ -137,7 +158,7 @@ function List_Local_Scripts() {
                 exit ## 终止退出
             fi
         else
-            Output_Error "目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！"
+            output_error "目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！"
         fi
 
         cd $WorkDir
@@ -166,15 +187,15 @@ function List_Local_Scripts() {
 
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
             echo ''
-            Query_ScriptName ${ListFiles[i]}
-            Query_ScriptSize ${ListFiles[i]}
-            Query_ScriptEditTimes ${ListFiles[i]}
-            LengthTmp1=$(StringLength $(echo ${ListFiles[i]} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
+            query_script_name ${ListFiles[i]}
+            query_script_size ${ListFiles[i]}
+            query_script_edittimes ${ListFiles[i]}
+            LengthTmp1=$(string_length $(echo ${ListFiles[i]} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
             spacesNums1=$(($((34 - ${LengthTmp1} - ${#ListFiles[i]})) / 2))
             for ((a = 1; a <= ${spacesNums1}; a++)); do
                 ListFiles[i]=" ${ListFiles[i]}"
             done
-            LengthTmp2=$(StringLength $(echo ${ScriptName} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
+            LengthTmp2=$(string_length $(echo ${ScriptName} | perl -pe '{s|[0-9a-zA-Z\,\.\=\:\_\-\(\)\[\]\<\>\~]||g;}'))
             spacesNums2=$(($((34 - ${LengthTmp2} - ${#ScriptName})) / 2))
             for ((a = 1; a <= ${spacesNums2}; a++)); do
                 ScriptName=" ${ScriptName}"
@@ -185,11 +206,11 @@ function List_Local_Scripts() {
 
     case $# in
     0)
-        List_Own
-        List_Other
+        list_sync
+        list_scripts
         ;;
     1)
-        List_Designated $1
+        list_designated $1
         ;;
     esac
     echo ''

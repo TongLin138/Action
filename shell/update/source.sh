@@ -1,10 +1,10 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 更新项目源码
-function Update_SourceCode() {
+function update_sourcecode() {
     ## 检测配置文件版本
-    function Detect_Config_Version() {
+    function detect_config_version() {
         ## 识别出两个文件的版本号
         VerConfSample=$(grep " Version: " $FileConfSample | perl -pe "s|.+v((\d+\.?){3})|\1|")
         [ -f $FileConfUser ] && VerConfUser=$(grep " Version: " $FileConfUser | perl -pe "s|.+v((\d+\.?){3})|\1|")
@@ -19,7 +19,7 @@ function Update_SourceCode() {
                 local NotifyTitle="配置文件更新通知"
                 local NotifyContent="更新日期: $UpdateDate\n当前版本: $VerConfUser\n新的版本: $VerConfSample\n更新内容: $UpdateContent\n"
                 echo -e $NotifyContent
-                Notify "$NotifyTitle" "$NotifyContent"
+                send_notify "$NotifyTitle" "$NotifyContent"
                 echo ''
                 [ $? -eq 0 ] && echo $VerConfSample >$FileSendMark
             fi
@@ -34,8 +34,8 @@ function Update_SourceCode() {
     [ -f $PanelDir/package.json ] && PanelDependOld=$(cat $PanelDir/package.json)
     ## 更新仓库
     cd $RootDir
-    Git_Pull $RootDir "$(git status | head -n 1 | awk -F ' ' '{print$NF}')" "开始更新项目源码"
-    if [[ $ExitStatus -eq 0 ]]; then
+    git_pull $RootDir "$(git status | head -n 1 | awk -F ' ' '{print$NF}')" "开始更新项目源码"
+    if [[ $EXITSTATUS -eq 0 ]]; then
         echo -e "\n$COMPLETE 源码已更新\n"
     else
         echo -e "\n$FAIL 源码更新失败，请检查原因...\n"
@@ -47,5 +47,5 @@ function Update_SourceCode() {
         $ContrlCmd service on
     fi
     ## 检测配置文件版本
-    Detect_Config_Version
+    detect_config_version
 }

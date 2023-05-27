@@ -1,9 +1,9 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-27
 
 ## 账号控制功能
 # task cookie
-function Accounts_Control() {
+function accounts_control() {
     local SUCCESS_ICON="[✔]"
     local FAIL_ICON="[×]"
     local Valid="${GREEN}${SUCCESS_ICON}${PLAIN}"
@@ -31,14 +31,14 @@ function Accounts_Control() {
     ## 检测账号是否有效
     check)
         ## 导入配置文件
-        Import_Config
+        import_config
 
         ## 检测全部账号
         function CheckCookie_All() {
             local TmpA TmpB pt_pin pt_pin_temp FormatPin EscapePin EscapePin_Length_Add State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3 num
 
             ## 统计账号数量
-            Count_UserSum
+            count_usersum
 
             ## 生成 pt_pin 数组
             for ((user_num = 1; user_num <= $UserSum; user_num++)); do
@@ -56,9 +56,9 @@ function Accounts_Control() {
                 ## 定义格式化后的pt_pin
                 FormatPin=$(echo ${pt_pin[m]} | sed "s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g")
                 ## 转义pt_pin中的汉字
-                EscapePin=$(ParseEncodeStringToChinese "${pt_pin[m]}")
+                EscapePin=$(parse_encode_string_to_chinese "${pt_pin[m]}")
                 ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                EscapePin_Length_Add=$(StringLength $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_-]||g"))
+                EscapePin_Length_Add=$(string_length $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_-]||g"))
                 ## 定义账号状态
                 State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
                 ## 查询上次更新时间并计算过期时间
@@ -99,9 +99,9 @@ function Accounts_Control() {
                     [ -z ${PT_PIN_TMP} ] && continue
                     [ -z ${WS_KEY_TMP} ] && continue
                     ## 转义pt_pin中的汉字
-                    EscapePin=$(ParseEncodeStringToChinese "${PT_PIN_TMP}")
+                    EscapePin=$(parse_encode_string_to_chinese "${PT_PIN_TMP}")
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePin_Length_Add=$(StringLength $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_-]||g"))
+                    EscapePin_Length_Add=$(string_length $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_-]||g"))
                     ## 打印
                     printf "%-3s ${BLUE}%-$((19 + ${EscapePin_Length_Add}))s${PLAIN} %-s\n" "$num." "${EscapePin}" "$(CheckCookie "wskey=${WS_KEY_TMP}")"
                     sleep 1 ## 降低频率以减少出现因查询太快导致API请求失败的情况
@@ -115,13 +115,13 @@ function Accounts_Control() {
             local pt_pin FormatPin State CookieUpdatedDate UpdateTimes TmpDays TmpTime Tmp1 Tmp2 Tmp3
             local UserNum=$1
             ## 判定账号是否存在
-            Account_ExistenceJudgment ${UserNum}
+            account_existence_judgment ${UserNum}
             echo -e "\n$WORKING 开始检测第 ${BLUE}${UserNum}${PLAIN} 个账号...\n"
             ## 定义pt_pin
             pt_pin=$(grep "Cookie${UserNum}=" $FileConfUser | head -1 | awk -F "[\"\']" '{print$2}' | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             FormatPin=$(echo ${pt_pin} | sed "s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g")
             ## 转义 pt_pin 中的 UrlEncode 输出中文
-            EscapePin=$(ParseEncodeStringToChinese "${FormatPin}")
+            EscapePin=$(parse_encode_string_to_chinese "${FormatPin}")
             echo -e "账号：${BLUE}${EscapePin}${PLAIN}\n"
             ## 定义账号状态
             State="$(CheckCookie $(grep -E "Cookie[1-9].*${FormatPin}" $FileConfUser | awk -F "[\"\']" '{print$2}'))"
@@ -186,16 +186,16 @@ function Accounts_Control() {
 
     ## 使用 WSKEY 更新账号
     update)
-        Import_Config_Not_Check "UpdateCookies"
-        local ExitStatus LogPath LogFile
+        import_config_not_check "UpdateCookies"
+        local EXITSTATUS LogPath LogFile
         [ -f $FileSendMark ] && rm -rf $FileSendMark
 
         ## 更新 sign 签名
         function UpdateSign() {
-            Make_Dir $SignDir
+            make_dir $SignDir
             if [ ! -d $SignDir/.git ]; then
                 git clone -b master ${SignsRepoGitUrl} $SignDir >/dev/null
-                ExitStatus=$?
+                EXITSTATUS=$?
             else
                 cd $SignDir
                 if [[ $(date "+%-H") -eq 1 || $(date "+%-H") -eq 9 || $(date "+%-H") -eq 17 ]] && [[ $(date "+%-S") -eq 0 ]]; then
@@ -205,7 +205,7 @@ function Accounts_Control() {
                     echo ''
                 fi
                 git fetch --all >/dev/null
-                ExitStatus=$?
+                EXITSTATUS=$?
                 git reset --hard origin/master >/dev/null
             fi
         }
@@ -238,9 +238,9 @@ function Accounts_Control() {
                     ## 定义格式化后的pt_pin
                     FormatPin=$(echo ${PT_PIN_TMP} | sed "s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g")
                     ## 转义pt_pin中的汉字
-                    EscapePin=$(ParseEncodeStringToChinese "${PT_PIN_TMP}")
+                    EscapePin=$(parse_encode_string_to_chinese "${PT_PIN_TMP}")
                     ## 定义pt_pin中的长度（受限于编码，汉字多占1长度，短横杠长度为0）
-                    EscapePin_Length_Add=$(StringLength $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_ -]||g"))
+                    EscapePin_Length_Add=$(string_length $(echo ${EscapePin} | sed "s|[0-9a-zA-Z\.\=\:\_ -]||g"))
                     ## 执行脚本
                     if [[ ${EnableGlobalProxy} == true ]]; then
                         node -r 'global-agent/bootstrap' ${FileUpdateCookie##*/} &>>${LogFile} &
@@ -266,9 +266,9 @@ function Accounts_Control() {
                         fi
                         if [[ ${EnableCookieUpdateFailureNotify} == true ]]; then
                             if [[ ${CheckTmp} == "1001" ]]; then
-                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
+                                send_notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 已经失效，导致未能正常更新，请尽快处理"
                             else
-                                Notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 更新出现异常，请尽快处理"
+                                send_notify "账号更新异常通知" "检测到第$UserNum个账号 ${EscapePin} 的 wskey 更新出现异常，请尽快处理"
                             fi
                             echo ''
                         fi
@@ -289,7 +289,7 @@ function Accounts_Control() {
                     if [[ ${#tmp_array[@]} -ge 1 ]]; then
                         for ((i = 1; i <= ${#tmp_array[@]}; i++)); do
                             UserNum=$((i - 1))
-                            EscapePin=$(ParseEncodeStringToChinese "${tmp_array[$UserNum]}")
+                            EscapePin=$(parse_encode_string_to_chinese "${tmp_array[$UserNum]}")
                             sed -i "s/${tmp_array[$UserNum]}/${EscapePin}/g" $FileSendMark
                         done
                     fi
@@ -312,7 +312,7 @@ function Accounts_Control() {
             local ArrayNum PT_PIN_TMP WS_KEY_TMP FormatPin EscapePin CookieTmp LogFile
             local COOKIE_TMP=Cookie$UserNum
             ## 判定账号是否存在
-            Account_ExistenceJudgment $UserNum
+            account_existence_judgment $UserNum
             PT_PIN_TMP=$(echo ${!COOKIE_TMP} | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|}")
             ## 定义格式化后的pt_pin
             FormatPin="$(echo ${PT_PIN_TMP} | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')"
@@ -332,7 +332,7 @@ function Accounts_Control() {
                     ## 声明变量
                     export JD_PT_PIN=${PT_PIN_TMP}
                     ## 转义pt_pin中的汉字
-                    EscapePin=$(ParseEncodeStringToChinese "${PT_PIN_TMP}")
+                    EscapePin=$(parse_encode_string_to_chinese "${PT_PIN_TMP}")
                     ## 记录执行开始时间
                     echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
                     ## 执行脚本
@@ -369,7 +369,7 @@ function Accounts_Control() {
                         ## 转义中文用户名
                         local tmp_pt_pin=$(cat $FileSendMark | grep -o "\[.*\%.*\]" | sed "s|\[||g; s|\]||g")
                         if [[ ${tmp_pt_pin} ]]; then
-                            EscapePin=$(ParseEncodeStringToChinese "${tmp_pt_pin}")
+                            EscapePin=$(parse_encode_string_to_chinese "${tmp_pt_pin}")
                             sed -i "s/${tmp_pt_pin}/${EscapePin}/g" $FileSendMark
                         fi
                         ## 格式化通知内容
@@ -390,9 +390,9 @@ function Accounts_Control() {
         if [ -f $FileUpdateCookie ]; then
             if [[ $(cat $FileAccountUser | jq '.[] | {ws_key:.ws_key,}' | grep -F "\"ws_key\"" | grep -v "wskey的值" | awk -F '\"' '{print$4}' | grep -v '^$') ]]; then
                 UpdateSign
-                if [[ $ExitStatus -eq 0 ]]; then
+                if [[ $EXITSTATUS -eq 0 ]]; then
                     LogPath="$LogDir/UpdateCookies"
-                    Make_Dir ${LogPath}
+                    make_dir ${LogPath}
                     cd $UtilsDir
                     case $# in
                     1)
@@ -405,7 +405,7 @@ function Accounts_Control() {
                     ## 推送通知
                     [ -f $FileSendMark ] && sed -i "/未设置ws_key跳过更新/d" $FileSendMark
                     if [ -s $FileSendMark ]; then
-                        [[ ${EnableCookieUpdateNotify} == true ]] && Notify "账号更新结果通知" "$(cat $FileSendMark)"
+                        [[ ${EnableCookieUpdateNotify} == true ]] && send_notify "账号更新结果通知" "$(cat $FileSendMark)"
                     fi
                     [ -f $FileSendMark ] && rm -rf $FileSendMark
                 else
@@ -419,8 +419,8 @@ function Accounts_Control() {
         fi
         ;;
     beans)
-        Import_Config
-        Count_UserSum
+        import_config
+        count_usersum
 
         function getJingBeanBalanceDetail() {
             local pageNum=$1
@@ -508,7 +508,7 @@ function Accounts_Control() {
                     if [ $? -eq 0 ]; then
                         Name=$(echo "${Name}" | sed "s|参加\[||g; s|\].*||g")
                     fi
-                    LengthTmp=$(StringLength $(echo "${Name}" | sed "s/ //g" | perl -pe "{s|[0-9a-zA-Z\.\=\:\_\(\)\'\"-\/\!]||g;}"))
+                    LengthTmp=$(string_length $(echo "${Name}" | sed "s/ //g" | perl -pe "{s|[0-9a-zA-Z\.\=\:\_\(\)\'\"-\/\!]||g;}"))
                     ## 中文的引号在等宽字体中占1格而非2格
                     [[ $(echo "${Name}" | grep -c "“") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "“")
                     [[ $(echo "${Name}" | grep -c "”") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "”")
@@ -584,15 +584,15 @@ function Accounts_Control() {
         ;;
 
     list)
-        Import_Config
-        Count_UserSum
+        import_config
+        count_usersum
         local Tmp1 Tmp2 num pt_pin_arr pt_pin_len_add remark phone phone_len_add remark_len_add
         for ((n = 1; n <= $UserSum; n++)); do
             Tmp1=Cookie$n
             Tmp2=${!Tmp1}
             num=$(($n - 1))
             pt_pin_arr[num]=$(echo $Tmp2 | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")
-            pt_pin_len_add[num]=$(StringLength $(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
+            pt_pin_len_add[num]=$(string_length $(UrlDecode "${pt_pin_arr[num]}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_ -]||g;}'))
         done
 
         echo ''
@@ -608,8 +608,8 @@ function Accounts_Control() {
                 if [[ -z ${phone} || ${phone} == "无" ]]; then
                     phone="未登记"
                 fi
-                phone_len_add=$(StringLength $(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
-                remark_len_add=$(StringLength $(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
+                phone_len_add=$(string_length $(echo "${phone}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
+                remark_len_add=$(string_length $(echo "${remark}" | perl -pe '{s|[0-9a-zA-Z\.\=\:\_\(\)\[\] \-]||g;}'))
 
                 printf "%-3s ${BLUE}%-$((22 + ${pt_pin_len_add[i]}))s${PLAIN} 备注：${BLUE}%-$((24 + ${remark_len_add}))s${PLAIN} 联系方式：${BLUE}%-s${PLAIN}\n" "$(($i + 1))." "$(UrlDecode "${pt_pin_arr[i]}")" "${remark}" "${phone}"
             else

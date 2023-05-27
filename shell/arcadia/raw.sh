@@ -1,15 +1,15 @@
 #!/bin/bash
-## Modified: 2023-05-25
+## Modified: 2023-05-27
 
 ## 一键添加远程脚本命令
 # arcadia repo <name> <url> [--options]
-function Add_Raw() {
+function add_raw_conf() {
     local name url updateTaskList
     # 定义临时文件
     local tmp_file="${ARCADIA_DIR}/.raw.yml"
 
     ## 处理命令选项
-    function CommandOptions() {
+    function handle_options() {
         case $# in
         0)
             import core/help
@@ -46,14 +46,14 @@ function Add_Raw() {
                             updateTaskList="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 *)
-                    Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
                     ;;
                 esac
                 shift
@@ -63,7 +63,7 @@ function Add_Raw() {
     }
 
     # 生成配置文件模板
-    function CreateTemplate() {
+    function create_template() {
         echo '{ "name": "", "url": "", "cronSettings": { "updateTaskList": false } }' | jq | yq -y >$tmp_file
         # 插入缩进空格
         local LineSum="$(cat $tmp_file | grep "" -c)"
@@ -73,17 +73,17 @@ function Add_Raw() {
     }
 
     # 替换用户配置
-    function ReplaceUserConf() {
+    function replace_user_conf() {
         sed -i "s|name: \'\'|name: \"${name}\"|g" $tmp_file
         sed -i "s|url: \'\'|url: \"${url}\"|g" $tmp_file
         [ "${updateTaskList}" ] && sed -i "s|updateTaskList: false|updateTaskList: ${updateTaskList}|g" $tmp_file
-        echo -e "\n$TIPS 自动生成的配置内容如下：\n"
+        echo -e "\n$TIP 自动生成的配置内容如下：\n"
         cat $tmp_file | sed "s/^  //g"
         echo ''
     }
 
     # 保存配置（写入至配置文件）
-    function SaveConf() {
+    function save_conf() {
         local LinesInfo="$(cat $FileSyncConfUser | grep -n "" | grep -Ev "^[0-9]{1,4}:  ")"
         # 判断是否有设置 raw 键值对
         echo "${LinesInfo}" | grep -Eq ":raw:$"
@@ -107,16 +107,16 @@ function Add_Raw() {
     }
 
     # 处理命令选项
-    CommandOptions "$@"
+    handle_options "$@"
     # 判断重复性
     cat $FileSyncConfUser | grep -Eq "url: [\"\']?${url}[\"\']?"
-    [ $? -eq 0 ] && Output_Error "检测到该配置已存在，请勿重复添加！"
+    [ $? -eq 0 ] && output_error "检测到该配置已存在，请勿重复添加！"
     # 生成配置文件模板
-    CreateTemplate
+    create_template
     # 替换用户配置
-    ReplaceUserConf
+    replace_user_conf
     # 保存配置
-    SaveConf
+    save_conf
     # 删除临时文件
     [ -f $tmp_file ] && rm -rf $tmp_file
 }

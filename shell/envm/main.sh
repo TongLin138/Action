@@ -1,8 +1,8 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-27
 
 ## 添加
-function AddEnv() {
+function add_environment_variable() {
     local VariableTmp="$1"
     local ValueTmp=$(echo "$2" | perl -pe '{s|[\.\<\>\/\[\]\!\@\#\$\%\^\&\*\(\)\-\+]|\\$&|g;}')
     case $# in
@@ -26,7 +26,7 @@ function AddEnv() {
 }
 
 ## 修改
-function ModifyEnv() {
+function edit_environment_variable() {
     local VariableTmp="$1"
     local OldContent NewContent Remarks InputA InputB InputC
     OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -71,8 +71,8 @@ function ModifyEnv() {
     echo -e "\n${RED}-${PLAIN} \033[41;37m${OldContent}${PLAIN}\n${GREEN}+${PLAIN} \033[42;30m${NewContent}${PLAIN}"
     ## 结果判定
     grep ".*export ${VariableTmp}=\"${ValueTmp}\"${Remarks}" -q $FileConfUser
-    local ExitStatus=$?
-    if [[ $ExitStatus -eq 0 ]]; then
+    local EXITSTATUS=$?
+    if [[ $EXITSTATUS -eq 0 ]]; then
         echo -e "\n$COMPLETE 环境变量修改完毕\n"
     else
         echo -e "\n$FAIL 未能修改环境变量，可能遇到了一些问题~\n"
@@ -80,7 +80,7 @@ function ModifyEnv() {
 }
 
 ## 启用与禁用
-function ControlEnv() {
+function control_environment_variable() {
     local VariableTmp Mod OldContent NewContent InputA InputB
     case $# in
     1)
@@ -91,17 +91,17 @@ function ControlEnv() {
         VariableTmp="$2"
         ;;
     *)
-        Output_Command_Error 1 # 命令错误
+        output_command_error 1 # 命令错误
         exit                   ## 终止退出
         ;;
     esac
     OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
     ## 判断变量是否被注释
     grep "[# ]export ${VariableTmp}=" -q $FileConfUser
-    local ExitStatus=$?
+    local EXITSTATUS=$?
     case $# in
     1)
-        if [[ $ExitStatus -eq 0 ]]; then
+        if [[ $EXITSTATUS -eq 0 ]]; then
             while true; do
                 read -p "$(echo -e "\n${BOLD}└ 检测到该变量已禁用，是否启用? [Y/n] ${PLAIN}")" InputA
                 [ -z ${InputA} ] && InputA=Y
@@ -138,7 +138,7 @@ function ControlEnv() {
         fi
         ;;
     2)
-        if [[ $ExitStatus -eq 0 ]]; then
+        if [[ $EXITSTATUS -eq 0 ]]; then
             case ${Mod} in
             enable)
                 sed -i "s/.*export ${VariableTmp}=/export ${VariableTmp}=/g" $FileConfUser
@@ -148,7 +148,7 @@ function ControlEnv() {
                 exit 1 ## 终止退出
                 ;;
             *)
-                Output_Command_Error 1 # 命令错误
+                output_command_error 1 # 命令错误
                 exit                   ## 终止退出
                 ;;
             esac
@@ -162,7 +162,7 @@ function ControlEnv() {
                 sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
                 ;;
             *)
-                Output_Command_Error 1 # 命令错误
+                output_command_error 1 # 命令错误
                 exit                   ## 终止退出
                 ;;
             esac
@@ -188,7 +188,7 @@ function ControlEnv() {
     fi
 }
 
-function Main() {
+function main() {
     local Variable Value Remarks FullContent Input1 Input2 Keys
 
     case $1 in
@@ -207,7 +207,7 @@ function Main() {
                     [ -z ${Input1} ] && Input1=Y
                     case ${Input1} in
                     [Yy] | [Yy][Ee][Ss])
-                        ModifyEnv "${Variable}"
+                        edit_environment_variable "${Variable}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
@@ -228,11 +228,11 @@ function Main() {
                     case ${Input2} in
                     [Yy] | [Yy][Ee][Ss])
                         read -p "$(echo -e "\n${BOLD}└ 请输入环境变量 ${BLUE}${Variable}${PLAIN} ${BOLD}的备注内容：${PLAIN}")" Remarks
-                        AddEnv "${Variable}" "${Value}" "${Remarks}"
+                        add_environment_variable "${Variable}" "${Value}" "${Remarks}"
                         break
                         ;;
                     [Nn] | [Nn][Oo])
-                        AddEnv "${Variable}" "${Value}"
+                        add_environment_variable "${Variable}" "${Value}"
                         break
                         ;;
                     *)
@@ -253,10 +253,10 @@ function Main() {
             else
                 case $# in
                 3)
-                    AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                    add_environment_variable "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     ;;
                 4)
-                    AddEnv "${Variable}" "${Value}" "$4"
+                    add_environment_variable "${Variable}" "${Value}" "$4"
                     ;;
                 esac
             fi
@@ -340,11 +340,11 @@ function Main() {
                     read -p "$(echo -e "\n${BOLD}└ 请选择操作模式 [ 1-2 ]：${PLAIN}")" Input1
                     case ${Input1} in
                     1)
-                        ControlEnv "${Variable}"
+                        control_environment_variable "${Variable}"
                         break
                         ;;
                     2)
-                        ModifyEnv "${Variable}"
+                        edit_environment_variable "${Variable}"
                         break
                         ;;
                     esac
@@ -358,8 +358,8 @@ function Main() {
             case $2 in
             enable | disable)
                 Variable=$3
-                if [ $ExitStatus -eq 0 ]; then
-                    ControlEnv "$2" "${Variable}"
+                if [ $EXITSTATUS -eq 0 ]; then
+                    control_environment_variable "$2" "${Variable}"
                 else
                     echo -e "\n$ERROR 在配置文件中未检测到 ${BLUE}${Variable}${PLAIN} 环境变量，请重新确认！\n"
                 fi
@@ -368,22 +368,22 @@ function Main() {
                 Variable=$2
                 Value=$3
                 grep ".*export.*=" $FileConfUser | grep ".*export ${Variable}=" -q
-                local ExitStatus=$?
+                local EXITSTATUS=$?
                 case $# in
                 3)
-                    if [ $ExitStatus -eq 0 ]; then
-                        ModifyEnv "${Variable}" "${Value}"
+                    if [ $EXITSTATUS -eq 0 ]; then
+                        edit_environment_variable "${Variable}" "${Value}"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动添加"
-                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        add_environment_variable "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 4)
-                    if [ $ExitStatus -eq 0 ]; then
-                        ModifyEnv "${Variable}" "${Value}" "$4"
+                    if [ $EXITSTATUS -eq 0 ]; then
+                        edit_environment_variable "${Variable}" "${Value}" "$4"
                     else
                         echo -e "\n$WARN 由于未检测到该环境变量因此将自动添加"
-                        AddEnv "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
+                        add_environment_variable "${Variable}" "${Value}" "添加时间：$(date "+%Y-%m-%d %T")"
                     fi
                     ;;
                 esac
@@ -405,13 +405,13 @@ function Main() {
         esac
         ## 检测搜索结果是否为空
         grep ".*export.*=" $FileConfUser | grep "${Keys}" -q
-        local ExitStatus=$?
-        if [[ $ExitStatus -eq 0 ]]; then
+        local EXITSTATUS=$?
+        if [[ $EXITSTATUS -eq 0 ]]; then
             echo -e "\n${BLUE}检测到的环境变量：${PLAIN}"
             grep -n ".*export.*=" $FileConfUser | grep "${Keys}" | sed "s|^|第|g; s|:|行：|g; s|${Keys}|${RED}${Keys}${PLAIN}|g"
             echo -e "\n$COMPLETE 查询完毕\n"
         else
-            Output_Error "未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！"
+            output_error "未查询到包含 ${BLUE}${Keys}${PLAIN} 内容的相关环境变量！"
         fi
         ;;
     esac
@@ -419,52 +419,52 @@ function Main() {
 
 case $# in
 0)
-    Output_Command_Error 1 # 命令错误
+    output_command_error 1 # 命令错误
     ;;
 1)
     case $1 in
     add | del | edit | search)
-        Main $1
+        main $1
         ;;
     *)
-        Output_Command_Error 1 # 命令错误
+        output_command_error 1 # 命令错误
         ;;
     esac
     ;;
 2)
     case $1 in
     enable | disable)
-        Main "edit" $1 $2
+        main "edit" $1 $2
         ;;
     del | search)
-        Main $1 $2
+        main $1 $2
         ;;
     *)
-        Output_Command_Error 1 # 命令错误
+        output_command_error 1 # 命令错误
         ;;
     esac
     ;;
 3)
     case $1 in
     add | edit)
-        Main $1 $2 "$3"
+        main $1 $2 "$3"
         ;;
     *)
-        Output_Command_Error 1 # 命令错误
+        output_command_error 1 # 命令错误
         ;;
     esac
     ;;
 4)
     case $1 in
     add | edit)
-        Main $1 $2 "$3" "$4"
+        main $1 $2 "$3" "$4"
         ;;
     *)
-        Output_Command_Error 1 # 命令错误
+        output_command_error 1 # 命令错误
         ;;
     esac
     ;;
 *)
-    Output_Command_Error 2 # 命令过多
+    output_command_error 2 # 命令过多
     ;;
 esac

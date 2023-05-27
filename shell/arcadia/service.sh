@@ -1,11 +1,11 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 后端服务控制
-function Service_Control() {
+function main_service_manage() {
 
     ## 更新源码
-    function Update_SourceCode() {
+    function update_sourcecode() {
         local CurrentDir=$(pwd)
         cd $RootDir
         git fetch --all >/dev/null 2>&1
@@ -15,7 +15,7 @@ function Service_Control() {
     }
 
     ## 安装网页终端
-    function Install_TTYD() {
+    function install_ttyd() {
         [ ! -x /usr/bin/ttyd ] && apk --no-cache add -f ttyd
         ## 增加环境变量
         export PS1="\[\e[32;1m\]@Arcadia CLI\[\e[37;1m\] ➜\[\e[34;1m\]  \w\[\e[0m\] \\$ "
@@ -34,7 +34,7 @@ function Service_Control() {
 
     local ServiceStatus
     import arcadia/pm2
-    PM2_List_All_Services
+    pm2_list_all_services
     cat $FilePm2List | awk -F '|' '{print$3}' | grep "web_server" -wq
     local ExitStatusSERVER=$?
     cat $FilePm2List | awk -F '|' '{print$3}' | grep "web_terminal" -wq
@@ -43,28 +43,31 @@ function Service_Control() {
     ## 开启/重启服务
     on)
         ## 删除日志
-        rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/web_terminal-*.log
+        rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/inner_server-*.log /root/.pm2/logs/web_terminal-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
             local ServiceStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
             case ${ServiceStatus} in
             online)
                 pm2 restart web_server
-                echo -e "\n$COMPLETE 控制面板已重启\n"
+                pm2 restart inner_server >/dev/null 2>&1
+                echo -e "\n$COMPLETE 后台管理面板已重启\n"
                 ;;
             stopped)
                 pm2 start web_server
-                echo -e "\n$COMPLETE 控制面板已重新启动\n"
+                pm2 start inner_server >/dev/null 2>&1
+                echo -e "\n$COMPLETE 后台管理面板已重新启动\n"
                 ;;
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete web_server
-                Update_SourceCode
+                pm2 delete inner_server >/dev/null 2>&1
+                update_sourcecode
                 cd $PanelDir
                 npm install
                 pm2 start ecosystem.config.js && sleep 3
-                PM2_List_All_Services
+                pm2_list_all_services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
-                if [[ ${ServiceNewStatus} == "online" ]]; then
+                if [[ "${ServiceNewStatus}" == "online" ]]; then
                     echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
                     echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
@@ -72,16 +75,16 @@ function Service_Control() {
                 ;;
             esac
         else
-            Update_SourceCode
+            update_sourcecode
             cd $PanelDir
             npm install
             pm2 start ecosystem.config.js && sleep 1
-            PM2_List_All_Services
+            pm2_list_all_services
             local ServiceStatus=$(cat $FilePm2List | grep "web_server" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
-                echo -e "\n$SUCCESS 控制面板已启动\n"
+                echo -e "\n$SUCCESS 后台管理面板已启动\n"
             else
-                echo -e "\n$FAIL 控制面板启动失败，请检查原因后重试！\n"
+                echo -e "\n$FAIL 后台管理面板启动失败，请检查原因后重试！\n"
             fi
         fi
         if [[ ${ExitStatusTTYD} -eq 0 ]]; then
@@ -98,12 +101,12 @@ function Service_Control() {
             errored)
                 echo -e "\n$WARN 检测到服务状态异常，开始尝试修复...\n"
                 pm2 delete web_terminal
-                Update_SourceCode
+                update_sourcecode
                 cd $RootDir
-                Install_TTYD && sleep 3
-                PM2_List_All_Services
+                install_ttyd && sleep 3
+                pm2_list_all_services
                 local ServiceNewStatus=$(cat $FilePm2List | grep "web_terminal" -w | awk -F '|' '{print$10}')
-                if [[ ${ServiceNewStatus} == "online" ]]; then
+                if [[ "${ServiceNewStatus}" == "online" ]]; then
                     echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                 else
                     echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
@@ -111,10 +114,10 @@ function Service_Control() {
                 ;;
             esac
         else
-            Update_SourceCode
+            update_sourcecode
             cd $RootDir
-            Install_TTYD && sleep 1
-            PM2_List_All_Services
+            install_ttyd && sleep 1
+            pm2_list_all_services
             local ServiceStatus=$(cat $FilePm2List | grep "web_terminal" -w | awk -F '|' '{print$10}')
             if [[ ${ServiceStatus} == "online" ]]; then
                 echo -e "\n$SUCCESS 网页终端已启动\n"
@@ -131,7 +134,7 @@ function Service_Control() {
                 pm2 stop web_terminal >/dev/null 2>&1
             fi
             pm2 list
-            echo -e "\n$COMPLETE 控制面板和网页终端已关闭\n"
+            echo -e "\n$COMPLETE 后台管理面板和网页终端已关闭\n"
         else
             echo -e "\n$ERROR 服务不存在！\n"
         fi
@@ -148,7 +151,7 @@ function Service_Control() {
     ## 重置密码
     respwd)
         cp -f $FileAuthSample $FileAuthUser
-        echo -e "\n$COMPLETE 已重置控制面板的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： passwd\n"
+        echo -e "\n$COMPLETE 已重置后台管理面板用于登录认证的用户名和登录密码\n\n[用户名]： useradmin\n[密  码]： passwd\n"
         ;;
     esac
     ## 删除 PM2 进程日志清单
@@ -156,7 +159,7 @@ function Service_Control() {
 }
 
 ## 列出各服务状态
-function Server_Status() {
+function server_status() {
     local Services ServiceName StatusJudge Status CreateTime CPUOccupancy MemoryOccupancy RunTime
     local SERVICE_ONLINE="${GREEN}正在运行${PLAIN}"
     local SERVICE_STOPPED="${YELLOW}未在运行${PLAIN}"
@@ -165,7 +168,7 @@ function Server_Status() {
     pm2 list
     echo ''
     import arcadia/pm2
-    PM2_List_All_Services
+    pm2_list_all_services
     Services="web_server web_terminal tgbot"
     for Name in ${Services}; do
         ServiceName=''
@@ -202,7 +205,7 @@ function Server_Status() {
         fi
         case ${Name} in
         web_server)
-            ServiceName="[控ㅤ制ㅤ面ㅤ板]"
+            ServiceName="[后  端  服  务]"
             ;;
         web_terminal)
             ServiceName="[网ㅤ页ㅤ终ㅤ端]"

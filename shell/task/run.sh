@@ -1,8 +1,8 @@
 #!/bin/bash
-## Modified: 2023-05-26
+## Modified: 2023-05-27
 
 ## 查找脚本
-function Find_Script() {
+function find_script() {
 
     ## 通过各种判断将得到的必要信息传给接下来运行的函数或命令
 
@@ -19,7 +19,7 @@ function Find_Script() {
     FileFormat=""
 
     ## 匹配指定路径下的脚本
-    function MatchingPathFile() {
+    function match_pathfile() {
         local AbsolutePath PwdTmp FileNameTmp FileDirTmp
 
         ## 判定路径格式
@@ -105,14 +105,14 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
+            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "repo" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
             else
                 LogPath="$LogDir/${FileName}"
             fi
-            Make_Dir ${LogPath}
+            make_dir ${LogPath}
         else
             echo -e "\n$ERROR 在 ${BLUE}${AbsolutePath%/*}${PLAIN} 目录未检测到 ${BLUE}${AbsolutePath##*/}${PLAIN} 脚本的存在，请重新确认！\n"
             exit ## 终止退出
@@ -120,7 +120,7 @@ function Find_Script() {
     }
 
     ## 匹配 Scripts 目录下的脚本
-    function MatchingScriptsFile() {
+    function match_scriptsfile() {
         local FileNameTmp SeekDir SeekExtension
         ## 定义目录范围，优先级为 /jd/scripts > /jd/scripts/utils > /jd/scripts/backUp
         SeekDir="$ScriptsDir $ScriptsDir/utils $ScriptsDir/backUp"
@@ -198,10 +198,10 @@ function Find_Script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
+            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
-            Make_Dir ${LogPath}
+            make_dir ${LogPath}
         else
             echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录下均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
             exit ## 终止退出
@@ -209,7 +209,7 @@ function Find_Script() {
     }
 
     ## 匹配位于远程仓库的脚本
-    function MatchingRemoteFile() {
+    function match_remotefile() {
         local DownloadJudge RepoJudge ProxyJudge RepoName FormatInputContent
         local FileNameTmp=${InputContent##*/}
 
@@ -299,11 +299,11 @@ function Find_Script() {
         ## 拉取脚本
         echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
         wget -q --no-check-certificate "${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
-        local ExitStatus=$?
+        local EXITSTATUS=$?
         echo ''
 
         ## 判定拉取结果
-        if [[ $ExitStatus -eq 0 ]]; then
+        if [[ $EXITSTATUS -eq 0 ]]; then
             mv -f "$ScriptsDir/${FileNameTmp}.new" "$ScriptsDir/${FileNameTmp}"
             case ${RUN_MODE} in
             run)
@@ -328,10 +328,10 @@ function Find_Script() {
             FileName=${FileNameTmp%.*}
             FileDir=$ScriptsDir
             ## 添加依赖文件
-            [[ ${FileFormat} == "JavaScript" ]] && Check_Moudules $FileDir
+            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
-            Make_Dir ${LogPath}
+            make_dir ${LogPath}
             RUN_REMOTE="true"
         else
             [ -f "$ScriptsDir/${FileNameTmp}.new" ] && rm -rf "$ScriptsDir/${FileNameTmp}.new"
@@ -341,14 +341,20 @@ function Find_Script() {
     }
 
     ## 检测环境，添加依赖文件
-    function Check_Moudules() {
+    function check_moudules() {
         local WorkDir=$1
         ## 拷贝核心组件
+        local CoreFiles="jdCookie.js USER_AGENTS.js"
         for file in ${CoreFiles}; do
             [ ! -f $WorkDir/$file ] && cp -rf $UtilsDir/$file $WorkDir
         done
         ## 拷贝推送通知模块
-        Apply_SendNotify $WorkDir
+        import_config_not_check
+        if [[ ${EnableCustomNotify} == true ]] && [ -s $FileSendNotifyUser ]; then
+            cp -rf $FileSendNotifyUser $WorkDir
+        else
+            cp -rf $FileSendNotify $WorkDir
+        fi
     }
 
     ## 根据传入内容判断匹配方式（主要）
@@ -357,12 +363,12 @@ function Find_Script() {
         ## 判定传入的是路径还是URL
         echo ${InputContent} | grep -Eq "http.*:"
         if [ $? -eq 0 ]; then
-            MatchingRemoteFile
+            match_remotefile
         else
-            MatchingPathFile
+            match_pathfile
         fi
     else
-        MatchingScriptsFile
+        match_scriptsfile
     fi
 
     ## 针对较旧的处理器架构进行一些处理
@@ -372,7 +378,7 @@ function Find_Script() {
             echo -e "\n$ERROR 检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！\n"
             exit ## 终止退出
         fi
-        case ${FileFormat} in
+        case ”${FileFormat}“ in
         Python | TypeScript)
             echo -e "\n$ERROR 当前宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！\n"
             exit ## 终止退出
@@ -383,7 +389,7 @@ function Find_Script() {
 }
 
 ## 随机延迟
-function Random_Delay() {
+function random_delay() {
     if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
         local CurMin=$(date "+%-M")
         local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
@@ -393,7 +399,7 @@ function Random_Delay() {
 }
 
 ## 等待执行
-function RunWait() {
+function wait_before_run() {
     local FormatPrint
     echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
     if [ $? -eq 0 ]; then
@@ -421,16 +427,16 @@ function RunWait() {
 }
 
 ## 判定账号是否存在
-function Account_ExistenceJudgment() {
+function account_existence_judgment() {
     local Num=$1
     local Tmp=Cookie$Num
     if [[ -z ${!Tmp} ]]; then
-        Output_Error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
+        output_error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
     fi
 }
 
 ## 判断账号区间语法合法性
-function CheckAccountsRangeFormat() {
+function check_accounts_range_format() {
     local String=$1
     if [[ $(echo "${String}" | grep -o "-" | wc -l) -ge 2 ]]; then
         echo -e "\n$ERROR 账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}-${PLAIN} 连接符！\n"
@@ -442,7 +448,7 @@ function CheckAccountsRangeFormat() {
 }
 
 ## 静默执行，不推送通知消息
-function NoPushNotify() {
+function no_send_notify() {
     ## Server酱
     export PUSH_KEY=""
     export SCKEY_WECOM=""
@@ -481,20 +487,20 @@ function NoPushNotify() {
 }
 
 ## 普通执行
-function Run_Normal() {
+function run_normal() {
     local InputContent=$1
     local UserNum LogFile
     ## 统计账号数量
-    Count_UserSum
+    count_usersum
     ## 静默运行
-    [[ ${RUN_MUTE} == true ]] && NoPushNotify
+    [[ ${RUN_MUTE} == true ]] && no_send_notify
 
     ## 运行主命令
-    function Run_Normal_Main() {
+    function run_normal_main() {
         if [[ ${RUN_BACKGROUND} == true ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
-            case ${FileFormat} in
+            case ”${FileFormat}“ in
             JavaScript)
                 if [[ ${EnableGlobalProxy} == true ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
@@ -520,7 +526,7 @@ function Run_Normal() {
         else
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
-            case ${FileFormat} in
+            case ”${FileFormat}“ in
             JavaScript)
                 if [[ ${EnableGlobalProxy} == true ]]; then
                     node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
@@ -548,7 +554,7 @@ function Run_Normal() {
     }
 
     ## 组合账号变量
-    function Combin_Designated_Cookie() {
+    function combin_designated_cookie() {
         local Num="$1"
         local Tmp1=Cookie$Num
         local Tmp2=${!Tmp1}
@@ -557,18 +563,18 @@ function Run_Normal() {
     }
 
     ## 指定运行账号
-    function Designated_Account() {
+    function designated_account() {
         local AccountsTmp="$1"
         for UserNum in ${AccountsTmp}; do
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 ## 格式检测
-                CheckAccountsRangeFormat "${UserNum}"
+                check_accounts_range_format "${UserNum}"
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
-                        Account_ExistenceJudgment $i
-                        Combin_Designated_Cookie $i
+                        account_existence_judgment $i
+                        combin_designated_cookie $i
                     done
                 else
                     echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
@@ -576,8 +582,8 @@ function Run_Normal() {
                 fi
             else
                 ## 判定账号是否存在
-                Account_ExistenceJudgment $UserNum
-                Combin_Designated_Cookie $UserNum
+                account_existence_judgment $UserNum
+                combin_designated_cookie $UserNum
             fi
         done
         ## 声明变量
@@ -585,17 +591,17 @@ function Run_Normal() {
     }
 
     ## 后台挂起（守护进程）
-    function Daemon_Process() {
+    function daemon_process() {
         pm2 list | sed "/─/d" | sed "s| ||g; s#│#|#g" | sed "1d" >$FilePm2List
         cat $FilePm2List | awk -F '|' '{print$3}' | grep $FileName -wq
-        ExitStatus=$?
+        EXITSTATUS=$?
         ## 删除原有
         pm2 stop $FileName >/dev/null 2>&1
         pm2 flush >/dev/null 2>&1
         pm2 delete $FileName >/dev/null 2>&1
         ## 启用
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 守护进程启动\n" >>${LogFile}
-        case ${FileFormat} in
+        case ”${FileFormat}“ in
         JavaScript)
             pm2 start "${FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
             ;;
@@ -609,7 +615,7 @@ function Run_Normal() {
             pm2 start "${FileName}.${FileSuffix}" --interpreter bash --name "$FileName" --log ${LogFile}
             ;;
         esac
-        if [[ $ExitStatus -eq 0 ]]; then
+        if [[ $EXITSTATUS -eq 0 ]]; then
             echo -e "\n$COMPLETE 已重启 ${BLUE}$FileName${PLAIN} 守护进程，日志位于 ${BLUE}${LogFile}${PLAIN}\n"
         else
             echo -e "\n$SUCCESS 已启动 ${BLUE}$FileName${PLAIN} 守护进程，日志位于 ${BLUE}${LogFile}${PLAIN}\n"
@@ -618,12 +624,51 @@ function Run_Normal() {
         [ -f $FilePm2List ] && rm -rf $FilePm2List
     }
 
+    ## 加载全部账号
+    function combin_all_cookie() {
+        local What_Combine=Cookie
+        local CombinAll=""
+        local Tmp1 Tmp2
+        ## 全局屏蔽
+        grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
+        if [ $? -eq 0 ]; then
+            local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
+        fi
+        for ((i = 0x1; i <= ${UserSum}; i++)); do
+            ## 跳过全局屏蔽的账号
+            if [[ ${GlobalBlockCookie} ]]; then
+                for num1 in ${GlobalBlockCookie}; do
+                    if [[ $i -eq $num1 ]]; then
+                        continue 2
+                    else
+                        grep "^Cookie$i=[\"\'].*pt_pin=${num1};.*[\"\']" $FileConfUser -q 2>/dev/null
+                        [ $? -eq 0 ] && continue 2
+                    fi
+                done
+            fi
+            ## 跳过临时屏蔽的账号
+            for num2 in ${TempBlockCookie}; do
+                if [[ $i -eq $num2 ]]; then
+                    continue 2
+                else
+                    grep "^Cookie$i=[\"\'].*pt_pin=${num2};.*[\"\']" $FileConfUser -q 2>/dev/null
+                    [ $? -eq 0 ] && continue 2
+                fi
+            done
+            Tmp1=$What_Combine$i
+            Tmp2=${!Tmp1}
+            CombinAll="${CombinAll}&${Tmp2}"
+        done
+        export JD_COOKIE="$(echo $CombinAll | sed "s|^&||g; s|^@+||g; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||g")"
+
+    }
+
     ## 脚本代理
     if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
-        if [[ ${FileFormat} == "JavaScript" ]]; then
+        if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
-            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 类型的脚本！\n"
+            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！\n"
             exit ## 终止退出
         fi
     fi
@@ -639,22 +684,22 @@ function Run_Normal() {
         local Groups=$(echo ${GROUPING_VALUE} | sed "s|@| |g")
         for group in ${Groups}; do
             local Accounts=$(echo "${group}" | sed "s|%|${UserSum}|g; s|,| |g")
-            Designated_Account "${Accounts}"
+            designated_account "${Accounts}"
 
             ## 判断循环运行次数
             [[ ${RUN_LOOP} == true ]] && RunTimes=$(($RUN_LOOP_TIMES + 1))
             ## 执行脚本
             for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
                 ## 随机延迟
-                [[ ${RUN_DELAY} == true ]] && Random_Delay
+                [[ ${RUN_DELAY} == true ]] && random_delay
                 ## 等待执行
-                [[ ${RUN_WAIT} == true ]] && RunWait
+                [[ ${RUN_WAIT} == true ]] && wait_before_run
                 ## 运行
                 if [[ ${RUN_DAEMON} == true ]]; then
                     ## 后台挂起（守护进程）
-                    Daemon_Process
+                    daemon_process
                 else
-                    Run_Normal_Main
+                    run_normal_main
                 fi
             done
 
@@ -665,10 +710,10 @@ function Run_Normal() {
         ## 指定账号
         if [[ ${RUN_DESIGNATED} == true ]]; then
             local Accounts=$(echo ${DESIGNATED_VALUE} | sed "s|%|${UserSum}|g; s|,| |g")
-            Designated_Account "${Accounts}"
+            designated_account "${Accounts}"
         else
             ## 加载全部账号
-            Combin_AllCookie
+            combin_all_cookie
         fi
 
         ## 判断循环运行次数
@@ -676,15 +721,15 @@ function Run_Normal() {
         ## 执行脚本
         for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
             ## 随机延迟
-            [[ ${RUN_DELAY} == true ]] && Random_Delay
+            [[ ${RUN_DELAY} == true ]] && random_delay
             ## 等待执行
-            [[ ${RUN_WAIT} == true ]] && RunWait
+            [[ ${RUN_WAIT} == true ]] && wait_before_run
             ## 运行
             if [[ ${RUN_DAEMON} == true ]]; then
                 ## 后台挂起（守护进程）
-                Daemon_Process
+                daemon_process
             else
-                Run_Normal_Main
+                run_normal_main
             fi
         done
 
@@ -697,16 +742,16 @@ function Run_Normal() {
 }
 
 ## 并发执行
-function Run_Concurrent() {
+function run_concurrent() {
     local InputContent=$1
     local UserNum LogFile
     ## 统计账号数量
-    Count_UserSum
+    count_usersum
     ## 静默运行参数
-    [[ ${RUN_MUTE} == true ]] && NoPushNotify
+    [[ ${RUN_MUTE} == true ]] && no_send_notify
 
     ## 运行主命令
-    function Run_Concurrent_Main() {
+    function run_concurrent_main() {
         local Num=$1
         local Tmp=Cookie${Num}
         export JD_COOKIE=${!Tmp}
@@ -715,7 +760,7 @@ function Run_Concurrent() {
         ## 记录执行开始时间
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
         ## 执行脚本
-        case ${FileFormat} in
+        case ”${FileFormat}“ in
         JavaScript)
             if [[ ${EnableGlobalProxy} == true ]]; then
                 node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
@@ -727,7 +772,11 @@ function Run_Concurrent() {
             python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
             ;;
         TypeScript)
-            ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+            if [[ ${EnableGlobalProxy} == true ]]; then
+                ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 &>>${LogFile} &
+            else
+                ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
+            fi
             ;;
         Shell)
             bash ${FileName}.sh 2>&1 &>>${LogFile} &
@@ -737,10 +786,10 @@ function Run_Concurrent() {
 
     ## 脚本代理
     if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
-        if [[ ${FileFormat} == "JavaScript" ]]; then
+        if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
-            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 类型的脚本！\n"
+            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！\n"
             exit ## 终止退出
         fi
     fi
@@ -748,9 +797,9 @@ function Run_Concurrent() {
     ## 进入脚本所在目录
     cd ${FileDir}
     ## 随机延迟
-    [[ ${RUN_DELAY} == true ]] && Random_Delay
+    [[ ${RUN_DELAY} == true ]] && random_delay
     ## 等待执行
-    [[ ${RUN_WAIT} == true ]] && RunWait
+    [[ ${RUN_WAIT} == true ]] && wait_before_run
 
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
@@ -760,11 +809,11 @@ function Run_Concurrent() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 ## 格式检测
-                CheckAccountsRangeFormat "${UserNum}"
+                check_accounts_range_format "${UserNum}"
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                         ## 判定账号是否存在
-                        Account_ExistenceJudgment $i
+                        account_existence_judgment $i
                     done
                 else
                     echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
@@ -772,7 +821,7 @@ function Run_Concurrent() {
                 fi
             else
                 ## 判定账号是否存在
-                Account_ExistenceJudgment $UserNum
+                account_existence_judgment $UserNum
             fi
         done
 
@@ -782,16 +831,16 @@ function Run_Concurrent() {
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
                     ## 执行脚本
-                    Run_Concurrent_Main $i
+                    run_concurrent_main $i
                 done
             else
                 ## 执行脚本
-                Run_Concurrent_Main ${UserNum}
+                run_concurrent_main ${UserNum}
             fi
         done
     else
         ## 加载全部账号
-        ## 全局屏蔽
+        # 全局屏蔽
         grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
         if [ $? -eq 0 ]; then
             local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | awk -F "[\"\']" '{print$2}')
@@ -806,7 +855,7 @@ function Run_Concurrent() {
                 [[ $UserNum -eq $num ]] && continue 2
             done
             ## 执行脚本
-            Run_Concurrent_Main ${UserNum}
+            run_concurrent_main ${UserNum}
         done
     fi
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
@@ -817,12 +866,12 @@ function Run_Concurrent() {
     fi
 }
 
-function Run_Script() {
+function run_script() {
     RUN_MODE="${1}"
     ## 匹配脚本
-    Find_Script "${2}"
+    find_script "${2}"
     ## 导入配置文件
-    Import_Config ${FileName}
+    import_config ${FileName}
     # task_before.sh
     if [[ "${EnableTaskBeforeExtra}" == true ]]; then
         if [ -f $FileTaskBeforeExtra ]; then
@@ -831,10 +880,10 @@ function Run_Script() {
     fi
     case "${RUN_MODE}" in
     run)
-        Run_Normal "${2}"
+        run_normal "${2}"
         ;;
     conc)
-        Run_Concurrent "${2}"
+        run_concurrent "${2}"
         ;;
     esac
     # task_after.sh

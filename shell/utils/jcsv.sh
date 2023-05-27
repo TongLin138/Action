@@ -3,7 +3,7 @@
 source ${ARCADIA_DIR}/shell/core/main.sh
 
 ## 导入配置文件（不检查）
-Import_Config_Not_Check "jd_bean_change"
+import_config_not_check "jd_bean_change"
 
 ## 豆子变化记录文件
 bean_income=$LogDir/bean_income.csv

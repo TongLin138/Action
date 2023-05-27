@@ -1,32 +1,11 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## Telegram Bot 功能
-function TGBot_Control() {
-
-    ## 卸载
-    function Remove() {
-        echo -e "\n$WORKING 开始卸载...\n"
-        [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
-        rm -rf $BotDir/* $RootDir/bot.session*
-        echo -e "\n$COMPLETE 卸载完成"
-    }
-
-    ## 备份用户的脚本
-    function BackUpUserFiles() {
-        local UserFiles=($(
-            ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
-        ))
-        if [ ${#UserFiles[@]} -gt 0 ]; then
-            Make_Dir $RootDir/tmp
-            for ((i = 0; i < ${#UserFiles[*]}; i++)); do
-                mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
-            done
-        fi
-    }
+function tgbot_manage() {
 
     ## 安装 Telegram Bot
-    function Install_Bot() {
+    function install_main() {
         ## 安装依赖
         echo -e "\n$WORKING 开始安装依赖...\n"
         apk --no-cache add -f python3-dev py3-pip zlib-dev gcc g++ jpeg-dev musl-dev freetype-dev
@@ -39,7 +18,7 @@ function TGBot_Control() {
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
         fi
-        Make_Dir $BotLogDir
+        make_dir $BotLogDir
         ## 安装模块
         echo -e "$WORKING 开始安装模块...\n"
         cp -rf $BotSrcDir/tgbot $RootDir
@@ -52,7 +31,28 @@ function TGBot_Control() {
         fi
     }
 
-    Import_Config_Not_Check
+    ## 卸载
+    function remove_src() {
+        echo -e "\n$WORKING 开始卸载...\n"
+        [ -f $BotDir/requirements.txt ] && pip3 uninstall -y -r $BotDir/requirements.txt
+        rm -rf $BotDir/* $RootDir/bot.session*
+        echo -e "\n$COMPLETE 卸载完成"
+    }
+
+    ## 备份用户的脚本
+    function backup_user_scripts() {
+        local UserFiles=($(
+            ls $BotDir/diy 2>/dev/null | grep -Ev "__pycache__|example.py"
+        ))
+        if [ ${#UserFiles[@]} -gt 0 ]; then
+            make_dir $RootDir/tmp
+            for ((i = 0; i < ${#UserFiles[*]}; i++)); do
+                mv -f $BotDir/diy/${UserFiles[i]} $RootDir/tmp
+            done
+        fi
+    }
+
+    import_config_not_check
     import arcadia/pm2
     case ${ARCH} in
     armv7l | armv6l)
@@ -61,7 +61,7 @@ function TGBot_Control() {
         ;;
     *)
         if [[ -z $(grep -E "123456789" $ConfigDir/bot.json) ]]; then
-            PM2_List_All_Services
+            pm2_list_all_services
             cat $FilePm2List | awk -F '|' '{print$3}' | grep "tgbot" -wq
             local ExitStatustgbot=$?
             case $1 in
@@ -76,9 +76,9 @@ function TGBot_Control() {
                         pm2 delete tgbot >/dev/null 2>&1
                         ## 启动 bot
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
-                        PM2_List_All_Services
+                        pm2_list_all_services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "tgbot" -w | awk -F '|' '{print$10}')
-                        if [[ ${ServiceNewStatus} == "online" ]]; then
+                        if [[ "${ServiceNewStatus}" == "online" ]]; then
                             echo -e "\n$COMPLETE 电报机器人已重启\n"
                         else
                             echo -e "\n$FAIL 重启失败，请检查原因后重试！\n"
@@ -86,9 +86,9 @@ function TGBot_Control() {
                         ;;
                     stopped)
                         pm2 start tgbot
-                        PM2_List_All_Services
+                        pm2_list_all_services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "tgbot" -w | awk -F '|' '{print$10}')
-                        if [[ ${ServiceNewStatus} == "online" ]]; then
+                        if [[ "${ServiceNewStatus}" == "online" ]]; then
                             echo -e "\n$COMPLETE 电报机器人已重新启动\n"
                         else
                             echo -e "\n$FAIL 启动失败，请检查原因后重试！\n"
@@ -99,22 +99,22 @@ function TGBot_Control() {
                         pm2 delete tgbot >/dev/null 2>&1
                         ## 恢复用户插件
                         if [ -d $BotDir ]; then
-                            BackUpUserFiles
-                            [ ! -x /usr/bin/python3 ] && Remove
-                            Install_Bot
+                            backup_user_scripts
+                            [ ! -x /usr/bin/python3 ] && remove_src
+                            install_main
                             if [[ -d $RootDir/tmp ]]; then
                                 mv -f $RootDir/tmp/* $BotSrcDir/tgbot/diy
                                 rm -rf $RootDir/tmp
                             fi
                         else
-                            Install_Bot
+                            install_main
                         fi
                         cp -rf $BotSrcDir/tgbot $RootDir
                         ## 启动 bot
                         cd $BotDir && pm2 start ecosystem.config.js && sleep 1
-                        PM2_List_All_Services
+                        pm2_list_all_services
                         local ServiceNewStatus=$(cat $FilePm2List | grep "tgbot" -w | awk -F '|' '{print$10}')
-                        if [[ ${ServiceNewStatus} == "online" ]]; then
+                        if [[ "${ServiceNewStatus}" == "online" ]]; then
                             echo -e "\n$SUCCESS 已修复错误，服务恢复正常运行！\n"
                         else
                             echo -e "\n$FAIL 未能自动修复错误，请检查原因后重试！\n"
@@ -124,15 +124,15 @@ function TGBot_Control() {
                 else
                     ## 恢复用户插件
                     if [ -d $BotDir ]; then
-                        BackUpUserFiles
-                        [ ! -x /usr/bin/python3 ] && Remove
-                        Install_Bot
+                        backup_user_scripts
+                        [ ! -x /usr/bin/python3 ] && remove_src
+                        install_main
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/tgbot/diy
                             rm -rf $RootDir/tmp
                         fi
                     else
-                        Install_Bot
+                        install_main
                     fi
                     cp -rf $BotSrcDir/tgbot $RootDir
                     ## 启动 bot
@@ -165,15 +165,15 @@ function TGBot_Control() {
                     rm -rf $BotLogDir/up.log
                     ## 保存用户的脚本
                     if [ -d $BotDir ]; then
-                        BackUpUserFiles
-                        [ ! -x /usr/bin/python3 ] && Remove
-                        Install_Bot
+                        backup_user_scripts
+                        [ ! -x /usr/bin/python3 ] && remove_src
+                        install_main
                         if [[ -d $RootDir/tmp ]]; then
                             mv -f $RootDir/tmp/* $BotSrcDir/tgbot/diy
                             rm -rf $RootDir/tmp
                         fi
                     else
-                        Install_Bot
+                        install_main
                     fi
                     cp -rf $BotSrcDir/tgbot $RootDir
                     ## 启动 bot

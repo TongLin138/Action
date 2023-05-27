@@ -1,8 +1,8 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 清空定时任务关联脚本清单内容
-function CleanListScripts() {
+function clean_list_scripts() {
     local Dirs=("$ListOldScripts $ListNewScripts $ListAddScripts $ListDelScripts $ListConfScripts")
     for file in ${Dirs}; do
         [ -f $file ] && sed -i '1,$d' $file || touch $file
@@ -11,77 +11,77 @@ function CleanListScripts() {
 }
 
 ## 更新 Repo 仓库和 RawFile 脚本
-function UpdateMain() {
+function update_main() {
     import sync
     import update/cron
 
     ## 创建目录
-    Make_Dir $ReposDir
-    Make_Dir $RawDir
-    Make_Dir $LogTmpDir
+    make_dir $ReposDir
+    make_dir $RawDir
+    make_dir $LogTmpDir
 
     ## 清空定时任务关联脚本清单内容
-    CleanListScripts
+    clean_list_scripts
     ## 根据模式进行跟香港
     case $1 in
     all)
         import update/repo
         import update/raw
-        Update_AllRepo
-        Update_RawFile
+        update_all_repo
+        update_raw
         ;;
     repo)
         import update/repo
-        Update_AllRepo
+        update_all_repo
         ;;
     raw)
         import update/raw
-        Update_RawFile
+        update_raw
         ;;
     esac
 
     ## 更新定时任务
-    Update_Cron
+    update_cron
 }
 
-function Title() {
+function print_title() {
     local p=$1
-    local RunMod
+    local update_mod
     case $1 in
     all)
-        RunMod=" 全 部 内 容 "
+        update_mod=" 全 部 内 容 "
         ;;
     source)
-        RunMod=" 项 目 源 码 "
+        update_mod=" 项 目 源 码 "
         ;;
     repo)
-        RunMod=" 所 有 仓 库 "
+        update_mod=" 所 有 仓 库 "
         ;;
     raw)
-        RunMod=" 扩 展 脚 本 "
+        update_mod=" 扩 展 脚 本 "
         ;;
     extra)
-        RunMod=" 额 外 脚 本 "
+        update_mod=" 额 外 脚 本 "
         ;;
     designated)
-        RunMod=" 指 定 仓 库 "
+        update_mod=" 指 定 仓 库 "
         ;;
     esac
     echo -e "\n+-------------------- 执 行 更 新 程 序 --------------------+"
     echo -e ''
-    echo -e "                   更新模式：${BLUE}${RunMod}${PLAIN}  "
+    echo -e "                   更新模式：${BLUE}${update_mod}${PLAIN}  "
     echo -e ''
     echo -e "                系统时间：${BLUE}$(date "+%Y-%m-%d %T")${PLAIN}"
     echo -e ''
 }
 
-function Main() {
+function main() {
 
     import update/git
     ## 创建日志文件夹
-    Make_Dir $LogDir
+    make_dir $LogDir
     ## 导入配置文件（不检查）
-    Import_Config_Not_Check
+    import_config_not_check
 
     case $# in
     0)
@@ -91,36 +91,36 @@ function Main() {
     1)
         case $1 in
         all)
-            Title $1
+            print_title $1
             import update/source
-            Update_SourceCode
+            update_sourcecode
 
-            UpdateMain "all"
+            update_main "all"
 
             import update/extra
-            UpdateExtra
+            update_extra
             echo ''
             ;;
         source)
-            Title "source"
+            print_title "source"
             import update/source
-            Update_SourceCode
+            update_sourcecode
             ;;
         repo)
-            Title $1
-            UpdateMain "repo"
+            print_title $1
+            update_main "repo"
             echo ''
             ;;
         raw)
-            Title $1
-            UpdateMain "raw"
+            print_title $1
+            update_main "raw"
             echo ''
             ;;
         extra)
             if [[ $EnableUpdateExtraSync == true ]] || [[ $EnableUpdateExtra == true ]]; then
-                Title $1
+                print_title $1
                 import update/extra
-                UpdateExtra
+                update_extra
             else
                 echo -e "\n$ERROR 请先在 $FileConfUser 中启用关于 Extra 自定义脚本的相关变量！\n"
             fi
@@ -130,19 +130,19 @@ function Main() {
             echo $1 | grep "\/" -q
             if [ $? -eq 0 ]; then
                 import update/repo
-                Update_Designated $1
+                update_designated_repo $1
             else
                 if [ -d "$(pwd)/$1" ]; then
                     import update/repo
                     if [[ "$1" = "." ]]; then
-                        Update_Designated "$(pwd)"
+                        update_designated_repo "$(pwd)"
                     elif [[ "$1" = "./" ]]; then
-                        Update_Designated "$(pwd)"
+                        update_designated_repo "$(pwd)"
                     else
-                        Update_Designated "$(pwd)/$1"
+                        update_designated_repo "$(pwd)/$1"
                     fi
                 else
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     exit                   ## 终止退出
                 fi
             fi
@@ -151,9 +151,9 @@ function Main() {
         exit ## 终止退出
         ;;
     *)
-        Output_Command_Error 2 # 命令过多
+        output_command_error 2 # 命令过多
         ;;
     esac
 }
 
-Main "$@" | tee -a $LogDir/update.log
+main "$@" | tee -a $LogDir/update.log

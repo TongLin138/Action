@@ -35,7 +35,7 @@ function Get_Cron() {
 }
 
 ## 查询脚本名 - 解析脚本名称
-function Query_ScriptName() {
+function query_scriptname() {
     local CurrentDir=$(pwd)
     local path="$1"
     local FileName=$(echo ${path##*/})
@@ -83,10 +83,10 @@ function Get_Tag() {
     fi
 }
 
-function Main() {
+function main() {
     local path="$1"
     local CronString="$(Get_Cron "${path}")"
-    local ScriptName="$(Query_ScriptName "${path}")"
+    local ScriptName="$(query_scriptname "${path}")"
     local FormatPath="$(echo "${path}" | sed "s|^${ARCADIA_DIR}/repo/||g")"
     local Tags=$(Get_Tag "${path}")
 
@@ -94,4 +94,4 @@ function Main() {
     echo '{"path": "'"${path}"'", "runPath": "'"${FormatPath}"'", "name": "'"${ScriptName}"'", "cron": "'"${CronString}"'", "tags": "'"${Tags}"'"}' | jq -c
 }
 
-Main "$@"
+main "$@"

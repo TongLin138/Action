@@ -1,13 +1,13 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 删除日志功能
 # task rmlog [days]
-function Remove_LogFiles() {
+function remove_logfiles() {
     local LogFileList LogDate DiffTime Stmp DateDelLog LineEndGitPull LineEndBotRun RmDays
     case $# in
     0)
-        Import_Config_Not_Check
+        import_config_not_check
         RmDays=${RmLogDaysAgo}
         ;;
     1)

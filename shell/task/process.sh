@@ -1,9 +1,9 @@
 #!/bin/bash
-## Modified: 2023-05-21
+## Modified: 2023-05-27
 
 ## 终止执行
 # task stop
-function Process_Stop() {
+function process_stop() {
     local InputContent=$1
     local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
     ## 匹配脚本
@@ -11,8 +11,8 @@ function Process_Stop() {
     local ProcessKeywords="${FileName}\.${FileSuffix}\$"
     ## 判定对应脚本是否存在相关进程
     ps -ef | grep -Ev "grep|pkill" | grep "${FileName}\.${FileSuffix}$" -wq
-    local ExitStatus=$?
-    if [[ ${ExitStatus} == 0 ]]; then
+    local EXITSTATUS=$?
+    if [[ ${EXITSTATUS} == 0 ]]; then
         ## 列出检测到的相关进程
         echo -e "\n检测到下列关于 ${BLUE}${FileName}.${FileSuffix}${PLAIN} 脚本的进程："
         echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
@@ -41,7 +41,7 @@ function Process_Stop() {
 
 ## 进程状态功能
 # task ps
-function Process_Status() {
+function process_status() {
     local MemoryTotal MemoryUsed MemoryFree MemoryAvailable MemoryUsage CPUUsage MemoryUsedNew MemoryAvailableNew MemoryUsageNew LogFilesSpace
     MemoryTotal=$(free -m | grep Mem | awk -F ' ' '{print$2}')
     MemoryUsed=$(free -m | grep Mem | awk -F ' ' '{print$3}')
@@ -74,7 +74,7 @@ function Process_Status() {
 
 ## 进程清理功能（终止卡死进程释放内存）
 # task cleanup
-function Process_CleanUp() {
+function process_cleanup() {
     local CheckHour ProcessArray FormatCurrentTime StartTime FormatDiffTime Tmp
     ## 判断检测时间，单位小时
     case $# in

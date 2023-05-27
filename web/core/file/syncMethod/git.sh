@@ -5,26 +5,26 @@ ShellDir=${ARCADIA_DIR}/shell
 
 ## 克隆仓库
 ## 注释  $1：仓库地址，$2：仓库保存路径，$3：分支（可省略）
-function Git_Clone() {
+function git_clone() {
     local Url=$1
     local Dir=$2
     local Branch=$3
     [[ $Branch ]] && local Command="-b $Branch "
     echo -e "\n$WORKING 开始克隆仓库 ${BLUE}$Url${PLAIN}\n"
     GIT_TERMINAL_PROMPT=0 git clone $Command $Url $Dir
-    ExitStatus=$?
+    EXITSTATUS=$?
 }
 
 ## 更新仓库
 ## 注释  $1：仓库保存路径
-function Git_Pull() {
+function git_pull() {
     local CurrentDir=$(pwd)
     local WorkDir=$1
     local Branch=$2
     cd $WorkDir
     echo -e "\n$WORKING 开始更新仓库：${BLUE}$WorkDir${PLAIN}\n"
     GIT_TERMINAL_PROMPT=0 git fetch --all
-    ExitStatus=$?
+    EXITSTATUS=$?
     GIT_TERMINAL_PROMPT=0 git pull
     GIT_TERMINAL_PROMPT=0 git reset --hard origin/$Branch
     cd $CurrentDir
@@ -32,7 +32,7 @@ function Git_Pull() {
 
 ## 重置仓库远程链接 remote url
 ## 注释  $1：要重置的目录，$2：要重置为的网址
-function Reset_Romote_Url() {
+function reset_romote_url() {
     local CurrentDir=$(pwd)
     local WorkDir=$1
     local Url=$2
@@ -51,7 +51,7 @@ function Reset_Romote_Url() {
 # 分支名称 branch
 # 存放仓库文件夹名 dir
 # 仓库本地绝对路径 path
-function Main() {
+function main() {
     local ARGS Repo_Name Repo_Url Repo_Branch Repo_Dir Repo_Path
 
     ## 读取传参
@@ -88,16 +88,16 @@ function Main() {
 
     # 处理仓库
     if [ -d ${Repo_Path}/.git ]; then
-        Reset_Romote_Url ${Repo_Path} ${Repo_Url} ${Repo_Branch}
-        Git_Pull ${Repo_Path} ${Repo_Branch}
-        if [[ $ExitStatus -eq 0 ]]; then
+        reset_romote_url ${Repo_Path} ${Repo_Url} ${Repo_Branch}
+        git_pull ${Repo_Path} ${Repo_Branch}
+        if [[ $EXITSTATUS -eq 0 ]]; then
             echo -e "\n$COMPLETE ${BLUE}${Repo_Dir}${PLAIN} 仓库更新完成"
         else
             echo -e "\n$FAIL ${BLUE}${Repo_Dir}${PLAIN} 仓库更新失败，请检查原因..."
         fi
     else
-        Git_Clone ${Repo_Url} ${Repo_Path} ${Repo_Branch}
-        if [[ $ExitStatus -eq 0 ]]; then
+        git_clone ${Repo_Url} ${Repo_Path} ${Repo_Branch}
+        if [[ $EXITSTATUS -eq 0 ]]; then
             echo -e "\n$SUCCESS ${BLUE}${Repo_Dir}${PLAIN} 克隆仓库成功"
         else
             echo -e "\n$FAIL ${BLUE}${Repo_Dir}${PLAIN} 克隆仓库失败，请检查原因..."
@@ -105,4 +105,4 @@ function Main() {
     fi
 }
 
-Main "$@"
+main "$@"

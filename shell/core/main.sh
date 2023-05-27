@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 目录
 RootDir=${ARCADIA_DIR}
@@ -52,8 +52,8 @@ ListAddScripts=$LogTmpDir/scripts_add.list
 ListDelScripts=$LogTmpDir/scripts_del.list
 ListConfScripts=$LogTmpDir/scripts_conf.json
 
-## 字符
-ARCH=$(uname -m)
+## 字符串
+ARCH="$(uname -m)"
 ContrlCmd="arcadia"
 TaskCmd="task"
 UpdateCmd="update"
@@ -72,14 +72,9 @@ COMPLETE="[\033[1;32m完成${PLAIN}]"
 WARN="[\033[1;5;33m注意${PLAIN}]"
 ERROR="[\033[1;31m错误${PLAIN}]"
 FAIL="[\033[1;31m失败${PLAIN}]"
+TIP="[\033[1;32m提示${PLAIN}]"
 WORKING="[\033[1;36m >_ ${PLAIN}]"
 EXAMPLE="[\033[1;35m参考命令${PLAIN}]"
-TIPS="[\033[1;32m提示${PLAIN}]"
-ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
-ShieldingKeywords="\.json\b|AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
-RawDirUtils="node_modules|${ShieldingKeywords}"
-CoreFiles="jdCookie.js USER_AGENTS.js"
-ScriptsDirReplaceFiles=""
 
 ## URL
 SignsRepoGitUrl="git@arcadia:supermanito/service_sign_json.git"
@@ -100,7 +95,7 @@ function import() {
 }
 
 ## 导入配置文件
-function Import_Config() {
+function import_config() {
     if [ -f $FileConfUser ]; then
         . $FileConfUser
     else
@@ -108,7 +103,7 @@ function Import_Config() {
         exit
     fi
 }
-function Import_Config_Not_Check() {
+function import_config_not_check() {
     if [ -f $FileConfUser ]; then
         . $FileConfUser >/dev/null 2>&1
     fi
@@ -138,17 +133,17 @@ function UrlDecode() {
 }
 
 ## 计算字符串长度
-function StringLength() {
+function string_length() {
     local text=$1
     echo "${#text}"
 }
 
 ## 输出命令错误提示
-function Output_Error() {
+function output_error() {
     [ "$1" ] && echo -e "\n$ERROR $1\n"
     exit 1
 }
-function Output_Command_Error() {
+function output_command_error() {
     local Mod=$1
     case $Mod in
     1)
@@ -160,8 +155,8 @@ function Output_Command_Error() {
     esac
 }
 
-## 统计账号数量
-function Count_UserSum() {
+## 统计数量
+function count_usersum() {
     for ((i = 1; i <= 0x2710; i++)); do
         local Tmp=Cookie$i
         local CookieTmp=${!Tmp}
@@ -169,73 +164,8 @@ function Count_UserSum() {
     done
 }
 
-## 组合变量
-function Combin_Sub() {
-    local What_Combine=$1
-    local CombinAll=""
-    local Tmp1
-    ## 全局屏蔽
-    grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
-    if [ $? -eq 0 ]; then
-        local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
-    fi
-    for ((i = 0x1; i <= ${UserSum}; i++)); do
-        if [[ ${GlobalBlockCookie} ]]; then
-            for num1 in ${GlobalBlockCookie}; do
-                [[ $i -eq $num1 ]] && continue 2
-            done
-        fi
-        Tmp1=$What_Combine$i
-        Tmp2=${!Tmp1}
-        CombinAll="${CombinAll}&${Tmp2}"
-    done
-    echo $CombinAll | perl -pe "{s|^&||; s|^@+||; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||}"
-}
-
-## 组合全部Cookie
-function Combin_AllCookie() {
-    Combin() {
-        local What_Combine=Cookie
-        local CombinAll=""
-        local Tmp1 Tmp2
-        ## 全局屏蔽
-        grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
-        if [ $? -eq 0 ]; then
-            local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
-        fi
-        for ((i = 0x1; i <= ${UserSum}; i++)); do
-            ## 跳过全局屏蔽的账号
-            if [[ ${GlobalBlockCookie} ]]; then
-                for num1 in ${GlobalBlockCookie}; do
-                    if [[ $i -eq $num1 ]]; then
-                        continue 2
-                    else
-                        grep "^Cookie$i=[\"\'].*pt_pin=${num1};.*[\"\']" $FileConfUser -q 2>/dev/null
-                        [ $? -eq 0 ] && continue 2
-                    fi
-                done
-            fi
-            ## 跳过临时屏蔽的账号
-            for num2 in ${TempBlockCookie}; do
-                if [[ $i -eq $num2 ]]; then
-                    continue 2
-                else
-                    grep "^Cookie$i=[\"\'].*pt_pin=${num2};.*[\"\']" $FileConfUser -q 2>/dev/null
-                    [ $? -eq 0 ] && continue 2
-                fi
-            done
-            Tmp1=$What_Combine$i
-            Tmp2=${!Tmp1}
-            CombinAll="${CombinAll}&${Tmp2}"
-        done
-        echo $CombinAll | sed "s|^&||g; s|^@+||g; s|&@|&|g; s|@+&|&|g; s|@+|@|g; s|@+$||g"
-    }
-
-    export JD_COOKIE=$(Combin)
-}
-
 ## 推送通知
-function Notify() {
+function send_notify() {
     local title=$(echo "$1" | sed "s|-|_|g")
     local msg="$(echo -e "$2")"
     if [ -d $ScriptsDir_NodeModules ]; then
@@ -243,36 +173,25 @@ function Notify() {
     fi
 }
 
-## 应用推送通知模块
-function Apply_SendNotify() {
-    local WorkDir=$1
-    Import_Config_Not_Check
-    if [[ ${EnableCustomNotify} == true ]] && [ -s $FileSendNotifyUser ]; then
-        cp -rf $FileSendNotifyUser $WorkDir
-    else
-        cp -rf $FileSendNotify $WorkDir
-    fi
-}
-
 ## 解析 json 数据
-function JSON_Parse() {
+function json_parse() {
     jq -n "$1" | jq -rc "$2"
 }
 
-## 解析被Encode的中文字符串
-function ParseEncodeStringToChinese() {
+## 解析 Encode 中文字符串
+function parse_encode_string_to_chinese() {
     local String=$1
     printf $(echo ${String} | sed "s|%|\\\x|g")
 }
 
 ## 创建目录
-function Make_Dir() {
+function make_dir() {
     local Dir=$1
     [ ! -d $Dir ] && mkdir -p $Dir
 }
 
 ## 查询脚本名，$1 为脚本名
-function Query_ScriptName() {
+function query_script_name() {
     local FileName=$1
     case ${FileName##*.} in
     js)
@@ -297,61 +216,4 @@ function Query_ScriptName() {
     else
         ScriptName="<未命名>"
     fi
-}
-
-## 查询脚本大小，$1 为脚本名
-function Query_ScriptSize() {
-    local FileName=$1
-    ScriptSize=$(ls -lth | grep "\b$FileName\b" | awk -F ' ' '{print$5}')
-}
-
-## 查询脚本修改时间，$1 为脚本名
-function Query_ScriptEditTimes() {
-    local FileName=$1
-    local Data=$(ls -lth | grep "\b$FileName\b" | awk -F 'root' '{print$NF}')
-    local MonthTmp=$(echo $Data | awk -F ' ' '{print$2}')
-    case $MonthTmp in
-    Jan)
-        Month="01"
-        ;;
-    Feb)
-        Month="02"
-        ;;
-    Mar)
-        Month="03"
-        ;;
-    Apr)
-        Month="04"
-        ;;
-    May)
-        Month="05"
-        ;;
-    Jun)
-        Month="06"
-        ;;
-    Jul)
-        Month="07"
-        ;;
-    Aug)
-        Month="08"
-        ;;
-    Sept)
-        Month="09"
-        ;;
-    Oct)
-        Month="10"
-        ;;
-    Nov)
-        Month="11"
-        ;;
-    Dec)
-        Month="12"
-        ;;
-    esac
-    local Day=$(echo $Data | awk -F ' ' '{print$3}')
-    if [[ $Day -lt "10" ]]; then
-        Day="0$Day"
-    fi
-    local Time=$(echo $Data | awk -F ' ' '{print$4}')
-    ScriptEditTimes="$Month-$Day $Time"
 }

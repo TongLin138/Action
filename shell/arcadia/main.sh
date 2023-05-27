@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 判定命令
 case $# in
@@ -12,17 +12,17 @@ case $# in
     repo)
         import arcadia/repo
         shift
-        Add_Repo "$@"
+        add_repo_conf "$@"
         ;;
     raw)
         import arcadia/raw
         shift
-        Add_Raw "$@"
+        add_raw_conf "$@"
         ;;
     *)
         case $# in
         1)
-            Output_Command_Error 1 # 命令错误
+            output_command_error 1 # 命令错误
             ;;
         2)
             case $1 in
@@ -30,10 +30,10 @@ case $# in
                 case $2 in
                 start | stop | info | respwd)
                     import arcadia/service
-                    Service_Control $2
+                    main_service_manage $2
                     ;;
                 *)
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     ;;
                 esac
                 ;;
@@ -41,10 +41,10 @@ case $# in
                 case $2 in
                 start | stop | logs | update)
                     import arcadia/tgbot
-                    TGBot_Control $2
+                    tgbot_manage $2
                     ;;
                 *)
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     ;;
                 esac
                 ;;
@@ -52,10 +52,10 @@ case $# in
                 case $2 in
                 status)
                     import arcadia/service
-                    Server_Status
+                    server_status
                     ;;
                 *)
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     ;;
                 esac
                 ;;
@@ -63,31 +63,31 @@ case $# in
                 case $2 in
                 install | repairs)
                     import arcadia/env
-                    Environment_Deployment $2
+                    environment_package $2
                     ;;
                 *)
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     ;;
                 esac
                 ;;
             check)
                 case $2 in
-                files)
+                conf)
                     import arcadia/env
-                    Check_Files
+                    check_conf_files
                     ;;
                 *)
-                    Output_Command_Error 1 # 命令错误
+                    output_command_error 1 # 命令错误
                     ;;
                 esac
                 ;;
             *)
-                Output_Command_Error 1 # 命令错误
+                output_command_error 1 # 命令错误
                 ;;
             esac
             ;;
         *)
-            Output_Command_Error 2 # 命令过多
+            output_command_error 2 # 命令过多
             ;;
         esac
         ;;

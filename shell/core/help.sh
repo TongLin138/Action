@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-25
+## Modified: 2023-05-27
 
 ## 命令帮助
 function Help() {
@@ -86,9 +86,9 @@ function Help() {
 ❖ 服务控制指令：
 
    ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态，创建时间，处理器占用，内存占用，运行时长
-   ${BLUE}$ContrlCmd service <args>${PLAIN}            ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}，关闭 ${BLUE}off${PLAIN}，登录信息 ${BLUE}info${PLAIN}，重置密码 ${BLUE}respwd${PLAIN}
+   ${BLUE}$ContrlCmd service <args>${PLAIN}            ✧ 后台管理面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}，关闭 ${BLUE}off${PLAIN}，登录信息 ${BLUE}info${PLAIN}，重置密码 ${BLUE}respwd${PLAIN}
    ${BLUE}$ContrlCmd env <args>${PLAIN}                ✧ 执行环境软件包相关命令(环境不支持使用 TypeScript 和 Python 运行环境)，安装 ${BLUE}install${PLAIN}，修复 ${BLUE}repairs${PLAIN}
-   ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
+   ${BLUE}$ContrlCmd check conf${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
 ❋ 指令参数注释：
 
@@ -100,10 +100,10 @@ function Help() {
 ❖ 服务控制指令：
 
    ${BLUE}$ContrlCmd server status${PLAIN}             ✧ 查看各服务的详细信息，包括运行状态，创建时间，处理器占用，内存占用，运行时长
-   ${BLUE}$ContrlCmd service <args>${PLAIN}            ✧ 控制面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}，关闭 ${BLUE}off${PLAIN}，登录信息 ${BLUE}info${PLAIN}，重置密码 ${BLUE}respwd${PLAIN}
+   ${BLUE}$ContrlCmd service <args>${PLAIN}            ✧ 后台管理面板和网页终端功能控制，开启或重启 ${BLUE}on${PLAIN}，关闭 ${BLUE}off${PLAIN}，登录信息 ${BLUE}info${PLAIN}，重置密码 ${BLUE}respwd${PLAIN}
    ${BLUE}$ContrlCmd tgbot <args>${PLAIN}               ✧ 电报机器人功能控制，启动或重启 ${BLUE}start${PLAIN}，停止 ${BLUE}stop${PLAIN}，查看日志 ${BLUE}logs${PLAIN}，更新升级 ${BLUE}update${PLAIN}
    ${BLUE}$ContrlCmd env <args>${PLAIN}                ✧ 执行环境软件包相关命令(支持 TypeScript 和 Python 运行环境)，安装 ${BLUE}install${PLAIN}，修复 ${BLUE}repairs${PLAIN}
-   ${BLUE}$ContrlCmd check files${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
+   ${BLUE}$ContrlCmd check conf${PLAIN}               ✧ 检查项目相关配置文件是否存在，如果缺失就从模板导入
 
 ❋ 指令参数注释：
 

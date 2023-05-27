@@ -1,15 +1,15 @@
 #!/bin/bash
-## Modified: 2023-05-25
+## Modified: 2023-05-27
 
 ## 一键添加脚本仓库命令
 # arcadia repo <name> <url> <branch> [--options]
-function Add_Repo() {
+function add_repo_conf() {
     local name url branch enable updateTaskList scriptsPath scriptsType whiteList blackList autoDisable addNotify delNotify
     # 定义临时文件
     local tmp_file="${ARCADIA_DIR}/.repo.yml"
 
     ## 处理命令选项
-    function CommandOptions() {
+    function handle_options() {
         case $# in
         0)
             import core/help
@@ -52,10 +52,10 @@ function Add_Repo() {
                             enable="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 --updateTaskList)
@@ -65,62 +65,62 @@ function Add_Repo() {
                             updateTaskList="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 --scriptsPath)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             scriptsPath="$2"
                             shift
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
                     fi
                     ;;
                 --scriptsType)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             scriptsType="$2"
                             shift
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
                     fi
                     ;;
                 --whiteList)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             whiteList="$2"
                             shift
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
                     fi
                     ;;
                 --blackList)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             blackList="$2"
                             shift
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
                     fi
                     ;;
                 --autoDisable)
@@ -130,10 +130,10 @@ function Add_Repo() {
                             autoDisable="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 --addNotify)
@@ -143,10 +143,10 @@ function Add_Repo() {
                             addNotify="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 --delNotify)
@@ -156,14 +156,14 @@ function Add_Repo() {
                             delNotify="$2"
                             shift
                         else
-                            Output_Error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
                     fi
                     ;;
                 *)
-                    Output_Error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
                     ;;
                 esac
                 shift
@@ -173,7 +173,7 @@ function Add_Repo() {
     }
 
     # 生成配置文件模板
-    function CreateTemplate() {
+    function create_template() {
         echo '{ "name": "", "url": "", "branch": "", "enable": true, "cronSettings": { "updateTaskList": false, "scriptsPath": "", "scriptsType": ["js"], "whiteList": "", "blackList": "", "autoDisable": false, "addNotify": true, "delNotify": true } }' | jq | yq -y >$tmp_file
         # 插入缩进空格
         local LineSum="$(cat $tmp_file | grep "" -c)"
@@ -183,7 +183,7 @@ function Add_Repo() {
     }
 
     # 替换用户配置
-    function ReplaceUserConf() {
+    function replace_user_conf() {
         sed -i "s|name: \'\'|name: \"${name}\"|g" $tmp_file
         sed -i "s|url: \'\'|url: \"${url}\"|g" $tmp_file
         sed -i "s|branch: \'\'|branch: \"${branch}\"|g" $tmp_file
@@ -212,13 +212,13 @@ function Add_Repo() {
         else
             sed -i "s|        - js|        - ${scriptsType}|g" $tmp_file
         fi
-        echo -e "\n$TIPS 自动生成的配置内容如下：\n"
+        echo -e "\n$TIP 自动生成的配置内容如下：\n"
         cat $tmp_file | sed "s/^  //g"
         echo ''
     }
 
     # 保存配置（写入至配置文件）
-    function SaveConf() {
+    function save_conf() {
         local LinesInfo="$(cat $FileSyncConfUser | grep -n "" | grep -Ev "^[0-9]{1,4}:  ")"
         # 判断是否有设置 repo 键值对
         echo "${LinesInfo}" | grep -Eq ":repo:$"
@@ -242,16 +242,16 @@ function Add_Repo() {
     }
 
     # 处理命令选项
-    CommandOptions "$@"
+    handle_options "$@"
     # 判断重复性
     cat $FileSyncConfUser | grep -Eq "url: [\"\']?${url}[\"\']?"
-    [ $? -eq 0 ] && Output_Error "检测到该配置已存在，请勿重复添加！"
+    [ $? -eq 0 ] && output_error "检测到该配置已存在，请勿重复添加！"
     # 生成配置文件模板
-    CreateTemplate
+    create_template
     # 替换用户配置
-    ReplaceUserConf
+    replace_user_conf
     # 保存配置
-    SaveConf
+    save_conf
     # 删除临时文件
     [ -f $tmp_file ] && rm -rf $tmp_file
 }

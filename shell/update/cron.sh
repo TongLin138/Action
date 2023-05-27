@@ -1,18 +1,18 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 更新定时任务（后端处理）
-function Update_Cron() {
+function update_cron() {
 
     # 读取脚本同步全局配置
-    function Get_GobalConf() {
+    function get_gobalconf() {
         cat $FileSyncConfUser | yq '.gobal' | jq -rc "$1"
     }
 
     ## 更新定时
     # $1 接口路径
     # $2 Body / json
-    function cronFile_updateAll() {
+    function api_updatecron() {
         local data=$1
         local response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "http://127.0.0.1:15678/inner/cron/updateAll?_t=$(date +%s)000")
         echo "${response}"
@@ -62,7 +62,7 @@ function Update_Cron() {
             deleteFiles="${deleteFiles}, \"${DelArr[i]}\""
         fi
     done
-    if [[ "$(Get_GobalConf ".autoDisableRepoDuplicateCron")" == "true" ]]; then
+    if [[ "$(get_gobalconf ".autoDisableRepoDuplicateCron")" == "true" ]]; then
         local autoDisable="true"
     else
         local autoDisable="false"
@@ -76,7 +76,7 @@ function Update_Cron() {
     local data='{"type": "user", "autoDisable": '"${autoDisable}"', "newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
     # echo "${data}"
     # return
-    local result="$(cronFile_updateAll "${data}")"
+    local result="$(api_updatecron "${data}")"
     # echo ${result}
     if [ "${result}" ]; then
         result="$(echo ${result} | jq)"

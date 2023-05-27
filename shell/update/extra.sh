@@ -1,8 +1,8 @@
 #!/bin/bash
-## Modified: 2023-05-26
+## Modified: 2023-05-27
 
 ## 自定义更新脚本
-function UpdateExtra() {
+function update_extra() {
     if [[ "${EnableUpdateExtra}" == true || "${EnableUpdateExtraSync}" == true ]]; then
         echo -e "-------------------------------------------------------------\n"
     fi

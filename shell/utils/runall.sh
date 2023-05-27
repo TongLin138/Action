@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-25
+## Modified: 2023-05-27
 
 source ${ARCADIA_DIR}/shell/core/main.sh
 
@@ -23,7 +23,7 @@ function ChooseRunMod() {
         case $Input1 in
         [Yy] | [Yy][Ee][Ss])
             ## 导入配置文件
-            Import_Config ${FileName}
+            import_config ${FileName}
             while true; do
                 read -p "$(echo -e "\n${BOLD}  └ 请输入账号对应的序号（多个号用逗号隔开，支持区间）：${PLAIN}")" Input2
                 echo "${Input2}" | grep -Eq "[a-zA-Z./\!@#$%^&*|]|\(|\)|\[|\]|\{|\}"
@@ -95,7 +95,7 @@ function ChooseRunMod() {
     RunMode="${TmpParam1}${TmpParam2}${TmpParam3}"
 }
 
-function Main() {
+function main() {
     local CurrentDir=$(pwd)
     local Input3 Input4 Input5 ScriptType Tmp1 Tmp2
     local RunFile=$RootDir/.runall_tmp.sh
@@ -118,38 +118,26 @@ function Main() {
         ScriptType="\.js\b${Tmp1}${Tmp2}"
         ;;
     esac
+    ## 内置规则
+    ShieldingScripts="jd_update\.js|env_copy\.js|index\.js|ql\.js|jCkSeq\.js|jd_CheckCK\.js|jd_disable\.py|jd_updateCron\.ts|scripts_check_dependence\.py|UpdateUIDtoRemark\.js|magic\.|test\.|wskey\.|h5\.js|h5st\.js|getToken\.js|telecom\.py|main\.py|depend\.py"
+    ShieldingKeywords="AGENTS|^TS_|Cookie|cookie|Token|ShareCodes|sendNotify\.|^JDJR|Validator|validate|ZooFaker|MovementFaker|tencentscf|^api_test|^app\.|^main\.|\.bak\b|jdEnv|identical|${ShieldingScripts}"
 
     echo -e "\n❖ ${BOLD}RunAll${PLAIN}\n"
-    echo -e '1)   Scripts 主要仓库的脚本'
-    echo -e '2)   Scripts 目录下的所有脚本'
-    echo -e '3)   Scripts 目录下的第三方脚本'
-    echo -e '4)   指定路径下的所有脚本（非递归）'
+    echo -e '1)   Scripts 目录下的所有脚本'
+    echo -e '2)   指定路径下的所有脚本（非递归）'
     while true; do
         read -p "$(echo -e "\n${BOLD}└ 请选择执行脚本范围 [ 1-4 ]：${PLAIN}")" Input3
         case $Input3 in
         1)
             local WorkDir=$ScriptsDir
-            [ -d "$ScriptsDir/.git" ] && cd $ScriptsDir && git ls-files | egrep "${ScriptType}" | grep -E "j[drx]_" | grep -Ev "/|${ShieldingKeywords}" >$RunFile
-            cd $CurrentDir
-            break
-            ;;
-        2)
-            local WorkDir=$ScriptsDir
             ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
             break
             ;;
-        3)
-            local WorkDir=$ScriptsDir
-            cd $ScriptsDir
-            ls | egrep "${ScriptType}" | grep -Ev "$(git ls-files)|/|${ShieldingKeywords}" | sort -u >$RunFile
-            cd $CurrentDir
-            break
-            ;;
-        4)
-            Import_Config_Not_Check
-            echo -e "\n❖ 检测到的仓库："
+        2)
+            import_config_not_check
+            echo -e "\n❖ 检测到的脚本仓库："
             if [[ ${OwnRepoUrl1} ]]; then
-                ls $ReposDir | egrep -v "node_modules|package|raw" | perl -pe "{s|^|$ReposDir/|g}"
+                ls $ReposDir | egrep -v "node_modules|package" | perl -pe "{s|^|$ReposDir/|g}"
             fi
             echo -e "\n${GREEN}Tips${PLAIN}：可以指定任何一个目录并非仅限于上方检测到的仓库"
             while true; do
@@ -181,7 +169,7 @@ function Main() {
         ))
         echo -e "\n❖ 当前选择的脚本："
         for ((i = 0; i < ${#ListFiles[*]}; i++)); do
-            Query_ScriptName ${ListFiles[i]}
+            query_script_name ${ListFiles[i]}
             echo -e "$(($i + 1)).${ScriptName}：${ListFiles[i]}"
         done
         cd $CurrentDir
@@ -195,7 +183,7 @@ function Main() {
             sed -i "s/$/& ${RunMode}/g" $RunFile
             sed -i '1i\#!/bin/env bash' $RunFile
             ## 执行前提示
-            echo -e "\n$TIPS ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
+            echo -e "\n$TIP ${BLUE}Ctrl + Z${PLAIN} 跳过执行当前脚本（若中途卡住可尝试跳过），${BLUE}Ctrl + C${PLAIN} 终止执行全部任务\n"
             ## 等待动画
             local spin=('.   ' '..  ' '... ' '....')
             local n=0
@@ -223,4 +211,4 @@ function Main() {
     rm -rf $RunFile
 }
 
-Main
+main

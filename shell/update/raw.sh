@@ -1,25 +1,25 @@
 #!/bin/bash
-## Modified: 2023-05-23
+## Modified: 2023-05-27
 
 ## 更新所有 Raw 脚本
-function Update_RawFile() {
+function update_raw() {
 
     # 读取脚本同步全局配置
-    function Get_GobalConf() {
+    function get_gobalconf() {
         cat $FileSyncConfUser | yq '.gobal' | jq -rc "$1"
     }
 
     local RemoveMark DownloadUrl
     ## 统计扩展脚本数量并生成配置
-    Count_RawSum
-    Gen_RawConfArray
+    count_rawsum
+    gen_rawconf_array
 
     if [[ $RawSum -ge 1 && ${#Array_Raw_url[*]} -ge 1 ]]; then
         ## 定义依赖文件过滤（白名单）
-        if [[ "$(Get_GobalConf ".rawDependencyFilter")" ]]; then
-            local filter="${RawDirUtils}|$(Get_GobalConf ".rawDependencyFilter")"
+        if [[ "$(get_gobalconf ".rawDependencyFilter")" ]]; then
+            local filter="node_modules|$(get_gobalconf ".rawDependencyFilter")"
         else
-            local filter="${RawDirUtils}"
+            local filter="node_modules"
         fi
         ## 生成旧的定时脚本清单
         if [[ ${Array_Raw_cronSettings_updateTaskList[i]} == "true" ]]; then
