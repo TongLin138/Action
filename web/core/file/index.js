@@ -10,6 +10,7 @@ const DIR_NAME = {
     SCRIPTS: "scripts",
     LOG: "log",
     REPO: "repo",
+    RAW: "raw",
     BAK: "config/bak"
 }
 const DIR_KEY = {
@@ -19,6 +20,7 @@ const DIR_KEY = {
     SCRIPTS: DIR_NAME.SCRIPTS + "/",
     LOG: DIR_NAME.LOG + "/",
     REPO: DIR_NAME.REPO + "/",
+    RAW: DIR_NAME.RAW + "/",
     BAK: DIR_NAME.BAK + "/"
 }
 
