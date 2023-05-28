@@ -4,14 +4,8 @@
 ## 更新定时任务（后端处理）
 function update_cron() {
 
-    # 读取脚本同步全局配置
-    function get_gobalconf() {
-        cat $FileSyncConfUser | yq '.gobal' | jq -rc "$1"
-    }
-
     ## 更新定时
-    # $1 接口路径
-    # $2 Body / json
+    # $1 Body/json
     function api_updatecron() {
         local data=$1
         local response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "http://127.0.0.1:15678/inner/cron/updateAll?_t=$(date +%s)000")
@@ -62,18 +56,13 @@ function update_cron() {
             deleteFiles="${deleteFiles}, \"${DelArr[i]}\""
         fi
     done
-    if [[ "$(get_gobalconf ".autoDisableRepoDuplicateCron")" == "true" ]]; then
-        local autoDisable="true"
-    else
-        local autoDisable="false"
-    fi
     # echo -e "AddArr:\n${#AddArr[@]}"
     # echo -e "DelArr:\n${#DelArr[@]}"
     # echo -e "newFiles:\n${newFiles}"
     # echo -e "deleteFiles:\n${deleteFiles}"
 
     ## 请求后端处理更新定时任务
-    local data='{"type": "user", "autoDisable": '"${autoDisable}"', "newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
+    local data='{"type": "system", "newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
     # echo "${data}"
     # return
     local result="$(api_updatecron "${data}")"

@@ -1,4 +1,4 @@
-## 更新日期: 2023-05-21
+## 更新日期: 2023-05-29
 # 脚本仓库配置
 # 官网教程：https://arcadia.cool/docs/configuration/script/repo/config
 repo:
@@ -29,5 +29,4 @@ raw:
 
 # 全局配置
 gobal:
-  autoDisableRepoDuplicateCron: true # 自动禁用来自脚本仓库的重复定时任务
   rawDependencyFilter: '' # 远程脚本依赖文件过滤（白名单）
