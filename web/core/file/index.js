@@ -321,23 +321,23 @@ function bakConfigFile(file) {
         date.getMilliseconds();
     let oldConfContent = '';
     switch (file) {
-        case 'config.sh':
+        case CONFIG_FILE_KEY.CONFIG:
             oldConfContent = getFileContentByName(configFile);
             fs.writeFileSync(bakConfigFile, oldConfContent);
             break;
-        case 'crontab.list':
+        case CONFIG_FILE_KEY.CRONTAB:
             oldConfContent = getFileContentByName(crontabFile);
             fs.writeFileSync(bakConfigFile, oldConfContent);
             break;
-        case 'extra.sh':
+        case CONFIG_FILE_KEY.EXTRA:
             oldConfContent = getFileContentByName(extraFile);
             fs.writeFileSync(bakConfigFile, oldConfContent);
             break;
-        case 'bot.json':
+        case CONFIG_FILE_KEY.BOT:
             oldConfContent = getFileContentByName(botFile);
             fs.writeFileSync(bakConfigFile, oldConfContent);
             break;
-        case 'account.json':
+        case CONFIG_FILE_KEY.ACCOUNT:
             oldConfContent = getFileContentByName(accountFile);
             fs.writeFileSync(bakConfigFile, oldConfContent);
             break;
@@ -347,13 +347,12 @@ function bakConfigFile(file) {
     return oldConfContent;
 }
 
-function checkConfigSave(oldContent) {
+function checkConfigSave(content) {
     if (os.type() === 'Linux') {
         //判断格式是否正确
         try {
             execSync(`bash ${configFile} >${logPath}.check`, {encoding: 'utf8'});
         } catch (e) {
-            fs.writeFileSync(configFile, oldContent);
             let errorMsg, line;
             try {
                 errorMsg = /(?<=line\s[0-9]*:)([^"]+)/.exec(e.message)[0];
@@ -363,6 +362,7 @@ function checkConfigSave(oldContent) {
             throw new Error(errorMsg && line ? `第 ${line} 行:${errorMsg}` : e.message);
         }
     }
+    fs.writeFileSync(configFile, content);
 
 }
 
@@ -377,8 +377,7 @@ function saveNewConf(file, content, isBak = true) {
     switch (file) {
         case CONFIG_FILE_KEY.CONFIG:
         case 'config.sh':
-            fs.writeFileSync(configFile, content);
-            isBak && checkConfigSave(oldContent);
+            checkConfigSave(content);
             break;
         case CONFIG_FILE_KEY.CRONTAB:
         case 'crontab.list':
