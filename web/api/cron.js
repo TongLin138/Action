@@ -17,7 +17,7 @@ const {DIR_KEY} = require("../core/file");
  */
 api.get('/', async function (request, response) {
     let active = request.query.active ? request.query.active.split(',') : []
-    let tags = request.query.tags ? request.query.tags.split(',') : []
+    let tags = request.query.tags ? request.query.tags.split(',').map(s => s.trim()).filter(s => s) : []
     let filter = Object.assign({}, request.query)
     delete filter.active
     delete filter.tags
@@ -36,7 +36,12 @@ api.get('/', async function (request, response) {
                 sql += ` active in (${active.map((a) => '?').join(',')}) `
                 args.push(...active)
             }
-            if (tags.length > 0) {
+            if (request.query.tags === "$__null__") {
+                if (sql && sql.trim()) {
+                    sql += ` and `
+                }
+                sql += ` (tags = '')`
+            } else if (tags.length > 0) {
                 if (sql && sql.trim()) {
                     sql += ` and `
                 }
@@ -52,7 +57,7 @@ api.get('/', async function (request, response) {
             }
             return sql
         },
-        orderBy: ['sort'],
+        orderBy: [{name: 'sort', desc: true}]
     })
     tasks.data.forEach((task) => (task.running_status = !!core.running[task.id]))
     response.send(API_STATUS_CODE.okData(tasks))
@@ -141,8 +146,8 @@ api.get('/bindGroup', async function (request, response) {
                 await curd.db.exec(`
                     select bind, count(*) count
                     from (SELECT SUBSTR(bind, INSTR(bind, '#') + 1,
-                        INSTR(SUBSTR(bind, INSTR(bind, '#') + 1), '#') - 1) AS bind
-                        FROM tasks)
+                                        INSTR(SUBSTR(bind, INSTR(bind, '#') + 1), '#') - 1) AS bind
+                          FROM tasks)
                     GROUP BY bind
                 `)
             )
@@ -157,9 +162,13 @@ let innerCornApi = express()
 innerCornApi.post('/updateAll', async function (request, response) {
     try {
         function toBind(type, s) {
-            let repoPath = "/" + DIR_KEY.ROOT + DIR_KEY.REPO;
-            if (s.startsWith(repoPath)) {
-                s = s.replace(repoPath, "")
+            let prefix = "/" + DIR_KEY.ROOT + DIR_KEY.REPO;
+            if (s.startsWith(prefix)) {
+                s = s.replace(prefix, "")
+            }
+            prefix = "/" + DIR_KEY.ROOT + DIR_KEY.RAW;
+            if (s.startsWith(prefix)) {
+                s = s.replace(prefix, DIR_KEY.RAW)
             }
             return type + '#' + s.substring(0, s.indexOf('/')) + '#' + s.substring(s.indexOf('/') + 1)
         }
@@ -174,8 +183,24 @@ innerCornApi.post('/updateAll', async function (request, response) {
                 deleteFiles.map((s) => toBind(type, s.path))
             )
             for (const task of deleteFiles) {
-                infos.push({ok: true, message: `删除定时任务: ${task}`})
-                await curd.fixCron(task.id);
+                try {
+                    infos.push({
+                        success: true,
+                        type: 1,
+                        path: task.path,
+                        name: task.name,
+                        message: `ok`
+                    })
+                    await curd.fixCron(task.id);
+                } catch (e) {
+                    infos.push({
+                        success: false,
+                        type: 1,
+                        path: task.path,
+                        name: task.name,
+                        message: `${e.message || e}`
+                    })
+                }
             }
         }
         if (newFiles && newFiles.length > 0) {
@@ -184,30 +209,45 @@ innerCornApi.post('/updateAll', async function (request, response) {
                 newFiles.map((s) => toBind(type, s.path))
             )
             for (const task of newFiles) {
-                infos.push({ok: true, message: `删除定时任务: ${task}`})
                 await curd.fixCron(task.id);
             }
             //2.新增定时任务
             //2.1,批量插入定时任务
             for (let item of newFiles) {
-                let task = await scriptResolve(item.path)
-                //可优化,一次性插入效果更好
-                let t = {
-                    name: task.name,
-                    type: 'user',
-                    cron: task.cron,
-                    shell: `task run ${task.runPath}`,
-                    active: item.active || 1, // 默认启用
-                    config: '',
-                    tags: task.tags || '',
-                    creat_time: new Date(),
-                    bind: toBind(type, item.path),
+                try {
+                    let task = await scriptResolve(item.path)
+                    //可优化,一次性插入效果更好
+                    let t = {
+                        name: task.name,
+                        type: 'user',
+                        cron: task.cron,
+                        shell: `task run ${task.runPath}`,
+                        active: item.active || 1, // 默认启用
+                        config: '',
+                        tags: task.tags || '',
+                        creat_time: new Date(),
+                        bind: toBind(type, item.path),
+                    }
+                    await curd.save(t)
+                    await curd.fixCron(t.id)
+                    infos.push({
+                        success: true,
+                        type: 0,
+                        path: task.path,
+                        name: task.name,
+                        message: `ok`
+                    })
+                } catch (e) {
+                    infos.push({
+                        success: false,
+                        type: 0,
+                        path: item.path,
+                        name: item.name,
+                        message: `${e.message || e}`
+                    })
                 }
-                await curd.save(t)
-                await curd.fixCron(t.id)
-                infos.push({ok: true, message: `添加定时任务: ${task.name}`})
+                await curd.fixOrder()
             }
-            await curd.fixOrder()
         }
         response.send(API_STATUS_CODE.okData(infos))
     } catch (e) {
