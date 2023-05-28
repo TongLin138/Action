@@ -176,7 +176,6 @@ function accounts_control() {
                     [ -z ${WS_KEY_TMP} ] && continue
                 done
             fi
-            echo 2
             echo -e "\n上次更新: ${BLUE}${UpdateTimes}${PLAIN}"
         }
 
@@ -213,7 +212,7 @@ function accounts_control() {
 
         ## 更新 sign 签名
         function UpdateSign() {
-            local SignsRepoGitUrl="git@arcadia:supermanito/service_sign_json.git"
+            local SignsRepoGitUrl="git@arcadia:supermanito/panel_sign_json.git"
             local SignsDir=$UtilsDir/.sign
             make_dir $SignsDir
             if [ ! -d $SignsDir/.git ]; then
@@ -575,12 +574,12 @@ function accounts_control() {
                 CK=${!Cookie_Tmp}
                 CheckStatus "${CK}"
                 if [[ ${StatusCode} == "0" ]]; then
-                    echo -e "❖ 账号$i · [${BLUE}${nickName}${PLAIN}]\n"
+                    echo -e "❖ 账号$i · ${BLUE}${nickName}${PLAIN}\n"
                     QueryBeanInfo
                 else
                     echo -e "$WARN 账号$i · [${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN}] 无效，跳过查询..."
                 fi
-                echo -e "\n............................................."
+                echo -e "\n............................................................................."
                 sleep 1
             done
             ;;
