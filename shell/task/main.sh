@@ -295,6 +295,7 @@ function main() {
                     if [[ "$2" ]]; then
                         RUN_TIMEOUT="true"
                         TIMEOUT_OPTIONS="$2"
+                        shift
                     else
                         output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
                     fi
