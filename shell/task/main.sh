@@ -49,7 +49,7 @@ function main() {
             ;;
         esac
         ;;
-    ## 2个参数
+    ## 2个命令选项
     2)
         case $1 in
         # 运行脚本
@@ -116,21 +116,20 @@ function main() {
     3)
         case $1 in
         run | conc)
-            ## 定义执行内容，下面的判断会把参数打乱
             RUN_MODE="${1}"
             shift
             RUN_TARGET="${1}"
             shift
-            ## 判断参数
+            ## 判断命令选项
             while [ $# -gt 0 ]; do
                 case "$1" in
                 -l | --loop)
                     case "${RUN_MODE}" in
                     run)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定循环次数！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定循环次数！"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -138,7 +137,7 @@ function main() {
                     RUN_MUTE="true"
                     ;;
                 -w | --wait)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定等待时间！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定等待时间！"
                     ;;
                 -a | --agent)
                     RUN_GLOBAL_AGENT="true"
@@ -147,14 +146,14 @@ function main() {
                     RUN_DELAY="true"
                     ;;
                 -T | --Timeout)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定超时命令选项！"
                     ;;
                 -p | --proxy)
                     echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
                 -h | --hang)
@@ -163,20 +162,20 @@ function main() {
                         RUN_DAEMON="true"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 -c | --cookie)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定运行账号！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定运行账号！"
                     ;;
                 -g | --grouping)
                     case "${RUN_MODE}" in
                     run)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定账号运行分组！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定账号运行分组！"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -186,12 +185,12 @@ function main() {
                         RUN_BACKGROUND="true"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 *)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请确认后重新输入！"
                     ;;
                 esac
                 shift
@@ -239,12 +238,11 @@ function main() {
     *)
         case $1 in
         run | conc)
-            ## 定义执行内容，下面的判断会把参数打乱
             RUN_MODE="${1}"
             shift
             RUN_TARGET="${1}"
             shift
-            ## 判断参数
+            ## 判断命令选项
             while [ $# -gt 0 ]; do
                 case "$1" in
                 -l | --loop)
@@ -253,18 +251,18 @@ function main() {
                         if [[ "$2" ]]; then
                             echo "$2" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                             if [ $? -eq 0 ]; then
-                                output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
+                                output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                             else
                                 RUN_LOOP="true"
                                 RUN_LOOP_TIMES="$2"
                                 shift
                             fi
                         else
-                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定循环次数！"
+                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定循环次数！"
                         fi
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -275,14 +273,14 @@ function main() {
                     if [[ "$2" ]]; then
                         echo "$2" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                         else
                             RUN_WAIT="true"
                             RUN_WAIT_TIMES="$2"
                             shift
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定等待时间！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定等待时间！"
                     fi
                     ;;
                 -a | --agent)
@@ -297,7 +295,7 @@ function main() {
                         TIMEOUT_OPTIONS="$2"
                         shift
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定超时命令选项！"
                     fi
                     ;;
                 -p | --proxy)
@@ -305,7 +303,7 @@ function main() {
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
                 -h | --hang)
@@ -314,7 +312,7 @@ function main() {
                         RUN_DAEMON="true"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -322,10 +320,10 @@ function main() {
                     if [[ "$2" ]]; then
                         echo "$2" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                         else
                             if [[ ${RUN_GROUPING} == true ]]; then
-                                output_error "检测到无效参数 ${BLUE}$1${PLAIN} ，不可与账号分组参数同时使用！"
+                                output_error "检测到无效命令选项 ${BLUE}$1${PLAIN} ，不可与账号分组命令选项同时使用！"
                             else
                                 RUN_DESIGNATED="true"
                                 DESIGNATED_VALUE="$2"
@@ -333,7 +331,7 @@ function main() {
                             fi
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定运行账号！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定运行账号！"
                     fi
                     ;;
                 -g | --grouping)
@@ -342,10 +340,10 @@ function main() {
                         if [[ "$2" ]]; then
                             echo "$2" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                             if [ $? -eq 0 ]; then
-                                output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
+                                output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                             else
                                 if [[ ${RUN_DESIGNATED} == true ]]; then
-                                    output_error "检测到无效参数 ${BLUE}$1${PLAIN} ，不可与指定账号参数同时使用！"
+                                    output_error "检测到无效命令选项 ${BLUE}$1${PLAIN} ，不可与指定账号命令选项同时使用！"
                                 else
                                     ## 判断是否已分组
                                     echo "$2" | grep -Eq "@"
@@ -354,16 +352,16 @@ function main() {
                                         GROUPING_VALUE="$2"
                                         shift
                                     else
-                                        output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请定义账号分组否则请使用指定账号参数！"
+                                        output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请定义账号分组否则请使用指定账号命令选项！"
                                     fi
                                 fi
                             fi
                         else
-                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定账号运行分组！"
+                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定账号运行分组！"
                         fi
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -373,12 +371,12 @@ function main() {
                         RUN_BACKGROUND="true"
                         ;;
                     conc)
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 *)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请确认后重新输入！"
                     ;;
                 esac
                 shift

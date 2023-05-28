@@ -32,7 +32,6 @@ function add_repo_conf() {
             output_error "缺少必须提供的 branch 参数！"
             ;;
         *)
-            ## 必填参数
             name="$1"
             shift
             url="$1"
@@ -50,10 +49,10 @@ function add_repo_conf() {
                             enable="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 --updateTaskList)
@@ -63,62 +62,62 @@ function add_repo_conf() {
                             updateTaskList="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 --scriptsPath)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             scriptsPath="$2"
                             shift
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定字符串！"
                     fi
                     ;;
                 --scriptsType)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             scriptsType="$2"
                             shift
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定字符串！"
                     fi
                     ;;
                 --whiteList)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             whiteList="$2"
                             shift
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定字符串！"
                     fi
                     ;;
                 --blackList)
                     if [ "$2" ]; then
                         echo "$2" | grep -Eqw "^--"
                         if [ $? -eq 0 ]; then
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入字符串！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入字符串！"
                         else
                             blackList="$2"
                             shift
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定字符串！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定字符串！"
                     fi
                     ;;
                 --autoDisable)
@@ -128,10 +127,10 @@ function add_repo_conf() {
                             autoDisable="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 --addNotify)
@@ -141,10 +140,10 @@ function add_repo_conf() {
                             addNotify="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 --delNotify)
@@ -154,14 +153,14 @@ function add_repo_conf() {
                             delNotify="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 *)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请确认后重新输入！"
                     ;;
                 esac
                 shift

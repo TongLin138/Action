@@ -29,7 +29,6 @@ function add_raw_conf() {
             esac
             ;;
         *)
-            ## 必填参数
             name="$1"
             shift
             url="$1"
@@ -45,14 +44,14 @@ function add_raw_conf() {
                             updateTaskList="$2"
                             shift
                         else
-                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
+                            output_error "检测到无效命令选项值 ${BLUE}$2${PLAIN} ，请输入布尔值！"
                         fi
                     else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定布尔值！"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定布尔值！"
                     fi
                     ;;
                 *)
-                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请确认后重新输入！"
                     ;;
                 esac
                 shift
