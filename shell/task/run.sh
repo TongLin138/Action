@@ -103,7 +103,7 @@ function find_script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
+            check_moudules $FileDir
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "repo" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
@@ -194,7 +194,7 @@ function find_script() {
         ## 判定变量是否存在否则报错终止退出
         if [ -n "${FileName}" ] && [ -n "${FileDir}" ]; then
             ## 添加依赖文件
-            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
+            check_moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             make_dir ${LogPath}
@@ -283,7 +283,7 @@ function find_script() {
             FileName=${FileNameTmp%.*}
             FileDir=$ScriptsDir
             ## 添加依赖文件
-            [[ ”${FileFormat}“ == "JavaScript" ]] && check_moudules $FileDir
+            check_moudules $FileDir
             ## 定义日志路径
             LogPath="$LogDir/${FileName}"
             make_dir ${LogPath}
@@ -298,17 +298,19 @@ function find_script() {
     ## 检测环境，添加依赖文件
     function check_moudules() {
         local WorkDir=$1
-        ## 拷贝核心组件
-        local CoreFiles="jdCookie.js USER_AGENTS.js"
-        for file in ${CoreFiles}; do
-            [ ! -f $WorkDir/$file ] && cp -rf $UtilsDir/$file $WorkDir
-        done
-        ## 拷贝推送通知模块
-        import_config_not_check
-        if [[ ${EnableCustomNotify} == true ]] && [ -s $FileSendNotifyUser ]; then
-            cp -rf $FileSendNotifyUser $WorkDir
-        else
-            cp -rf $FileSendNotify $WorkDir
+        if [[ "${FileFormat}" == "JavaScript" || "${FileFormat}" == "TypeScript" ]]; then
+            ## 拷贝核心组件
+            local CoreFiles="jdCookie.js USER_AGENTS.js"
+            for file in ${CoreFiles}; do
+                [ ! -f $WorkDir/$file ] && cp -rf $UtilsDir/$file $WorkDir
+            done
+            ## 拷贝推送通知模块
+            import_config_not_check
+            if [[ "${EnableCustomNotify}" == true ]] && [ -s $FileSendNotifyUser ]; then
+                cp -rf $FileSendNotifyUser $WorkDir
+            else
+                cp -rf $FileSendNotify $WorkDir
+            fi
         fi
     }
 
@@ -332,7 +334,7 @@ function find_script() {
         if [[ ${RUN_MODE} == "conc" ]]; then
             output_error "检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！"
         fi
-        case ”${FileFormat}“ in
+        case "${FileFormat}" in
         Python | TypeScript)
             output_error "当前宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！"
             ;;
@@ -343,6 +345,7 @@ function find_script() {
 
 ## 统计数量
 function count_usersum() {
+    UserSum=0
     for ((i = 1; i <= 0x2710; i++)); do
         local Tmp=Cookie$i
         local CookieTmp=${!Tmp}
@@ -447,7 +450,6 @@ function no_send_notify() {
 
 ## 普通执行
 function run_normal() {
-    local InputContent=$1
     local UserNum LogFile
     ## 统计账号数量
     count_usersum
@@ -456,51 +458,57 @@ function run_normal() {
 
     ## 运行主命令
     function run_normal_main() {
+        local cmd global_proxy_cmd
         if [[ "${EnableGlobalProxy}" == true ]]; then
-            local GLOBAL_PROXY_CMD="-r 'global-agent/bootstrap' "
+            global_proxy_cmd="-r 'global-agent/bootstrap' "
         else
-            local GLOBAL_PROXY_CMD=""
-        fi
-        if [[ "${RUN_TIMEOUT}" == true ]]; then
-            local TIMEOUT_CMD="timeout ${TIMEOUT_OPTIONS} "
-        else
-            local TIMEOUT_CMD=""
+            global_proxy_cmd=""
         fi
         if [[ ${RUN_BACKGROUND} == true ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
-            case ”${FileFormat}“ in
+            case "${FileFormat}" in
             JavaScript)
-                ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 &>>${LogFile} &
+                cmd="node ${global_proxy_cmd}${FileName}.js 2>&1 &>>${LogFile} &"
                 ;;
             Python)
-                ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+                cmd="python3 -u ${FileName}.py 2>&1 &>>${LogFile} &"
                 ;;
             TypeScript)
-                ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 &>>${LogFile} &
+                cmd="ts-node-transpile-only ${global_proxy_cmd}${FileName}.ts 2>&1 &>>${LogFile} &"
                 ;;
             Shell)
-                ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 &>>${LogFile} &
+                cmd="bash ${FileName}.sh 2>&1 &>>${LogFile} &"
                 ;;
             esac
+            if [[ "${RUN_TIMEOUT}" == true ]]; then
+                timeout ${TIMEOUT_OPTIONS} bash -c "${cmd}"
+            else
+                bash -c "${cmd}"
+            fi
             echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看最新日志\n"
         else
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
-            case ”${FileFormat}“ in
+            case "${FileFormat}" in
             JavaScript)
-                ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 | tee -a ${LogFile}
+                cmd="node ${global_proxy_cmd}${FileName}.js 2>&1 | tee -a ${LogFile}"
                 ;;
             Python)
-                ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
+                cmd="python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}"
                 ;;
             TypeScript)
-                ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 | tee -a ${LogFile}
+                cmd="ts-node-transpile-only ${global_proxy_cmd}${FileName}.ts 2>&1 | tee -a ${LogFile}"
                 ;;
             Shell)
-                ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
+                cmd="bash ${FileName}.sh 2>&1 | tee -a ${LogFile}"
                 ;;
             esac
+            if [[ "${RUN_TIMEOUT}" == true ]]; then
+                timeout ${TIMEOUT_OPTIONS} bash -c "${cmd}"
+            else
+                bash -c "${cmd}"
+            fi
             ## 记录执行结束时间
             echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
         fi
@@ -553,7 +561,7 @@ function run_normal() {
         pm2 delete $FileName >/dev/null 2>&1
         ## 启用
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 守护进程启动\n" >>${LogFile}
-        case ”${FileFormat}“ in
+        case "${FileFormat}" in
         JavaScript)
             pm2 start "${FileName}.${FileSuffix}" --name "$FileName" --watch --log ${LogFile}
             ;;
@@ -580,7 +588,7 @@ function run_normal() {
     function combin_all_cookie() {
         local What_Combine=Cookie
         local CombinAll=""
-        local Tmp1 Tmp2
+        local Tmp1 Tmp2 i
         ## 全局屏蔽
         grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
         if [ $? -eq 0 ]; then
@@ -617,7 +625,7 @@ function run_normal() {
 
     ## 脚本代理
     if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
-        if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
+        if [[ "${FileFormat}" == "JavaScript" || "${FileFormat}" == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
             output_error "检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！"
@@ -683,7 +691,6 @@ function run_normal() {
                 run_normal_main
             fi
         done
-
     fi
 
     ## 判断远程脚本执行后是否删除
@@ -694,7 +701,6 @@ function run_normal() {
 
 ## 并发执行
 function run_concurrent() {
-    local InputContent=$1
     local UserNum LogFile
     ## 统计账号数量
     count_usersum
@@ -711,35 +717,36 @@ function run_concurrent() {
         ## 记录执行开始时间
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
         ## 执行脚本
+        local cmd global_proxy_cmd
         if [[ "${EnableGlobalProxy}" == true ]]; then
-            local GLOBAL_PROXY_CMD=" -r 'global-agent/bootstrap'"
+            global_proxy_cmd=" -r 'global-agent/bootstrap'"
         else
-            local GLOBAL_PROXY_CMD=""
+            global_proxy_cmd=""
         fi
-        if [[ "${RUN_TIMEOUT}" == true ]]; then
-            local TIMEOUT_CMD="timeout ${TIMEOUT_OPTIONS} "
-        else
-            local TIMEOUT_CMD=""
-        fi
-        case ”${FileFormat}“ in
+        case "${FileFormat}" in
         JavaScript)
-            ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 &>>${LogFile} &
+            cmd="node ${global_proxy_cmd}${FileName}.js 2>&1 &>>${LogFile} &"
             ;;
         Python)
-            ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+            cmd="python3 -u ${FileName}.py 2>&1 &>>${LogFile} &"
             ;;
         TypeScript)
-            ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 &>>${LogFile} &
+            cmd="ts-node-transpile-only ${global_proxy_cmd}${FileName}.ts 2>&1 &>>${LogFile} &"
             ;;
         Shell)
-            ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 &>>${LogFile} &
+            cmd="bash ${FileName}.sh 2>&1 &>>${LogFile} &"
             ;;
         esac
+        if [[ "${RUN_TIMEOUT}" == true ]]; then
+            timeout ${TIMEOUT_OPTIONS} bash -c "${cmd}"
+        else
+            bash -c "${cmd}"
+        fi
     }
 
     ## 脚本代理
     if [[ ${RUN_GLOBAL_AGENT} == true ]]; then
-        if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
+        if [[ "${FileFormat}" == "JavaScript" || "${FileFormat}" == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
             output_error "检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！"
@@ -831,10 +838,10 @@ function run_script() {
     fi
     case "${RUN_MODE}" in
     run)
-        run_normal "${2}"
+        run_normal
         ;;
     conc)
-        run_concurrent "${2}"
+        run_concurrent
         ;;
     esac
     # task_after.sh

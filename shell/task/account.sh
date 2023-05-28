@@ -30,6 +30,7 @@ function accounts_control() {
 
     ## 统计数量
     function count_usersum() {
+        UserSum=0
         for ((i = 1; i <= 0x2710; i++)); do
             local Tmp=Cookie$i
             local CookieTmp=${!Tmp}
