@@ -62,7 +62,9 @@ api.post('/auth', async (request, response) => {
                     loginAddress: address,
                     loginTime: util.dateToString(curTime)
                 }
-                logger.info(`${username} 用户登录成功，登录IP：${ip}，登录地址：${address}`);
+                if(ip !== "127.0.0.1" &&  ip !== "localhost"){
+                    logger.info(`${username} 用户登录成功，登录IP：${ip}，登录地址：${address}`);
+                }
                 saveNewConf(CONFIG_FILE_KEY.AUTH, con, false);
             });
             result.token = jwt.sign({
