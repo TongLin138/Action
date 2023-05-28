@@ -38,6 +38,15 @@ function accounts_control() {
         done
     }
 
+    ## 判定账号是否存在
+    function account_existence_judgment() {
+        local Num=$1
+        local Tmp=Cookie$Num
+        if [[ -z ${!Tmp} ]]; then
+            output_error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
+        fi
+    }
+
     case $1 in
     ## 检测账号是否有效
     check)
