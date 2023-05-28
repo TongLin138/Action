@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -10,7 +10,7 @@ function update_raw() {
         cat $FileSyncConfUser | yq '.gobal' | jq -rc "$1"
     }
 
-    local RemoveMark DownloadUrl
+    local RemoveMark
     ## 统计扩展脚本数量并生成配置
     count_rawsum
     gen_rawconf_array
@@ -33,28 +33,28 @@ function update_raw() {
         ## 遍历扩展脚本配置数组，更新并生成新的定时脚本清单
         for ((i = 0; i < ${#Array_Raw_url[*]}; i++)); do
             echo "${Array_Raw_url[i]}" | grep -Eq "github|gitee|gitlab"
-            local web_url=${Array_Raw_url/*:\/\//}
-            ## 拉取脚本
-            local web_url="${Array_Raw_url[i]/\/${Array_Raw_name[i]}/}"
             if [ $? -eq 0 ]; then
                 echo ${Array_Raw_url[i]} | grep -E "git.*\.io/" -q
                 if [ $? -eq 0 ]; then
-                    echo -e "\n$WORKING 开始从网站 ${BLUE}${web_url}${PLAIN} 下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
+                    echo -e "\n$WORKING 开始从网站下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
                 else
-                    echo -e "\n$WORKING 开始从仓库 ${BLUE}${RepoUrl}${PLAIN} 下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
+                    echo -e "\n$WORKING 开始从仓库下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
                 fi
-                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_name[i]}.new" ${Array_Raw_url[i]} -T 30
+                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" ${Array_Raw_url[i]} -T 30
             else
-                DownloadUrl="${Array_Raw_url[i]}"
-                echo -e "\n$WORKING 开始从网站 ${BLUE}${web_url}${PLAIN} 下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
-                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_name[i]}.new" ${Array_Raw_url[i]} -T 30
+                echo -e "\n$WORKING 开始从网站下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
+                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" ${Array_Raw_url[i]} -T 30
             fi
             if [ $? -eq 0 ]; then
-                mv -f "$RawDir/${Array_Raw_name[i]}.new" "$RawDir/${Array_Raw_name[i]}"
-                echo -e "$COMPLETE ${Array_Raw_name[i]} 下载完成，脚本保存路径：$RawDir/${Array_Raw_name[i]}"
+                mv -f "$RawDir/${Array_Raw_fileName[i]}.new" "$RawDir/${Array_Raw_fileName[i]}"
+                echo -e "$COMPLETE ${Array_Raw_name[i]} 下载完成，脚本保存路径：$RawDir/${Array_Raw_fileName[i]}"
             else
-                echo -e "$FAIL ${Array_Raw_name[i]} 下载异常，保留之前正常下载的版本...\n"
-                [ -f "$RawDir/${Array_Raw_name[i]}.new" ] && rm -f "$RawDir/${Array_Raw_name[i]}.new"
+                if [ -f "$RawDir/${Array_Raw_fileName[i]}" ]; then
+                    echo -e "$FAIL ${Array_Raw_name[i]} 下载异常，保留之前正常下载的版本...\n"
+                else
+                    echo -e "$FAIL ${Array_Raw_name[i]} 下载异常，请检测链接有效性...\n"
+                fi
+                [ -f "$RawDir/${Array_Raw_fileName[i]}.new" ] && rm -f "$RawDir/${Array_Raw_fileName[i]}.new"
             fi
 
             [[ ${Array_Raw_cronSettings_updateTaskList[i]} == "true" ]] && echo "${Array_Raw_path[i]}" >>$ListNewScripts

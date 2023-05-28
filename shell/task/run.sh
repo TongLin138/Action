@@ -119,11 +119,11 @@ function find_script() {
         fi
     }
 
-    ## 匹配 Scripts 目录下的脚本
+    ## 匹配 scripts 目录下的脚本
     function match_scriptsfile() {
         local FileNameTmp SeekDir SeekExtension
-        ## 定义目录范围，优先级为 /arcadia/scripts > /arcadia/scripts/utils > /arcadia/scripts/backUp
-        SeekDir="$ScriptsDir $ScriptsDir/utils $ScriptsDir/backUp"
+        ## 定义目录范围
+        SeekDir="$ScriptsDir"
         ## 定义后缀格式
         SeekExtension="js py ts sh"
 
@@ -238,67 +238,29 @@ function find_script() {
             ;;
         esac
 
-        ## 判断来源仓库并处理链接
-        RepoName=$(echo "${InputContent}" | grep -Eo "github|gitee|gitlab|jsdelivr")
-        case ${RepoName} in
-        github | jsdelivr)
-            RepoJudge=" GitHub "
-            ## 地址纠正
-            echo "${InputContent}" | grep "github\.com\/.*\/blob\/.*" -q
+        ## 仓库原始文件地址自动纠正
+        import utils/request
+        if [[ "$(get_correct_raw_url "${InputContent}")" ]]; then
+            InputContent="$(get_correct_raw_url "${InputContent}")"
+        fi
+        ## 判定是否使用下载代理参数
+        if [[ "${DOWNLOAD_PROXY}" == true ]]; then
+            echo "${InputContent}" | grep "raw\.githubusercontent\.com/" -q
             if [ $? -eq 0 ]; then
-                local Tmp=$(echo "${InputContent}" | sed "s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g")
-            else
-                local Tmp=${InputContent}
-            fi
-            ## 验证 GitHub 地址格式
-            echo "${Tmp}" | grep "raw\.githubusercontent\.com|github\.io|jsdelivr\.net\/gh" -Eq
-            if [ $? -ne 0 ]; then
-                echo -e "\n$FAIL 格式错误，请输入正确的 GitHub 地址！\n"
-                exit ## 终止退出
-            fi
-            ## 判定是否使用下载代理参数
-            if [[ ${DOWNLOAD_PROXY} == true ]]; then
-                local Branch=$(echo "${Tmp}" | sed "s/https:\/\/raw\.githubusercontent\.com\///g" | awk -F '/' '{print$3}')
-                FormatInputContent=$(echo "${Tmp}" | sed "s|raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|g; s|\/${Branch}\/|\@${Branch}\/|g")
+                local repo_branch=$(echo "${InputContent}" | sed "s/https:\/\/raw\.githubusercontent\.com\///g" | awk -F '/' '{print$3}')
+                InputContent=$(echo "${InputContent}" | sed "s|raw\.githubusercontent\.com|cdn\.jsdelivr\.net\/gh|g; s|\/${repo_branch}\/|\@${repo_branch}\/|g")
                 ProxyJudge="使用代理"
             else
-                FormatInputContent="${Tmp}"
-                ProxyJudge=""
+                output_error "下载代理命令选项仅支持位于 GitHub 仓库的文件！"
             fi
-            ;;
-        gitee)
-            RepoJudge=" Gitee "
-            ## 地址纠正
-            echo "${InputContent}" | grep "gitee\.com\/.*\/blob\/.*" -q
-            if [ $? -eq 0 ]; then
-                FormatInputContent=$(echo "${InputContent}" | sed "s/\/blob\//\/raw\//g")
-            else
-                FormatInputContent="${InputContent}"
-            fi
+        else
+            InputContent="${Tmp}"
             ProxyJudge=""
-            ;;
-        gitlab)
-            RepoJudge=" GitLab "
-            ## 地址纠正
-            echo "${InputContent}" | grep "gitlab\.com\/.*\/blob\/.*" -q
-            if [ $? -eq 0 ]; then
-                FormatInputContent=$(echo "${InputContent}" | sed "s/\/blob\//\/raw\//g")
-            else
-                FormatInputContent="${InputContent}"
-            fi
-            ProxyJudge=""
-            ;;
-        *)
-            RepoJudge=""
-            ## 其它托管仓库或链接不进行处理
-            FormatInputContent="${InputContent}"
-            ProxyJudge=""
-            ;;
-        esac
+        fi
 
         ## 拉取脚本
-        echo -en "\n$WORKING 正在从${BLUE}${RepoJudge}${PLAIN}远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
-        wget -q --no-check-certificate "${FormatInputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
+        echo -en "\n$WORKING 正在从远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
+        wget -q --no-check-certificate "${InputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
         local EXITSTATUS=$?
         echo ''
 

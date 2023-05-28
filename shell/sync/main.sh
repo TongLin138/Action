@@ -189,68 +189,10 @@ function gen_rawconf_array() {
             Array_Raw_url[$arr_num]="${Tmp_url}"
             Array_Raw_path[$arr_num]="${RawDir}/${Array_Raw_url[$arr_num]##*/}"
 
-            ## 地址纠正判（断脚本来源：托管仓库 or 普通网站 ）
-            echo "${Array_Raw_url[arr_num]}" | grep -Eq "github|gitee|gitlab"
-            if [ $? -eq 0 ]; then
-                ## 纠正链接地址（将传入的链接地址转换为对应代码托管仓库的raw原始文件链接地址）
-                echo "${Array_Raw_url[arr_num]}" | grep "\.com\/.*\/blob\/.*" -q
-                if [ $? -eq 0 ]; then
-                    case $(echo "${Array_Raw_url[arr_num]}" | grep -Eo "github|gitee|gitlab") in
-                    github)
-                        echo "${Array_Raw_url[arr_num]}" | grep "github\.com\/.*\/blob\/.*" -q
-                        if [ $? -eq 0 ]; then
-                            DownloadUrl=$(echo "${Array_Raw_url[arr_num]}" | sed "s|github\.com/|raw\.githubusercontent\.com/|g; s|\/blob\/|\/|g")
-                        else
-                            DownloadUrl="${Array_Raw_url[arr_num]}"
-                        fi
-                        ;;
-                    gitee)
-                        echo "${Array_Raw_url[arr_num]}" | grep "gitee\.com\/.*\/blob\/.*" -q
-                        if [ $? -eq 0 ]; then
-                            DownloadUrl=$(echo "${Array_Raw_url[arr_num]}" | sed "s/\/blob\//\/raw\//g")
-                        else
-                            DownloadUrl="${Array_Raw_url[arr_num]}"
-                        fi
-                        ;;
-                    gitlab)
-                        echo "${Array_Raw_url[arr_num]}" | grep "gitlab\.com\/.*\/blob\/.*" -q
-                        if [ $? -eq 0 ]; then
-                            DownloadUrl=$(echo "${Array_Raw_url[arr_num]}" | sed "s/\/blob\//\/raw\//g")
-                        else
-                            DownloadUrl="${Array_Raw_url[arr_num]}"
-                        fi
-                        ;;
-                    esac
-                else
-                    ## 原始链接
-                    DownloadUrl="${Array_Raw_url[arr_num]}"
-                fi
-                echo ${DownloadUrl} | grep -E "git.*\.io/" -q
-                if [ $? -ne 0 ]; then
-                    ## 处理仓库地址
-                    FormatUrl=$(echo ${DownloadUrl} | sed "s|${Array_Raw_fileName[i]}||g" | awk -F '.com' '{print$NF}' | sed 's/.$//')
-                    ## 判断仓库平台
-                    case $(echo ${DownloadUrl} | grep -Eo "github|gitee|gitlab") in
-                    github)
-                        RepoPlatformUrl="https://github.com"
-                        RepoBranch=$(echo $FormatUrl | awk -F '/' '{print$4}')
-                        ReformatUrl=$(echo $FormatUrl | sed "s|$RepoBranch|tree/$RepoBranch|g")
-                        ## 定义脚本来源仓库地址链接
-                        RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
-                        ;;
-                    gitee)
-                        RepoPlatformUrl="https://gitee.com"
-                        ReformatUrl=$(echo $FormatUrl | sed "s|/raw/|/tree/|g")
-                        ## 定义脚本来源仓库地址链接
-                        RepoUrl="${RepoPlatformUrl}${ReformatUrl}"
-                        ;;
-                    gitlab)
-                        ## 定义脚本来源仓库地址链接
-                        RepoUrl=${DownloadUrl}
-                        ;;
-                    esac
-                fi
-                Array_Raw_url[$arr_num]="${DownloadUrl}"
+            ## 仓库原始文件地址自动纠正
+            import utils/request
+            if [[ "$(get_correct_raw_url "${Array_Raw_url[arr_num]}")" ]]; then
+                Array_Raw_url[$arr_num]="$(get_correct_raw_url "${Array_Raw_url[arr_num]}")"
             fi
         done
     fi
