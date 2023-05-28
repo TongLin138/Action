@@ -489,6 +489,7 @@ function run_normal() {
             echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看最新日志\n"
         else
             ## 记录执行开始时间
+            local starttime=$(date +'%Y-%m-%d %H:%M:%S')
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
             case "${FileFormat}" in
             JavaScript)
@@ -510,7 +511,10 @@ function run_normal() {
                 bash -c "${cmd}"
             fi
             ## 记录执行结束时间
-            echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+            local endtime=$(date +'%Y-%m-%d %H:%M:%S')
+            local start_seconds=$(date --date="$starttime" +%s)
+            local end_seconds=$(date --date="$endtime" +%s)
+            echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束，总用时 $((end_seconds - start_seconds)) 秒" >>${LogFile}
         fi
     }
 
