@@ -25,7 +25,7 @@ function tgbot_manage() {
         cp -rf $BotSrcDir/tgbot $RootDir
         cd $BotDir
         pip3 --default-timeout=3600 install -r requirements.txt --no-cache-dir
-        if [[ $? -eq 0 ]]; then
+        if [ $? -eq 0 ]; then
             echo -e "\n$COMPLETE 模块安装完成\n"
         else
             echo -e "\n$FAIL 模块安装失败，请检查原因后重试！\n"

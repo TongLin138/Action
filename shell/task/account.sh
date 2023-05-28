@@ -157,7 +157,7 @@ function accounts_control() {
 
             ## 检测 wskey
             grep -q "${pt_pin}" $FileAccountUser
-            if [[ $? -eq 0 ]]; then
+            if [ $? -eq 0 ]; then
                 ## 统计 account.json 数组中的元素数量，即最多配置了多少个账号，即使元素为空值
                 local ArrayLength=$(cat $FileAccountUser | jq 'length')
 
@@ -176,6 +176,7 @@ function accounts_control() {
                     [ -z ${WS_KEY_TMP} ] && continue
                 done
             fi
+            echo 2
             echo -e "\n上次更新: ${BLUE}${UpdateTimes}${PLAIN}"
         }
 

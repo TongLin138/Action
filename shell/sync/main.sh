@@ -4,7 +4,7 @@
 ## 统计脚本仓库数量
 function count_reposum() {
     cat $FileSyncConfUser | yq >/dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]; then
         RepoSum="$(cat $FileSyncConfUser | yq '.repo | length')"
     else
         output_error "配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！"
@@ -14,7 +14,7 @@ function count_reposum() {
 ## 统计扩展脚本数量
 function count_rawsum() {
     cat $FileSyncConfUser | yq >/dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]; then
         RawSum="$(cat $FileSyncConfUser | yq '.raw | length')"
     else
         output_error "配置文件 $FileSyncConfUser 存在语法错误，请检查后重试！"
