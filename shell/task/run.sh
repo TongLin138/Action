@@ -363,7 +363,7 @@ function random_delay() {
     fi
 }
 
-## 等待执行
+## 推迟执行
 function wait_before_run() {
     local FormatPrint
     echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
@@ -454,7 +454,7 @@ function run_normal() {
     ## 统计账号数量
     count_usersum
     ## 静默运行
-    [[ ${RUN_MUTE} == true ]] && no_send_notify
+    [[ ${RUN_SILENT} == true ]] && no_send_notify
 
     ## 运行主命令
     function run_normal_main() {
@@ -651,7 +651,7 @@ function run_normal() {
             for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
                 ## 随机延迟
                 [[ ${RUN_DELAY} == true ]] && random_delay
-                ## 等待执行
+                ## 推迟执行
                 [[ ${RUN_WAIT} == true ]] && wait_before_run
                 ## 运行
                 if [[ ${RUN_DAEMON} == true ]]; then
@@ -681,7 +681,7 @@ function run_normal() {
         for ((i = 1; i <= ${RunTimes:-"1"}; i++)); do
             ## 随机延迟
             [[ ${RUN_DELAY} == true ]] && random_delay
-            ## 等待执行
+            ## 推迟执行
             [[ ${RUN_WAIT} == true ]] && wait_before_run
             ## 运行
             if [[ ${RUN_DAEMON} == true ]]; then
@@ -705,7 +705,7 @@ function run_concurrent() {
     ## 统计账号数量
     count_usersum
     ## 静默运行参数
-    [[ ${RUN_MUTE} == true ]] && no_send_notify
+    [[ ${RUN_SILENT} == true ]] && no_send_notify
 
     ## 运行主命令
     function run_concurrent_main() {
@@ -757,7 +757,7 @@ function run_concurrent() {
     cd ${FileDir}
     ## 随机延迟
     [[ ${RUN_DELAY} == true ]] && random_delay
-    ## 等待执行
+    ## 推迟执行
     [[ ${RUN_WAIT} == true ]] && wait_before_run
 
     ## 加载账号并执行

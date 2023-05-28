@@ -133,8 +133,8 @@ function main() {
                         ;;
                     esac
                     ;;
-                -m | --mute)
-                    RUN_MUTE="true"
+                -s | --silent)
+                    RUN_SILENT="true"
                     ;;
                 -w | --wait)
                     output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定等待时间！"
@@ -142,7 +142,7 @@ function main() {
                 -a | --agent)
                     RUN_GLOBAL_AGENT="true"
                     ;;
-                -d | --delay)
+                -D | --delay)
                     RUN_DELAY="true"
                     ;;
                 -T | --Timeout)
@@ -156,7 +156,7 @@ function main() {
                         output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
-                -h | --hang)
+                -d | --daemon)
                     case "${RUN_MODE}" in
                     run)
                         RUN_DAEMON="true"
@@ -266,8 +266,8 @@ function main() {
                         ;;
                     esac
                     ;;
-                -m | --mute)
-                    RUN_MUTE="true"
+                -s | --silent)
+                    RUN_SILENT="true"
                     ;;
                 -w | --wait)
                     if [[ "$2" ]]; then
@@ -286,7 +286,7 @@ function main() {
                 -a | --agent)
                     RUN_GLOBAL_AGENT="true"
                     ;;
-                -d | --delay)
+                -D | --delay)
                     RUN_DELAY="true"
                     ;;
                 -T | --Timeout)
@@ -306,7 +306,7 @@ function main() {
                         output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，该命令选项仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
-                -h | --hang)
+                -d | --daemon)
                     case "${RUN_MODE}" in
                     run)
                         RUN_DAEMON="true"
