@@ -70,7 +70,6 @@ function json_parse() {
 ## 仓库原始文件地址自动纠正
 function get_correct_raw_url() {
     local InputContent="$1"
-    local FormatInputContent
 
     case "$(echo "${InputContent}" | grep -Eo "github|gitee|gitlab")" in
     github)

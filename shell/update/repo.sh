@@ -76,8 +76,7 @@ function update_designated_repo() {
             print_title "source"
             update_sourcecode
         else
-            make_dir $RepoDir
-            make_dir $LogTmpDir
+            make_dir $RepoDir $LogTmpDir
 
             import sync
             import update/cron

@@ -15,9 +15,7 @@ function update_sync() {
     import sync
 
     ## 创建目录
-    make_dir $RepoDir
-    make_dir $RawDir
-    make_dir $LogTmpDir
+    make_dir $RepoDir $RawDir $LogTmpDir
 
     ## 清空定时任务关联脚本清单内容
     clean_list_scripts

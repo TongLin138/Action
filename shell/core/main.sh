@@ -88,6 +88,7 @@ function import() {
         source "$target"
     else
         echo -e "\n$ERROR $target 不存在，跳过导入！\n"
+        exit
     fi
 }
 
@@ -129,15 +130,6 @@ function output_command_error() {
     esac
 }
 
-## 统计数量
-function count_usersum() {
-    for ((i = 1; i <= 0x2710; i++)); do
-        local Tmp=Cookie$i
-        local CookieTmp=${!Tmp}
-        [[ ${CookieTmp} ]] && UserSum=$i || break
-    done
-}
-
 ## 推送通知
 function send_notify() {
     local title=$(echo "$1" | sed "s|-|_|g")
@@ -149,6 +141,8 @@ function send_notify() {
 
 ## 创建目录
 function make_dir() {
-    local Dir=$1
-    [ ! -d $Dir ] && mkdir -p $Dir
+    while [ $# -gt 0 ]; do
+        [ ! -d "$1" ] && mkdir -p "$1"
+        shift
+    done
 }

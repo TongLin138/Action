@@ -55,9 +55,7 @@ function process_status() {
     # 统计日志占用
     local LogFilesSpaceUsage=$(du -sm $LogDir | awk -F ' ' '{print$1}')
     # 统计仓库和脚本占用
-    make_dir $RepoDir
-    make_dir $ScriptsDir
-    make_dir $RawDir
+    make_dir $ScriptsDir $RepoDir $RawDir
     local RepoDirSpaceUsage=$(du -sm $RepoDir | awk -F ' ' '{print$1}')
     local ScriptsDirSpaceUsage=$(du -sm $ScriptsDir | awk -F ' ' '{print$1}')
     local RawDirSpaceUsage=$(du -sm $RawDir | awk -F ' ' '{print$1}')

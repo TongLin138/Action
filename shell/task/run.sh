@@ -19,7 +19,7 @@ function find_script() {
     FileFormat=""
 
     ## 匹配指定路径下的脚本
-    function match_pathfile() {
+    function match_path_file() {
         local AbsolutePath PwdTmp FileNameTmp FileDirTmp
 
         ## 判定路径格式
@@ -120,7 +120,7 @@ function find_script() {
     }
 
     ## 匹配 scripts 目录下的脚本
-    function match_scriptsfile() {
+    function match_scripts_file() {
         local FileNameTmp SeekDir SeekExtension
         ## 定义目录范围
         SeekDir="$ScriptsDir"
@@ -209,8 +209,8 @@ function find_script() {
     }
 
     ## 匹配位于远程仓库的脚本
-    function match_remotefile() {
-        local DownloadJudge RepoJudge ProxyJudge RepoName FormatInputContent
+    function match_remote_file() {
+        local ProxyJudge
         local FileNameTmp=${InputContent##*/}
 
         ## 判断并定义脚本类型
@@ -260,14 +260,14 @@ function find_script() {
 
         ## 拉取脚本
         echo -en "\n$WORKING 正在从远程仓库${ProxyJudge}下载 ${BLUE}${FileNameTmp}${PLAIN} 脚本..."
-        wget -q --no-check-certificate "${InputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 20
+        wget -q --no-check-certificate "${InputContent}" -O "$ScriptsDir/${FileNameTmp}.new" -T 30
         local EXITSTATUS=$?
         echo ''
 
         ## 判定拉取结果
         if [[ $EXITSTATUS -eq 0 ]]; then
             mv -f "$ScriptsDir/${FileNameTmp}.new" "$ScriptsDir/${FileNameTmp}"
-            case ${RUN_MODE} in
+            case "${RUN_MODE}" in
             run)
                 RunModJudge=""
                 ;;
@@ -323,14 +323,14 @@ function find_script() {
     echo ${InputContent} | grep "/" -q
     if [ $? -eq 0 ]; then
         ## 判定传入的是路径还是URL
-        echo ${InputContent} | grep -Eq "http.*:"
+        echo ${InputContent} | grep -Eq "^https?:"
         if [ $? -eq 0 ]; then
-            match_remotefile
+            match_remote_file
         else
-            match_pathfile
+            match_path_file
         fi
     else
-        match_scriptsfile
+        match_scripts_file
     fi
 
     ## 针对较旧的处理器架构进行一些处理
@@ -348,6 +348,15 @@ function find_script() {
         esac
         ;;
     esac
+}
+
+## 统计数量
+function count_usersum() {
+    for ((i = 1; i <= 0x2710; i++)); do
+        local Tmp=Cookie$i
+        local CookieTmp=${!Tmp}
+        [[ ${CookieTmp} ]] && UserSum=$i || break
+    done
 }
 
 ## 随机延迟

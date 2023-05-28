@@ -28,6 +28,15 @@ function accounts_control() {
         esac
     }
 
+    ## 统计数量
+    function count_usersum() {
+        for ((i = 1; i <= 0x2710; i++)); do
+            local Tmp=Cookie$i
+            local CookieTmp=${!Tmp}
+            [[ ${CookieTmp} ]] && UserSum=$i || break
+        done
+    }
+
     case $1 in
     ## 检测账号是否有效
     check)
