@@ -11,15 +11,11 @@ ConfigDir=$RootDir/config
 SampleDir=$RootDir/sample
 LogDir=$RootDir/log
 LogTmpDir=$LogDir/.tmp
-SignDir=$UtilsDir/.sign
-CodeDir=$LogDir/ShareCodes
 RepoDir=$RootDir/repo
 RawDir=$RootDir/raw
 BotDir=$RootDir/tgbot
 BotLogDir=$LogDir/TelegramBot
 BotSrcDir=$UtilsDir/bot_src
-RootDir_NodeModules=$RootDir/node_modules
-ScriptsDir_NodeModules=$ScriptsDir/node_modules
 
 ## 文件
 FileCode=$ShellDir/code.sh
@@ -38,7 +34,6 @@ FileTaskBeforeExtra=$ConfigDir/task_before_extra.sh
 FileTaskAfterExtra=$ConfigDir/task_after_extra.sh
 FileNotify=$UtilsDir/notify.js
 FileSendNotify=$UtilsDir/sendNotify.js
-FileSendNotifyScripts=$ScriptsDir/sendNotify.js
 FileSendNotifyUser=$ConfigDir/sendNotify.js
 FileSendMark=$RootDir/send_mark
 FilePm2List=$RootDir/.pm2_list.log
@@ -134,9 +129,7 @@ function output_command_error() {
 function send_notify() {
     local title=$(echo "$1" | sed "s|-|_|g")
     local msg="$(echo -e "$2")"
-    if [ -d $ScriptsDir_NodeModules ]; then
-        node $FileNotify "$title" "$msg"
-    fi
+    node $FileNotify "$title" "$msg"
 }
 
 ## 创建目录

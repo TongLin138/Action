@@ -3,15 +3,20 @@
  * @param text 通知头
  * @param desp 通知体
  * @param params 某些推送通知方式点击弹窗可跳转, 例：{ url: 'https://abc.com' }
- * @param author 作者仓库等信息  例：`本脚本免费使用 By：xxx`
+ * @param author 作者仓库等信息
  * @returns {Promise<unknown>}
  */
 
 const querystring = require('querystring');
 const fs = require('fs');
-const {DIR_KEY} = require("../web/core/file");
 const $ = new Env();
 const timeout = 15000; //超时时间(单位毫秒)
+
+let end_txt = "本通知 By：https://github.com/SuperManito/Arcadia";
+if (process.env.NOTIFY_TAIL) {
+    end_txt = process.env.NOTIFY_TAIL;
+}
+
 // =======================================微信server酱通知设置区域===========================================
 //此处填你申请的SCKEY.
 //(环境变量名 PUSH_KEY)
@@ -200,10 +205,6 @@ if (process.env.GO_CQHTTP_EXPIRE_SEND_PRIVATE) {
     GO_CQHTTP_EXPIRE_SEND_PRIVATE = process.env.GO_CQHTTP_EXPIRE_SEND_PRIVATE === "true";
 }
 
-let end_txt = "本通知 By：https://github.com/SuperManito/Arcadia";
-if (process.env.NOTIFY_TAIL) {
-    end_txt = process.env.NOTIFY_TAIL;
-}
 let tg_only = false;
 if (process.env.TG_ONLY) {
     tg_only = process.env.TG_ONLY;
@@ -235,9 +236,9 @@ function nameConvert(pt_pin, remarks = '', text) {
 
 async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
     //提供6种通知
-    desp += author;//增加作者信息，防止被贩卖等
+    desp += author;
     try {
-        let accountFile = DIR_KEY.ROOT + DIR_KEY.CONFIG + 'account.json';
+        let accountFile = `${process.env.ARCADIA_DIR}/config/account.json`;
         fs.accessSync(accountFile)
         accounts = JSON.parse(fs.readFileSync(accountFile).toString())
     } catch (e) {
@@ -248,7 +249,6 @@ async function sendNotify(text, desp, params = {}, author = '\n\n' + end_txt) {
                 text = nameConvert(account['pt_pin'], account['remarks'], text);
                 desp = nameConvert(account['pt_pin'], account['remarks'], desp);
             }
-
         }
     }
 

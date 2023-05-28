@@ -203,12 +203,13 @@ function accounts_control() {
         ## 更新 sign 签名
         function UpdateSign() {
             local SignsRepoGitUrl="git@arcadia:supermanito/service_sign_json.git"
-            make_dir $SignDir
-            if [ ! -d $SignDir/.git ]; then
-                git clone -b master ${SignsRepoGitUrl} $SignDir >/dev/null
+            local SignsDir=$UtilsDir/.sign
+            make_dir $SignsDir
+            if [ ! -d $SignsDir/.git ]; then
+                git clone -b master ${SignsRepoGitUrl} $SignsDir >/dev/null
                 EXITSTATUS=$?
             else
-                cd $SignDir
+                cd $SignsDir
                 if [[ $(date "+%-H") -eq 1 || $(date "+%-H") -eq 9 || $(date "+%-H") -eq 17 ]] && [[ $(date "+%-S") -eq 0 ]]; then
                     local Tmp=$((${RANDOM} % 10))
                     echo -en "\n检测到当前处于整点，已启用随机延迟，此任务将在 $Tmp 秒后开始执行..."
