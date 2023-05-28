@@ -456,29 +456,31 @@ function run_normal() {
 
     ## 运行主命令
     function run_normal_main() {
+        if [[ "${EnableGlobalProxy}" == true ]]; then
+            local GLOBAL_PROXY_CMD="-r 'global-agent/bootstrap' "
+        else
+            local GLOBAL_PROXY_CMD=""
+        fi
+        if [[ "${RUN_TIMEOUT}" == true ]]; then
+            local TIMEOUT_CMD="timeout ${TIMEOUT_OPTIONS} "
+        else
+            local TIMEOUT_CMD=""
+        fi
         if [[ ${RUN_BACKGROUND} == true ]]; then
             ## 记录执行开始时间
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
             case ”${FileFormat}“ in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
-                    node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
-                else
-                    node ${FileName}.js 2>&1 &>>${LogFile} &
-                fi
+                ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 &>>${LogFile} &
                 ;;
             Python)
-                python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+                ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
                 ;;
             TypeScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
-                    ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 &>>${LogFile} &
-                else
-                    ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
-                fi
+                ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 &>>${LogFile} &
                 ;;
             Shell)
-                bash ${FileName}.sh 2>&1 &>>${LogFile} &
+                ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 &>>${LogFile} &
                 ;;
             esac
             echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看最新日志\n"
@@ -487,24 +489,16 @@ function run_normal() {
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
             case ”${FileFormat}“ in
             JavaScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
-                    node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 | tee -a ${LogFile}
-                else
-                    node ${FileName}.js 2>&1 | tee -a ${LogFile}
-                fi
+                ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 | tee -a ${LogFile}
                 ;;
             Python)
-                python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
+                ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}
                 ;;
             TypeScript)
-                if [[ ${EnableGlobalProxy} == true ]]; then
-                    ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 | tee -a ${LogFile}
-                else
-                    ts-node-transpile-only ${FileName}.ts 2>&1 | tee -a ${LogFile}
-                fi
+                ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 | tee -a ${LogFile}
                 ;;
             Shell)
-                bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
+                ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 | tee -a ${LogFile}
                 ;;
             esac
             ## 记录执行结束时间
@@ -717,26 +711,28 @@ function run_concurrent() {
         ## 记录执行开始时间
         echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始，后台运行不记录结束时间\n" >>${LogFile}
         ## 执行脚本
+        if [[ "${EnableGlobalProxy}" == true ]]; then
+            local GLOBAL_PROXY_CMD=" -r 'global-agent/bootstrap'"
+        else
+            local GLOBAL_PROXY_CMD=""
+        fi
+        if [[ "${RUN_TIMEOUT}" == true ]]; then
+            local TIMEOUT_CMD="timeout ${TIMEOUT_OPTIONS} "
+        else
+            local TIMEOUT_CMD=""
+        fi
         case ”${FileFormat}“ in
         JavaScript)
-            if [[ ${EnableGlobalProxy} == true ]]; then
-                node -r 'global-agent/bootstrap' ${FileName}.js 2>&1 &>>${LogFile} &
-            else
-                node ${FileName}.js 2>&1 &>>${LogFile} &
-            fi
+            ${TIMEOUT_CMD}node ${GLOBAL_PROXY_CMD}${FileName}.js 2>&1 &>>${LogFile} &
             ;;
         Python)
-            python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
+            ${TIMEOUT_CMD}python3 -u ${FileName}.py 2>&1 &>>${LogFile} &
             ;;
         TypeScript)
-            if [[ ${EnableGlobalProxy} == true ]]; then
-                ts-node-transpile-only -r 'global-agent/bootstrap' ${FileName}.ts 2>&1 &>>${LogFile} &
-            else
-                ts-node-transpile-only ${FileName}.ts 2>&1 &>>${LogFile} &
-            fi
+            ${TIMEOUT_CMD}ts-node-transpile-only ${GLOBAL_PROXY_CMD}${FileName}.ts 2>&1 &>>${LogFile} &
             ;;
         Shell)
-            bash ${FileName}.sh 2>&1 &>>${LogFile} &
+            ${TIMEOUT_CMD}bash ${FileName}.sh 2>&1 &>>${LogFile} &
             ;;
         esac
     }

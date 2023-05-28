@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 命令帮助
 function print_help() {
@@ -66,15 +66,16 @@ function print_help() {
        
   命令选项：
 
-    ${BLUE}-l${PLAIN},  ${BLUE}--loop${PLAIN}              循环运行，连续多次的执行脚本，参数后需跟循环次数
+    ${BLUE}-l${PLAIN},  ${BLUE}--loop${PLAIN}              循环运行，连续多次的执行脚本，选项后需跟循环次数
     ${BLUE}-m${PLAIN},  ${BLUE}--mute${PLAIN}              静默运行，不推送任何通知消息
-    ${BLUE}-w${PLAIN},  ${BLUE}--wait${PLAIN}              等待执行，等待指定时间后再运行任务，参数后需跟时间值
+    ${BLUE}-w${PLAIN},  ${BLUE}--wait${PLAIN}              等待执行，等待指定时间后再运行任务，选项后需跟时间值
     ${BLUE}-h${PLAIN},  ${BLUE}--hang${PLAIN}              后台挂起，将脚本设置为守护进程保持在后台运行，期间中断或结束会自动重新运行
     ${BLUE}-a${PLAIN},  ${BLUE}--agent${PLAIN}             网络代理，使脚本通过 HTTP/HTTPS 全局代理进行网络请求，仅支持 JavaScript/TypeScript 脚本
     ${BLUE}-d${PLAIN},  ${BLUE}--delay${PLAIN}             延迟执行，随机倒数一定秒数后再执行脚本
+    ${BLUE}-T${PLAIN},  ${BLUE}--Timeout${PLAIN}           运行超时，设置运行任务超时机制，选项后需跟 timeout 命令选项
     ${BLUE}-p${PLAIN},  ${BLUE}--proxy${PLAIN}             下载代理，仅适用于执行位于 GitHub 仓库的脚本，代理固定为 jsDelivr CDN
-    ${BLUE}-c${PLAIN},  ${BLUE}--cookie${PLAIN}            指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
-    ${BLUE}-g${PLAIN},  ${BLUE}--grouping${PLAIN}          账号分组，每组账号单独运行脚本，参数后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
+    ${BLUE}-c${PLAIN},  ${BLUE}--cookie${PLAIN}            指定账号，选项后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-g${PLAIN},  ${BLUE}--grouping${PLAIN}          账号分组，每组账号单独运行脚本，选项后需跟账号序号并分组，参数用法跟指定账号一样，组与组之间用 \"@\" 隔开
     ${BLUE}-b${PLAIN},  ${BLUE}--background${PLAIN}        后台运行，不在前台输出脚本执行进度，不占用终端命令行
 "
         ;;
@@ -89,11 +90,12 @@ function print_help() {
   命令选项：
 
     ${BLUE}-m${PLAIN},  ${BLUE}--mute${PLAIN}              静默运行，不推送任何通知消息
-    ${BLUE}-w${PLAIN},  ${BLUE}--wait${PLAIN}              等待执行，等待指定时间后再运行任务，参数后需跟时间值
+    ${BLUE}-w${PLAIN},  ${BLUE}--wait${PLAIN}              等待执行，等待指定时间后再运行任务，选项后需跟时间值
     ${BLUE}-a${PLAIN},  ${BLUE}--agent${PLAIN}             网络代理，使脚本通过 HTTP/HTTPS 全局代理进行网络请求，仅支持 JavaScript/TypeScript 脚本
     ${BLUE}-d${PLAIN},  ${BLUE}--delay${PLAIN}             延迟执行，随机倒数一定秒数后再执行脚本
+    ${BLUE}-T${PLAIN},  ${BLUE}--Timeout${PLAIN}           运行超时，设置运行任务超时机制，选项后需跟 timeout 命令选项
     ${BLUE}-p${PLAIN},  ${BLUE}--proxy${PLAIN}             下载代理，仅适用于执行位于 GitHub 仓库的脚本，代理固定为 jsDelivr CDN
-    ${BLUE}-c${PLAIN},  ${BLUE}--cookie${PLAIN}            指定账号，参数后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
+    ${BLUE}-c${PLAIN},  ${BLUE}--cookie${PLAIN}            指定账号，选项后需跟账号序号，多个账号用 \",\" 隔开，账号区间用 \"-\" 连接，可以用 \"%\" 表示账号总数
 "
         ;;
     "${ContrlCmd}")

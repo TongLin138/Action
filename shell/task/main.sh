@@ -291,6 +291,14 @@ function main() {
                 -d | --delay)
                     RUN_DELAY="true"
                     ;;
+                -T | --Timeout)
+                    if [[ "$2" ]]; then
+                        RUN_TIMEOUT="true"
+                        TIMEOUT_OPTIONS="$2"
+                    else
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
+                    fi
+                    ;;
                 -p | --proxy)
                     echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                     if [ $? -eq 0 ]; then
@@ -325,14 +333,6 @@ function main() {
                         fi
                     else
                         output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定运行账号！"
-                    fi
-                    ;;
-                -T | --Timeout)
-                    if [[ "$2" ]]; then
-                        RUN_TIMEOUT="true"
-                        TIMEOUT_COMMAND="$2"
-                    else
-                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
                     fi
                     ;;
                 -g | --grouping)
