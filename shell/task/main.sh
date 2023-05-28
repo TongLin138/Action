@@ -23,7 +23,7 @@ function main() {
             ;;
         rmlog)
             import task/rmlog
-            remove_logfiles
+            remove_logs
             ;;
         cleanup)
             import task/process
@@ -79,7 +79,7 @@ function main() {
             case $2 in
             [1-9] | [1-9][0-9] | [1-9][0-9][0-9] | [1-9][0-9][0-9][0-9])
                 import task/rmlog
-                remove_logfiles $2
+                remove_logs $2
                 ;;
             *)
                 output_command_error 1 # 命令错误
