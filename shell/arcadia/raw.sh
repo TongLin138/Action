@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 一键添加远程脚本命令
 # arcadia repo <name> <url> [--options]
@@ -24,8 +24,7 @@ function add_raw_conf() {
                 exit
                 ;;
             *)
-                echo -e "\n$ERROR 缺少必须提供的 url 参数！\n"
-                exit
+                output_error "缺少必须提供的 url 参数！"
                 ;;
             esac
             ;;

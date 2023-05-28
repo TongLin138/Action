@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 账号控制功能
 # task cookie check/update/beans/list
@@ -313,8 +313,7 @@ function accounts_control() {
                     echo -e "\n$ERROR 更新异常，请检查当前网络环境并查看 ${BLUE}log/UpdateCookies${PLAIN} 目录下的运行日志！\n"
                 fi
             else
-                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！\n"
-                exit ## 终止退出
+                output_error "请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置好 ${BLUE}pt_pin${PLAIN} ！"
             fi
         }
 
@@ -335,8 +334,7 @@ function accounts_control() {
                 WS_KEY_TMP=$(cat $FileAccountUser | jq -r ".[$ArrayNum] | .ws_key" | sed "s/null//g; s/ //g")
                 ## 没有配置 ws_key 就退出
                 if [ -z ${WS_KEY_TMP} ]; then
-                    echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！\n"
-                    exit ## 终止退出
+                    output_error "请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}ws_key${PLAIN} ！"
                 else
                     ## 定义日志文件路径
                     LogFile="${LogPath}/$(date "+%Y-%m-%d-%H-%M-%S")_$UserNum.log"
@@ -393,8 +391,7 @@ function accounts_control() {
                     fi
                 fi
             else
-                echo -e "\n$ERROR 请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}pt_pin${PLAIN} ！\n"
-                exit ## 终止退出
+                output_error "请先在 ${BLUE}$FileAccountUser${PLAIN} 中配置该账号的 ${BLUE}pt_pin${PLAIN} ！"
             fi
         }
 

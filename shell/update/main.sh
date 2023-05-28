@@ -133,7 +133,6 @@ function main() {
                     fi
                 else
                     output_command_error 1 # 命令错误
-                    exit
                 fi
             fi
             ;;

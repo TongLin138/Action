@@ -126,10 +126,9 @@ function update_designated_repo() {
         fi
     else
         if [ -d ${AbsolutePath} ]; then
-            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！\n"
+            output_error "未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！"
         else
-            echo -e "\n$ERROR 未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径不存在，请重新确认！\n"
+            output_error "未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径不存在，请重新确认！"
         fi
-        exit ## 终止退出
     fi
 }

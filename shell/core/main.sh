@@ -123,6 +123,7 @@ function output_command_error() {
         echo -e "\n$ERROR 输入命令过多，请确认后重试！\n"
         ;;
     esac
+    exit
 }
 
 ## 推送通知

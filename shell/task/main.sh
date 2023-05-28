@@ -118,27 +118,27 @@ function main() {
         run | conc)
             ## 定义执行内容，下面的判断会把参数打乱
             RUN_MODE="${1}"
-            RUN_TARGET="${2}"
+            shift
+            RUN_TARGET="${1}"
+            shift
             ## 判断参数
-            while [ $# -gt 2 ]; do
-                case $3 in
+            while [ $# -gt 0 ]; do
+                case "$1" in
                 -l | --loop)
                     case "${RUN_MODE}" in
                     run)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定循环次数！"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
-                    exit ## 终止退出
                     ;;
                 -m | --mute)
                     RUN_MUTE="true"
                     ;;
                 -w | --wait)
-                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
-                    exit ## 终止退出
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定等待时间！"
                     ;;
                 -a | --agent)
                     RUN_GLOBAL_AGENT="true"
@@ -146,13 +146,15 @@ function main() {
                 -d | --delay)
                     RUN_DELAY="true"
                     ;;
+                -T | --Timeout)
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
+                    ;;
                 -p | --proxy)
                     echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
-                        echo -e "$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
                 -h | --hang)
@@ -161,25 +163,22 @@ function main() {
                         RUN_DAEMON="true"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 -c | --cookie)
-                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
-                    exit ## 终止退出
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定运行账号！"
                     ;;
                 -g | --grouping)
                     case "${RUN_MODE}" in
                     run)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定账号运行分组！"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
-                    exit ## 终止退出
                     ;;
                 -b | --background)
                     case "${RUN_MODE}" in
@@ -187,14 +186,12 @@ function main() {
                         RUN_BACKGROUND="true"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 *)
-                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
-                    exit ## 终止退出
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
                     ;;
                 esac
                 shift
@@ -230,7 +227,7 @@ function main() {
         notify)
             ## 自定义推送通知功能
             import_config_not_check
-            send_notify "$1" "$2"
+            send_notify "$2" "$3"
             ;;
         *)
             output_command_error 1 # 命令错误
@@ -238,37 +235,36 @@ function main() {
         esac
         ;;
 
-    ## 多个参数（ 2 + 参数个数 + 参数值个数 ）
-    [4-9] | [1][0-7])
+    ## 多个参数
+    *)
         case $1 in
         run | conc)
             ## 定义执行内容，下面的判断会把参数打乱
             RUN_MODE="${1}"
-            RUN_TARGET="${2}"
+            shift
+            RUN_TARGET="${1}"
+            shift
             ## 判断参数
-            while [ $# -gt 2 ]; do
-                case $3 in
+            while [ $# -gt 0 ]; do
+                case "$1" in
                 -l | --loop)
                     case "${RUN_MODE}" in
                     run)
-                        if [[ $4 ]]; then
-                            echo "$4" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                        if [[ "$2" ]]; then
+                            echo "$2" | grep -Eq "[a-zA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                             if [ $? -eq 0 ]; then
-                                echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                                exit ## 终止退出
+                                output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                             else
                                 RUN_LOOP="true"
-                                RUN_LOOP_TIMES="$4"
+                                RUN_LOOP_TIMES="$2"
                                 shift
                             fi
                         else
-                            echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定循环次数！\n"
-                            exit ## 终止退出
+                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定循环次数！"
                         fi
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -276,19 +272,17 @@ function main() {
                     RUN_MUTE="true"
                     ;;
                 -w | --wait)
-                    if [[ $4 ]]; then
-                        echo "$4" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                    if [[ "$2" ]]; then
+                        echo "$2" | grep -Eq "[abcefgijklnopqrtuvwxyzA-Z,/\!@#$%^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                            exit ## 终止退出
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                         else
                             RUN_WAIT="true"
-                            RUN_WAIT_TIMES="$4"
+                            RUN_WAIT_TIMES="$2"
                             shift
                         fi
                     else
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定等待时间！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定等待时间！"
                     fi
                     ;;
                 -a | --agent)
@@ -302,8 +296,7 @@ function main() {
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于执行位于 GitHub 仓库的脚本，请确认后重新输入！"
                     fi
                     ;;
                 -h | --hang)
@@ -312,65 +305,64 @@ function main() {
                         RUN_DAEMON="true"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 -c | --cookie)
-                    if [[ $4 ]]; then
-                        echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                    if [[ "$2" ]]; then
+                        echo "$2" | grep -Eq "[a-zA-Z\.;:\<\>/\!@#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                         if [ $? -eq 0 ]; then
-                            echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                            exit ## 终止退出
+                            output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                         else
                             if [[ ${RUN_GROUPING} == true ]]; then
-                                echo -e "\n$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与账号分组参数同时使用！\n"
-                                exit ## 终止退出
+                                output_error "检测到无效参数 ${BLUE}$1${PLAIN} ，不可与账号分组参数同时使用！"
                             else
                                 RUN_DESIGNATED="true"
-                                DESIGNATED_VALUE="$4"
+                                DESIGNATED_VALUE="$2"
                                 shift
                             fi
                         fi
                     else
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定运行账号！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定运行账号！"
+                    fi
+                    ;;
+                -T | --Timeout)
+                    if [[ "$2" ]]; then
+                        RUN_TIMEOUT="true"
+                        TIMEOUT_COMMAND="$2"
+                    else
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定超时参数！"
                     fi
                     ;;
                 -g | --grouping)
                     case "${RUN_MODE}" in
                     run)
-                        if [[ $4 ]]; then
-                            echo "$4" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
+                        if [[ "$2" ]]; then
+                            echo "$2" | grep -Eq "[a-zA-Z\.;:\<\>/\!#$^&*|\-_=\+]|\(|\)|\[|\]|\{|\}"
                             if [ $? -eq 0 ]; then
-                                echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，语法有误请确认后重新输入！\n"
-                                exit ## 终止退出
+                                output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，语法有误请确认后重新输入！"
                             else
                                 if [[ ${RUN_DESIGNATED} == true ]]; then
-                                    echo -e "\n$ERROR 检测到无效参数 ${BLUE}$3${PLAIN} ，不可与指定账号参数同时使用！\n"
-                                    exit ## 终止退出
+                                    output_error "检测到无效参数 ${BLUE}$1${PLAIN} ，不可与指定账号参数同时使用！"
                                 else
                                     ## 判断是否已分组
-                                    echo "$4" | grep -Eq "@"
+                                    echo "$2" | grep -Eq "@"
                                     if [ $? -eq 0 ]; then
                                         RUN_GROUPING="true"
-                                        GROUPING_VALUE="$4"
+                                        GROUPING_VALUE="$2"
                                         shift
                                     else
-                                        echo -e "\n$ERROR 检测到无效参数值 ${BLUE}$4${PLAIN} ，请定义账号分组否则请使用指定账号参数！\n"
-                                        exit ## 终止退出
+                                        output_error "检测到无效参数值 ${BLUE}$2${PLAIN} ，请定义账号分组否则请使用指定账号参数！"
                                     fi
                                 fi
                             fi
                         else
-                            echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请在该参数后指定账号运行分组！\n"
-                            exit ## 终止退出
+                            output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请在该参数后指定账号运行分组！"
                         fi
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
@@ -380,14 +372,12 @@ function main() {
                         RUN_BACKGROUND="true"
                         ;;
                     conc)
-                        echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，该参数仅适用于普通执行！\n"
-                        exit ## 终止退出
+                        output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，该参数仅适用于普通执行！"
                         ;;
                     esac
                     ;;
                 *)
-                    echo -e "\n$ERROR 检测到 ${BLUE}$3${PLAIN} 为无效参数，请确认后重新输入！\n"
-                    exit ## 终止退出
+                    output_error "检测到 ${BLUE}$1${PLAIN} 为无效参数，请确认后重新输入！"
                     ;;
                 esac
                 shift
@@ -400,10 +390,6 @@ function main() {
             output_command_error 1 # 命令错误
             ;;
         esac
-        ;;
-
-    *)
-        output_command_error 2 # 命令过多
         ;;
     esac
 }

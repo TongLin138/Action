@@ -12,8 +12,7 @@ function main() {
             local Num=$1
             local Tmp=Cookie$Num
             if [[ -z ${!Tmp} ]]; then
-                echo -e "\n$ERROR 账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！\n"
-                exit ## 终止退出
+                output_error "账号 ${BLUE}$Num${PLAIN} 不存在，请重新确认！"
             fi
         }
 
@@ -40,8 +39,7 @@ function main() {
                                         ExistenceJudgment $i
                                     done
                                 else
-                                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
-                                    exit ## 终止退出
+                                    output_error "检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！"
                                 fi
                             else
                                 ExistenceJudgment $UserNum

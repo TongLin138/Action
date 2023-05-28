@@ -25,8 +25,7 @@ function find_script() {
         ## 判定路径格式
         echo $1 | grep "/$" -q
         if [ $? -eq 0 ]; then
-            echo -e "\n$ERROR 请输入正确的脚本路径！\n"
-            exit ## 终止退出
+            output_error "请输入正确的脚本路径！"
         fi
 
         ## 判定传入的是绝对路径还是相对路径
@@ -75,8 +74,7 @@ function find_script() {
                     FileFormat="Shell"
                     ;;
                 *)
-                    echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！\n"
-                    exit ## 终止退出
+                    output_error "项目不支持运行 .${FileSuffix} 类型的脚本！"
                     ;;
                 esac
                 FileName=${FileNameTmp%.*}
@@ -114,8 +112,7 @@ function find_script() {
             fi
             make_dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 ${BLUE}${AbsolutePath%/*}${PLAIN} 目录未检测到 ${BLUE}${AbsolutePath##*/}${PLAIN} 脚本的存在，请重新确认！\n"
-            exit ## 终止退出
+            output_error "在 ${BLUE}${AbsolutePath%/*}${PLAIN} 目录未检测到 ${BLUE}${AbsolutePath##*/}${PLAIN} 脚本的存在，请重新确认！"
         fi
     }
 
@@ -150,8 +147,7 @@ function find_script() {
                 FileFormat="Shell"
                 ;;
             *)
-                echo -e "\n$ERROR 项目不支持运行 .${FileSuffix} 类型的脚本！\n"
-                exit ## 终止退出
+                output_error "项目不支持运行 .${FileSuffix} 类型的脚本！"
                 ;;
             esac
             for dir in ${SeekDir}; do
@@ -203,8 +199,7 @@ function find_script() {
             LogPath="$LogDir/${FileName}"
             make_dir ${LogPath}
         else
-            echo -e "\n$ERROR 在 ${BLUE}$ScriptsDir${PLAIN} 根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录下均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！\n"
-            exit ## 终止退出
+            output_error "在 ${BLUE}$ScriptsDir${PLAIN} 根目录以及 ${BLUE}./backUp${PLAIN} ${BLUE}./utils${PLAIN} 二个子目录下均未检测到 ${BLUE}${InputContent}${PLAIN} 脚本的存在，请重新确认！"
         fi
     }
 
@@ -229,12 +224,10 @@ function find_script() {
             FileFormat="Shell"
             ;;
         "")
-            echo -e "\n$ERROR 未能识别脚本类型，请检查链接地址是否正确！\n"
-            exit ## 终止退出
+            output_error "未能识别脚本类型，请检查链接地址是否正确！"
             ;;
         *)
-            echo -e "\n$ERROR 本项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！\n"
-            exit ## 终止退出
+            output_error "本项目不支持运行 ${BLUE}.${FileSuffix}${PLAIN} 类型的脚本！"
             ;;
         esac
 
@@ -337,13 +330,11 @@ function find_script() {
     case ${ARCH} in
     armv7l | armv6l)
         if [[ ${RUN_MODE} == "conc" ]]; then
-            echo -e "\n$ERROR 检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！\n"
-            exit ## 终止退出
+            output_error "检测到当前使用的是32位处理器，由于性能不佳故禁用并发功能！"
         fi
         case ”${FileFormat}“ in
         Python | TypeScript)
-            echo -e "\n$ERROR 当前宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！\n"
-            exit ## 终止退出
+            output_error "当前宿主机的处理器架构不支持运行 Python 和 TypeScript 脚本，建议更换运行环境！"
             ;;
         esac
         ;;
@@ -374,8 +365,7 @@ function wait_before_run() {
     local FormatPrint
     echo ${RUN_WAIT_TIMES} | grep -E "\.[smd]$|\.$"
     if [ $? -eq 0 ]; then
-        echo -e "\n$ERROR 等待时间值格式有误！\n"
-        exit ## 终止退出
+        output_error "等待时间值格式有误！"
     fi
     Tmp=$(echo ${RUN_WAIT_TIMES} | perl -pe '{s|[smd]||g}')
     case ${RUN_WAIT_TIMES:0-1} in
@@ -410,11 +400,9 @@ function account_existence_judgment() {
 function check_accounts_range_format() {
     local String=$1
     if [[ $(echo "${String}" | grep -o "-" | wc -l) -ge 2 ]]; then
-        echo -e "\n$ERROR 账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}-${PLAIN} 连接符！\n"
-        exit ## 终止退出
+        output_error "账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}-${PLAIN} 连接符！"
     elif [[ $(echo "${String}" | grep -o "%" | wc -l) -ge 2 ]]; then
-        echo -e "\n$ERROR 账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}%${PLAIN} 账号总数代符！\n"
-        exit ## 终止退出
+        output_error "账号区间语法有误，检测到无效参数值 ${BLUE}${String}${PLAIN} ，存在多个 ${BLUE}%${PLAIN} 账号总数代符！"
     fi
 }
 
@@ -548,8 +536,7 @@ function run_normal() {
                         combin_designated_cookie $i
                     done
                 else
-                    echo -e "\n$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
-                    exit ## 终止退出
+                    output_error "检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！"
                 fi
             else
                 ## 判定账号是否存在
@@ -639,8 +626,7 @@ function run_normal() {
         if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
-            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！\n"
-            exit ## 终止退出
+            output_error "检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！"
         fi
     fi
 
@@ -760,8 +746,7 @@ function run_concurrent() {
         if [[ ”${FileFormat}“ == "JavaScript" || ”${FileFormat}“ == "TypeScript" ]]; then
             EnableGlobalProxy="true"
         else
-            echo -e "\n$ERROR 检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！\n"
-            exit ## 终止退出
+            output_error "检测到无效参数 ${BLUE}--agent${PLAIN} ，仅支持运行 JavaScript 和 TypeScript 类型的脚本！"
         fi
     fi
 
@@ -787,8 +772,7 @@ function run_concurrent() {
                         account_existence_judgment $i
                     done
                 else
-                    echo -e "$ERROR 检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！\n"
-                    exit ## 终止退出
+                    output_error "检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！"
                 fi
             else
                 ## 判定账号是否存在

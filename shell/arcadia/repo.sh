@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 一键添加脚本仓库命令
 # arcadia repo <name> <url> <branch> [--options]
@@ -24,14 +24,12 @@ function add_repo_conf() {
                 exit
                 ;;
             *)
-                echo -e "\n$ERROR 缺少必须提供的 url 和 branch 参数！\n"
-                exit
+                output_error "缺少必须提供的 url 和 branch 参数！"
                 ;;
             esac
             ;;
         2)
-            echo -e "\n$ERROR 缺少必须提供的 branch 参数！\n"
-            exit
+            output_error "缺少必须提供的 branch 参数！"
             ;;
         *)
             ## 必填参数

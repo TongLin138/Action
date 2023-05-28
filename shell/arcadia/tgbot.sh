@@ -57,8 +57,7 @@ function tgbot_manage() {
     import arcadia/pm2
     case ${ARCH} in
     armv7l | armv6l)
-        echo -e "\n$ERROR 宿主机的处理器架构不支持使用此功能，建议更换运行环境！\n"
-        exit ## 终止退出
+        output_error "宿主机的处理器架构不支持使用此功能，建议更换运行环境！"
         ;;
     *)
         if [[ -z $(grep -E "123456789" $ConfigDir/bot.json) ]]; then
@@ -186,8 +185,7 @@ function tgbot_manage() {
                         echo -e "\n$FAIL 电报机器人更新后启动异常，请检查原因后重试！\n"
                     fi
                 else
-                    echo -e "\n$ERROR 请先启动您的 Bot ！\n"
-                    exit ## 终止退出
+                    output_error "请先启动您的 Bot ！"
                 fi
                 ;;
 
@@ -205,8 +203,7 @@ function tgbot_manage() {
             ## 删除 PM2 进程日志清单
             [ -f $FilePm2List ] && rm -rf $FilePm2List
         else
-            echo -e "\n$ERROR 请先在 $ConfigDir/bot.json 中配置好您的 Bot ！\n"
-            exit ## 终止退出
+            output_error "请先在 $ConfigDir/bot.json 中配置好您的 Bot ！"
         fi
         ;;
     esac

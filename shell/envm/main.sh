@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 添加
 function add_environment_variable() {
@@ -92,7 +92,6 @@ function control_environment_variable() {
         ;;
     *)
         output_command_error 1 # 命令错误
-        exit                   ## 终止退出
         ;;
     esac
     OldContent=$(grep ".*export ${VariableTmp}=" $FileConfUser | head -1)
@@ -145,25 +144,23 @@ function control_environment_variable() {
                 ;;
             disable)
                 echo -e "\n$COMPLETE 该环境变量已经禁用，不执行任何操作\n"
-                exit 1 ## 终止退出
+                exit ## 终止退出
                 ;;
             *)
                 output_command_error 1 # 命令错误
-                exit                   ## 终止退出
                 ;;
             esac
         else
             case ${Mod} in
             enable)
                 echo -e "\n$COMPLETE 该环境变量已经启用，不执行任何操作\n"
-                exit 1 ## 终止退出
+                exit ## 终止退出
                 ;;
             disable)
                 sed -i "s/.*export ${VariableTmp}=/# export ${VariableTmp}=/g" $FileConfUser
                 ;;
             *)
                 output_command_error 1 # 命令错误
-                exit                   ## 终止退出
                 ;;
             esac
         fi

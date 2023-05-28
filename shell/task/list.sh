@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-28
 
 ## 列出本地脚本清单功能
 # task list <path>
@@ -116,11 +116,11 @@ function list_local_scripts() {
         if [ -d $WorkDir ]; then
             if [ "$(ls -A $WorkDir | grep -E "${ScriptType}")" = "" ]; then
                 if [ "$(ls -A $WorkDir)" = "" ]; then
-                    echo -e "\n$ERROR 路径 ${BLUE}$WorkDir${PLAIN} 为空！\n"
+                    output_error "路径 ${BLUE}$WorkDir${PLAIN} 为空！"
                 else
                     echo -e "\n$FAIL 在 ${BLUE}$WorkDir${PLAIN} 路径下未检测到任何脚本！\n"
+                    exit
                 fi
-                exit ## 终止退出
             fi
         else
             output_error "目标路径 ${BLUE}$WorkDir${PLAIN} 不存在，请重新确认！"
