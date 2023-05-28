@@ -60,6 +60,7 @@ function main() {
             ;;
         # 终止运行
         stop)
+            import task/run
             import task/process
             process_stop $2
             ;;
