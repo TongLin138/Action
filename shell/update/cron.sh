@@ -27,8 +27,8 @@ function update_cron() {
             return
         fi
 
-        local result="$(echo "${request}" | jq -r '.result')"
-        local result_length="$(echo "${request}" | jq 'length')"
+        local result="$(echo "${request}" | jq -rc '.result')"
+        local result_length="$(echo "${result}" | jq 'length')"
         for ((i = 0; i < ${result_length}; i++)); do
             success="$(echo "${result}" | jq -r ".[${i}].success")" # 处理结果：true 成功 false 失败
             type="$(echo "${result}" | jq -r ".[${i}].type")"       # 处理类型： 0 添加 1 删除
@@ -36,24 +36,24 @@ function update_cron() {
             path="$(echo "${result}" | jq -r ".[${i}].path")"       # 脚本路径
             message="$(echo "${result}" | jq -r ".[${i}].message")" # 处理结果消息（报错时返回）
 
-            case "type" in
-            "0")
+            case "${type}" in
+            0)
                 [[ "${success}" == "true" ]] && status="添加成功" || status="添加失败（${message}）"
                 array_title_add[$array_num_add]="${name}"
                 array_msg_add[$array_num_add]="${status}"
                 ## 推送通知提醒
-                if [[ "$(cat $ListConfScripts | jq -r ".\"${path}\".addNotify")" == "true" ]]; then
+                if [[ "$(cat $ListConfScripts | jq -r '."'"${path}"'".addNotify')" == "true" ]]; then
                     echo "${name} => ${status}" >>$send_mark_add
                 fi
                 let array_num_add++
                 ;;
-            "1")
+            1)
                 [[ "${success}" == "true" ]] && status="删除成功" || status="删除失败（${message}）"
                 array_title_del[$array_num_del]="${name}"
                 array_msg_del[$array_num_del]="${status}"
                 ## 推送通知提醒
-                if [[ "$(cat $ListConfScripts | jq -r ".\"${path}\".delNotify")" == "true" ]]; then
-                    echo "${name} => ${status}" >>$send_mark_add
+                if [[ "$(cat $ListConfScripts | jq -r '."'"${path}"'".delNotify')" == "true" ]]; then
+                    echo "${name} => ${status}" >>$send_mark_del
                 fi
                 let array_num_del++
                 ;;
@@ -62,22 +62,23 @@ function update_cron() {
         # echo -e "\n${result}"
         ## 打印结果
         local tmp_file="$RootDir/.tmp.json"
-        if [[ "${#array_title_add[@]}" -gt 0 ]]; then
+        if [ $array_num_add -gt 0 ]; then
             echo "[]" >$tmp_file
-            for ((i = 0; i < ${#array_title_add[@]}; i++)); do
-                echo "$(cat $tmp_file | jq ".[${array_title_add[i]}]={ "新增定时任务": "${array_title_add[array_num_add]}", "处理结果": "${array_msg_add[array_num_add]}" }")" >$tmp_file
+            for ((i = 0; i < $array_num_add; i++)); do
+                echo "$(cat $tmp_file | jq '.['$i']={ "新增定时任务": "'"${array_title_add[i]}"'", "消息": "'"${array_msg_add[i]}"'" }')" >$tmp_file
             done
             echo ''
-            output_table_data_file $tmp_file
+            output_table_data_file "$tmp_file"
         fi
-        if [[ "${#array_title_del[@]}" -gt 0 ]]; then
+        if [ $array_num_del -gt 0 ]; then
             echo "[]" >$tmp_file
-            for ((i = 0; i < ${#array_title_del[@]}; i++)); do
-                echo "$(cat $tmp_file | jq ".[${array_title_del[i]}]={ "过期定时任务": "${array_title_del[array_num_del]}", "处理结果": "${array_msg_del[array_num_del]} "}")" >$tmp_file
+            for ((i = 0; i < $array_num_del; i++)); do
+                echo "$(cat $tmp_file | jq '.['$i']={ "过期定时任务": "'"${array_title_del[i]}"'", "消息": "'"${array_msg_del[i]}"'" }')" >$tmp_file
             done
             echo ''
-            output_table_data_file $tmp_file
+            output_table_data_file "$tmp_file"
         fi
+        [ -f $tmp_file ] && rm -f $tmp_file
         ## 推送通知提醒
         if [ -s $send_mark_add ]; then
             send_notify "新增定时任务" "$(cat $send_mark_add)"
