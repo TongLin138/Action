@@ -90,7 +90,7 @@ app.use(
         ws: true,
         changeOrigin: true,
         pathRewrite: {
-            '^/shell': '/',
+            '^/api/shell': '/',
         },
         onProxyReq: function(proxyReq, req, res) {
             const token = getToken(req);
