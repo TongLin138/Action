@@ -7,7 +7,7 @@ function print_help() {
     case "$1" in
     "${TaskCmd}")
         case ${ARCH} in
-        armv7l | armv6l)
+        armv7l | armv6l | i686)
             echo -e "
 ❖ 处理任务指令
 

@@ -7,6 +7,7 @@ function process_stop() {
     local InputContent=$1
     local ProcessShielding="grep|pkill|/bin/bash /usr/local/bin| task "
     ## 匹配脚本
+    import task/script
     find_script ${InputContent}
     local ProcessKeywords="${FileName}\.${FileSuffix}\$"
     ## 判定对应脚本是否存在相关进程

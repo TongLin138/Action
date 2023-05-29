@@ -29,3 +29,13 @@ import task/run
 ```bash
 import utils/request
 ```
+
+### 关于创建新模块脚本
+
+赋予可执行权限
+```bash
+git update-index --add <xxx.sh>
+git update-index --chmod=+x <xxx.sh>
+```
+需要注意换行问题，如果是在 Windows 下编辑的文件默认会使用 _CRLF_ 作为换行符即 `\r\n`，需要转换为 Unix 格式的 _LF_ 换行符即 `\n` 以应用于项目实际使用环境
+可以通过 Git 全局配置来解决这一问题 `git config --global core.autocrlf false`，并且需要在 IDE 编辑器中设置 _LF_ 为默认换行符

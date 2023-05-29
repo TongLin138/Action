@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-05-29
 
 function main() {
     case $# in
@@ -60,7 +60,6 @@ function main() {
             ;;
         # 终止运行
         stop)
-            import task/run
             import task/process
             process_stop $2
             ;;
