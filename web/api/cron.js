@@ -59,6 +59,7 @@ api.get('/', async function (request, response) {
         },
         orderBy: [{name: 'sort', desc: true}]
     })
+    tasks.data.forEach((task) => task.create_time = new Date(task.create_time))
     tasks.data.forEach((task) => (task.running_status = !!core.running[task.id]))
     response.send(API_STATUS_CODE.okData(tasks))
 })
@@ -227,7 +228,7 @@ innerCornApi.post('/updateAll', async function (request, response) {
                         active: item.active || 1, // 默认启用
                         config: '',
                         tags: task.tags || '',
-                        creat_time: new Date(),
+                        create_time: new Date(),
                         bind: toBind(type, item.path),
                     }
                     await curd.save(t)
