@@ -24,7 +24,7 @@ jobs:
         ssh-keyscan gitee.com > ~/.ssh/known_hosts
     - name: Clone SuperManito/ArcadiaBas
       run: |
-        git clone -b dev git@gitee.com:SuperManito/ArcadiaBase.git Arcadia
+        git clone -b dev git@gitee.com:supermanito/ArcadiaBase.git Arcadia
     - name: Push Arcadia
       uses: ad-m/github-push-action@master
       with:
