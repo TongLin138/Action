@@ -182,27 +182,30 @@ innerCornApi.post('/updateAll', async function (request, response) {
                 `bind in (${deleteFiles.map((_) => '?').join(',')})`,
                 deleteFiles.map((s) => toBind(type, s.path))
             )
-            for (const task of deleteFiles) {
+            for (const item of deleteFiles) {
+                let arr = item.path.split('/');
+                let name = arr[arr.length - 1];
                 try {
+                    await curd.fixCron(item.id);
                     infos.push({
                         success: true,
                         type: 1,
-                        path: task.path,
-                        name: task.name,
+                        path: item.path,
+                        name: name,
                         message: `ok`
                     })
-                    await curd.fixCron(task.id);
                 } catch (e) {
                     infos.push({
                         success: false,
                         type: 1,
-                        path: task.path,
-                        name: task.name,
+                        path: item.path,
+                        name: name,
                         message: `${e.message || e}`
                     })
                 }
             }
         }
+        //2.新增定时任务
         if (newFiles && newFiles.length > 0) {
             await curd.deleteCustomize(
                 `bind in (${newFiles.map((_) => '?').join(',')})`,
@@ -211,7 +214,6 @@ innerCornApi.post('/updateAll', async function (request, response) {
             for (const task of newFiles) {
                 await curd.fixCron(task.id);
             }
-            //2.新增定时任务
             //2.1,批量插入定时任务
             for (let item of newFiles) {
                 try {
