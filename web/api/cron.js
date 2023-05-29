@@ -210,10 +210,10 @@ innerCornApi.post('/updateAll', async function (request, response) {
         if (newFiles && newFiles.length > 0) {
             await curd.deleteCustomize(
                 `bind in (${newFiles.map((_) => '?').join(',')})`,
-                newFiles.map((s) => toBind(type, s.path))
+                newFiles.map((s) => toBind('system', s.path))
             )
-            for (const task of newFiles) {
-                await curd.fixCron(task.id);
+            for (const item of newFiles) {
+                await curd.fixCron(item.id);
             }
             //2.1,批量插入定时任务
             for (let item of newFiles) {
@@ -222,7 +222,7 @@ innerCornApi.post('/updateAll', async function (request, response) {
                     //可优化,一次性插入效果更好
                     let t = {
                         name: task.name,
-                        type: item.type || 'user',
+                        type: type,
                         cron: task.cron,
                         shell: `task run ${task.runPath}`,
                         active: item.active || 1, // 默认启用
