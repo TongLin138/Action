@@ -42,7 +42,7 @@ function update_cron() {
         else
             active=1
         fi
-        data_tmp='{"path": "'"${path}"'", "active": '"${active}"'}'
+        data_tmp='{"type": "system", "path": "'"${path}"'", "active": '"${active}"'}'
         if [[ $i -eq 0 ]]; then
             newFiles="${data_tmp}"
         else
@@ -62,7 +62,7 @@ function update_cron() {
     # echo -e "deleteFiles:\n${deleteFiles}"
 
     ## 请求后端处理更新定时任务
-    local data='{"type": "system", "newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
+    local data='{"newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
     # echo "${data}"
     # return
     local result="$(api_updatecron "${data}")"

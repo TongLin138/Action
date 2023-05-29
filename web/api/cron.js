@@ -219,7 +219,7 @@ innerCornApi.post('/updateAll', async function (request, response) {
                     //可优化,一次性插入效果更好
                     let t = {
                         name: task.name,
-                        type: 'user',
+                        type: item.type || 'user',
                         cron: task.cron,
                         shell: `task run ${task.runPath}`,
                         active: item.active || 1, // 默认启用
@@ -238,11 +238,13 @@ innerCornApi.post('/updateAll', async function (request, response) {
                         message: `ok`
                     })
                 } catch (e) {
+                    let arr = item.path.split('/');
+                    let name = arr[arr.length - 1];
                     infos.push({
                         success: false,
                         type: 0,
                         path: item.path,
-                        name: item.name,
+                        name: name,
                         message: `${e.message || e}`
                     })
                 }
