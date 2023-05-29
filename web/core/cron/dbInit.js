@@ -20,7 +20,7 @@ const eventBus = require("../eventBus").db;
             last_run_use INT,
             tags         VARCHAR(200) NOT NULL DEFAULT '',
             sort         INT          NOT NULL DEFAULT 99999,
-            creat_time   DATETIME              DEFAULT CURRENT_TIMESTAMP,
+            create_time  DATETIME              DEFAULT CURRENT_TIMESTAMP,
             config       TEXT         NOT NULL default '',
             remark       TEXT         NOT NULL default '',
             bind         TEXT         NOT NULL DEFAULT ''

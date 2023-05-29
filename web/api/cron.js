@@ -89,7 +89,7 @@ api.put('/', async function (request, response) {
     let task = Object.assign({}, request.body)
     delete task.sort
     delete task.bind
-    delete task.creat_time
+    delete task.create_time
     try {
         if (task.cron && !cron.validate(task.cron)) {
             throw new Error('cron表达式错误')

@@ -190,7 +190,7 @@ async function updateTasks(type, path, updateFiles) {
             active: 1,
             config: "",
             tags: "",
-            creat_time: new Date(),
+            create_time: new Date(),
             bind: toBind(task.path),
         };
         await curd.save(t);

@@ -14,7 +14,7 @@ let curd = template("tasks", {
     last_runtime: new Date(),
     last_run_use: 0,
     sort: 0,
-    creat_time: new Date(),
+    create_time: new Date(),
     remark: "",
     bind: ""
 }, "id", 0);
