@@ -126,6 +126,21 @@ function output_command_error() {
     exit
 }
 
+## 打印表格（基于 table-printer-cli）
+function output_table_data() {
+    local data
+    [ $# -eq 0 ] && return
+    while [ $# -gt 0 ]; do
+        if [ "${data}" ]; then
+            data="$1"
+        else
+            data="${data}, $1"
+        fi
+        shift
+    done
+    echo '['"${data}"']' | ctp -s
+}
+
 ## 推送通知
 function send_notify() {
     local title=$(echo "$1" | sed "s|-|_|g")
