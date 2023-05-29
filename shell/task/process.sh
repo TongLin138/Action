@@ -19,9 +19,9 @@ function process_stop() {
         echo -e "\n${BLUE}[进程]  [任务]${PLAIN}"
         ps -axo pid,command | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}"
         ## 终止前等待确认
-        echo -en "\n$WORKING 进程将在 ${BLUE}3${PLAIN} 秒后终止，可通过 ${BLUE}Ctrl + Z${PLAIN} 中断此操作..."
-        sleep 3
-        echo ''
+        # echo -en "\n$WORKING 进程将在 ${BLUE}3${PLAIN} 秒后终止，可通过 ${BLUE}Ctrl + Z${PLAIN} 中断此操作..."
+        # sleep 3
+        # echo ''
         ## 杀死进程
         kill -9 $(ps -ef | grep "${ProcessKeywords}" | grep -Ev "${ProcessShielding}" | awk '$0 !~/grep/ {print $2}' | tr -s '\n' ' ') >/dev/null 2>&1
         sleep 1
