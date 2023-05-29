@@ -6,9 +6,10 @@ repo/
 log/
 logs/
 config/
-./jbot/
+tgbot/
 utils/.sign/
 web/node_modules/
+web/public/
 web/package-lock.json
 web/pnpm-lock.yaml
 web/yarn.lock
@@ -16,5 +17,3 @@ web/sessions/*.json
 send_mark
 bot.session
 .pm2_list.log
-
-/jbot
