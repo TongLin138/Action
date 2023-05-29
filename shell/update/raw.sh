@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-05-29
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -11,7 +11,7 @@ function update_raw() {
     }
 
     local RemoveMark
-    ## 统计扩展脚本数量并生成配置
+    ## 统计远程脚本数量并生成配置
     count_rawsum
     gen_rawconf_array
 
@@ -30,7 +30,7 @@ function update_raw() {
                 done
             fi
         fi
-        ## 遍历扩展脚本配置数组，更新并生成新的定时脚本清单
+        ## 遍历远程脚本配置数组，更新并生成新的定时脚本清单
         for ((i = 0; i < ${#Array_Raw_url[*]}; i++)); do
             echo "${Array_Raw_url[i]}" | grep -Eq "github|gitee|gitlab"
             if [ $? -eq 0 ]; then
@@ -74,6 +74,6 @@ function update_raw() {
             done
         fi
     else
-        echo -e "$ERROR 未检测到任何有效的扩展脚本配置，跳过更新扩展脚本..."
+        echo -e "$ERROR 未检测到任何有效的远程脚本配置，跳过更新远程脚本..."
     fi
 }

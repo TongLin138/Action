@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-05-29
 
 ## 清空定时任务关联脚本清单内容
 function clean_list_scripts() {
@@ -55,7 +55,7 @@ function print_title_start() {
         update_mod="所有仓库"
         ;;
     raw)
-        update_mod="扩展脚本"
+        update_mod="远程脚本"
         ;;
     extra)
         update_mod="额外脚本"

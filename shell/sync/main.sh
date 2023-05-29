@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-05-29
 
 ## 统计脚本仓库数量
 function count_reposum() {
@@ -11,7 +11,7 @@ function count_reposum() {
     fi
 }
 
-## 统计扩展脚本数量
+## 统计远程脚本数量
 function count_rawsum() {
     cat $FileSyncConfUser | yq >/dev/null 2>&1
     if [ $? -eq 0 ]; then
@@ -47,33 +47,33 @@ function gen_repoconf_array() {
         for ((i = 1; i <= $RepoSum; i++)); do
             local arr_num=$((i - 1))
             ## 仓库地址（如若未定义或格式错误则跳过视为无效配置）
-            local Tmp_url="$(get_repoconf ".[$arr_num] | .url")"
-            if [[ -z ${Tmp_url} ]] || [[ ${Tmp_url} == "null" ]]; then
+            local tmp_url="$(get_repoconf ".[$arr_num] | .url")"
+            if [[ -z "${tmp_url}" ]] || [[ "${tmp_url}" == "null" ]]; then
                 # echo -e "$ERROR 未检测到第${i}个仓库配置的远程地址，跳过..."
                 continue
             fi
             # 判断仓库地址格式
-            echo ${Tmp_url} | grep -Eq "\.git$" # 链接必须以.git结尾
+            echo "${tmp_url}" | grep -Eq "\.git$" # 链接必须以.git结尾
             if [ $? -ne 0 ]; then
                 echo -e "$ERROR 检测到第${i}个仓库配置的远程地址无效"
                 continue
             fi
-            echo ${Tmp_url} | grep -Eq "http.*:"
+            echo "${tmp_url}" | grep -Eq "https?:"
             if [ $? -ne 0 ]; then
-                echo ${Tmp_url} | grep -Eq "^git\@"
+                echo "${tmp_url}" | grep -Eq "^git\@"
                 if [ $? -ne 0 ]; then
                     echo -e "$ERROR 检测到第${i}个仓库配置的远程地址无效"
                     continue
                 fi
             fi
             ## 仓库分支（如若未定义或格式错误则跳过视为无效配置）
-            local Tmp_branch="$(get_repoconf ".[$arr_num] | .branch")"
-            if [[ -z ${Tmp_branch} ]] || [[ ${Tmp_branch} == "null" ]]; then
+            local tmp_branch="$(get_repoconf ".[$arr_num] | .branch")"
+            if [[ -z "${tmp_branch}" ]] || [[ "${tmp_branch}" == "null" ]]; then
                 # echo -e "$ERROR 未检测到第${i}个仓库配置的分支名称，跳过..."
                 continue
             fi
-            Array_Repo_url[$arr_num]="${Tmp_url}"
-            Array_Repo_branch[$arr_num]="${Tmp_branch}"
+            Array_Repo_url[$arr_num]="${tmp_url}"
+            Array_Repo_branch[$arr_num]="${tmp_branch}"
             ## 仓库名称（如若未定义则采用远程地址中的仓库名称）
             Array_Repo_name[$arr_num]="$(get_repoconf ".[$arr_num] | .name")"
             if [[ -z "${Array_Repo_name[arr_num]}" || "${Array_Repo_name[arr_num]}" == "null" ]]; then
@@ -150,7 +150,7 @@ function gen_repoconf_array() {
     fi
 }
 
-## 生成用户扩展脚本配置信息数组
+## 生成用户远程脚本配置信息数组
 # 脚本名称（用户定义） Array_Raw_name
 # 脚本名称（文件名） Array_Raw_fileName
 # 脚本远程地址 Array_Raw_url
@@ -158,7 +158,7 @@ function gen_repoconf_array() {
 # 脚本定时设置 - 定时任务启用状态 Array_Raw_cronSettings_updateTaskList
 function gen_rawconf_array() {
 
-    # 读取扩展脚本配置
+    # 读取远程脚本配置
     function get_rawconf() {
         cat $FileSyncConfUser | yq '.raw' | jq -rc "$1"
     }
@@ -168,9 +168,9 @@ function gen_rawconf_array() {
         for ((i = 1; i <= $RawSum; i++)); do
             local arr_num=$((i - 1))
             ## 脚本地址（如若未定义或格式错误则跳过视为无效配置）
-            local Tmp_url="$(get_rawconf ".[$arr_num] | .url")"
-            if [[ -z ${Tmp_url} ]] || [[ ${Tmp_url} == "null" ]]; then
-                # echo -e "$ERROR 未检测到第${i}个扩展脚本配置的远程地址，跳过..."
+            local tmp_url="$(get_rawconf ".[$arr_num] | .url")"
+            if [[ -z "${tmp_url}" ]] || [[ "${tmp_url}" == "null" ]]; then
+                # echo -e "$ERROR 未检测到第${i}个远程脚本配置的远程地址，跳过..."
                 continue
             fi
             ## 脚本名称（如若未定义则采用远程地址中的脚本名称）
@@ -186,7 +186,7 @@ function gen_rawconf_array() {
             else
                 Array_Raw_cronSettings_updateTaskList[$arr_num]="false"
             fi
-            Array_Raw_url[$arr_num]="${Tmp_url}"
+            Array_Raw_url[$arr_num]="${tmp_url}"
             Array_Raw_path[$arr_num]="${RawDir}/${Array_Raw_url[$arr_num]##*/}"
 
             ## 仓库原始文件地址自动纠正

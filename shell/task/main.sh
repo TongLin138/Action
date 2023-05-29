@@ -149,7 +149,7 @@ function main() {
                     output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定超时命令选项！"
                     ;;
                 -p | --proxy)
-                    echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
+                    echo ${RUN_TARGET} | grep -Eq "https?://.*github"
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
@@ -299,7 +299,7 @@ function main() {
                     fi
                     ;;
                 -p | --proxy)
-                    echo ${RUN_TARGET} | grep -Eq "http.*:.*github"
+                    echo ${RUN_TARGET} | grep -Eq "https?://.*github"
                     if [ $? -eq 0 ]; then
                         DOWNLOAD_PROXY="true"
                     else
