@@ -9,7 +9,6 @@ config/
 tgbot/
 utils/.sign/
 web/node_modules/
-web/public/
 web/package-lock.json
 web/pnpm-lock.yaml
 web/yarn.lock

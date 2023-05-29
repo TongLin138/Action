@@ -1,0 +1,1 @@
+import{_ as e}from"./alarm-off-28fec6ef.js";import{_ as n}from"./index-c5daf99f.js";import{a6 as _,a7 as a}from"./vendor-a7094419.js";const c={};function r(t,s){const o=e;return _(),a(o,{style:{"vertical-align":"baseline"}})}const l=n(c,[["render",r]]);export{l as default};
