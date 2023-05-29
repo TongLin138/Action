@@ -84,6 +84,39 @@ api.post('/runCmd', function (request, response) {
     response.send(API_STATUS_CODE.okData(runId));
 });
 
+/**
+ * 停止任务
+ */
+api.post('/stopTask', function (request, response) {
+    const cmd = `cd ${rootPath}; task stop ` + request.body.path;
+    // console.log('before exec');
+    // exec maxBuffer 20MB
+    exec(cmd, {
+        maxBuffer: 1024 * 1024 * 20
+    }, (error, stdout, stderr) => {
+        // console.log(error, stdout, stderr);
+        if (error) {
+            console.error(`执行的错误: ${error}`);
+            response.send(API_STATUS_CODE.okData(stdout ? `${stdout}${error}` : `${error}`));
+            return;
+        }
+
+        if (stdout) {
+            // console.log(`stdout: ${stdout}`)
+            response.send(API_STATUS_CODE.okData(getNeatContent(`${stdout}`)));
+            return;
+        }
+
+        if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            response.send(API_STATUS_CODE.okData(stderr));
+            return;
+        }
+        response.send(API_STATUS_CODE.okData("执行结束，无结果返回。"));
+    });
+
+});
+
 // global.io.emit("runLog", API_STATUS_CODE.okData({
 //     runId, log: getNeatContent(`${stdout}`)
 // }))
