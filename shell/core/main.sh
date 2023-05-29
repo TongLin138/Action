@@ -127,6 +127,7 @@ function output_command_error() {
 }
 
 ## 打印表格（基于 table-printer-cli）
+# output_table_data '{ "列名1": "data1", "列名2": "data2" }'
 function output_table_data() {
     local data
     [ $# -eq 0 ] && return
@@ -139,6 +140,13 @@ function output_table_data() {
         shift
     done
     echo '['"${data}"']' | ctp -s
+}
+# output_table_data_file <target_file>
+function output_table_data_file() {
+    local target_file=$1
+    if [ -s "$target_file" ]; then
+        cat $target_file | jq | ctp -s
+    fi
 }
 
 ## 推送通知
