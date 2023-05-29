@@ -22,9 +22,9 @@ jobs:
         echo -e "${{ secrets.KEY2 }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan gitee.com > ~/.ssh/known_hosts
-    - name: Clone Arcadia
+    - name: Clone SuperManito/ArcadiaBas
       run: |
-        git clone -b dev git@gitee.com:supermanito/Arcadia.git Arcadia
+        git clone -b dev git@gitee.com:SuperManito/ArcadiaBas.git Arcadia
     - name: Push Arcadia
       uses: ad-m/github-push-action@master
       with:
