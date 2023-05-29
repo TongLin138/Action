@@ -42,7 +42,7 @@ function update_cron() {
         else
             active=1
         fi
-        data_tmp='{"type": "system", "path": "'"${path}"'", "active": '"${active}"'}'
+        data_tmp='{"path": "'"${path}"'", "active": '"${active}"'}'
         if [[ $i -eq 0 ]]; then
             newFiles="${data_tmp}"
         else
@@ -62,15 +62,21 @@ function update_cron() {
     # echo -e "deleteFiles:\n${deleteFiles}"
 
     ## 请求后端处理更新定时任务
-    local data='{"newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
+    local data='{"type": "system", "newFiles": ['"${newFiles}"'], "deleteFiles": ['"${deleteFiles}"']}'
     # echo "${data}"
     # return
-    local result="$(api_updatecron "${data}")"
+    local req="$(api_updatecron "${data}")"
     # echo ${result}
-    if [ "${result}" ]; then
-        result="$(echo ${result} | jq)"
-        echo -e "\n${result}"
+    if [ "${req}" ]; then
+        req="$(echo "${req}" | jq)"
+        if [[ "$(echo "${req}" | jq -r '.code')" == "1" ]]; then
+            local result="$(echo "${req}" | jq -r '.result')"
+            echo -e "\n${result}"
+        else
+            echo "${req}" | jq -r '.message'
+            echo -e "\n$ERROR 更新定时任务失败，接口响应错误！"
+        fi
     else
-        echo -e "\n$ERROR 更新定时任务失败，接口未响应！\n"
+        echo -e "\n$ERROR 更新定时任务失败，接口未响应！"
     fi
 }
