@@ -103,8 +103,7 @@ const db = {
     likeSql() {
         return ` like ('%'|| ? || '%')`
     },
-    //todo:改为默认false
-    debug: process.env.DEBUG_SQL !== "false",
+    debug: process.env.DEBUG_SQL === "true",
     serialize: sqlite.serialize,
     sqlite,
 };

@@ -32,6 +32,7 @@ function execShell(shell, config) {
         return process
     } catch (e) {
         config.onException && config.onException(e)
+    } finally {
         config.onExit && config.onExit(1)
     }
 }

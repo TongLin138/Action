@@ -54,6 +54,14 @@ async function onCronTask(taskId) {
         //todo:报错?
         return
     }
+    if (task.active <= 0) {
+        logger.log("task not active,skip", task.name, taskId)
+        return
+    }
+    if (running[taskId]) {
+        logger.log("task is running,skip", taskId)
+        return
+    }
     running[taskId] = task;
     //fixme:需要其他操作,如指定日志等
     taskRunner.execShell(task.shell, {
