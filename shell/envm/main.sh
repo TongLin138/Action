@@ -185,7 +185,7 @@ function control_environment_variable() {
     fi
 }
 
-function main() {
+function handle_environment_variable() {
     local Variable Value Remarks FullContent Input1 Input2 Keys
 
     case $1 in
@@ -263,6 +263,7 @@ function main() {
 
     ## 删除变量
     del)
+        echo 1
         case $# in
         1)
             read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Variable
@@ -423,7 +424,7 @@ function main() {
     1)
         case $1 in
         add | del | edit | search)
-            main $1
+            handle_environment_variable $1
             ;;
         *)
             output_command_error 1 # 命令错误
@@ -433,10 +434,10 @@ function main() {
     2)
         case $1 in
         enable | disable)
-            main "edit" $1 $2
+            handle_environment_variable "edit" $1 $2
             ;;
         del | search)
-            main $1 $2
+            handle_environment_variable $1 $2
             ;;
         *)
             output_command_error 1 # 命令错误
@@ -446,7 +447,7 @@ function main() {
     3)
         case $1 in
         add | edit)
-            main $1 $2 "$3"
+            handle_environment_variable $1 $2 "$3"
             ;;
         *)
             output_command_error 1 # 命令错误
@@ -456,7 +457,7 @@ function main() {
     4)
         case $1 in
         add | edit)
-            main $1 $2 "$3" "$4"
+            handle_environment_variable $1 $2 "$3" "$4"
             ;;
         *)
             output_command_error 1 # 命令错误
