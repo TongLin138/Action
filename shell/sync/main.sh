@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-29
+## Modified: 2023-05-30
 
 ## 统计脚本仓库数量
 function count_reposum() {
@@ -43,109 +43,119 @@ function gen_repoconf_array() {
         cat $FileSyncConfUser | yq '.repo' | jq -rc "$1"
     }
 
+    local repo_num=0
+    local arr_num tmp_url tmp_branch
     if [[ $RepoSum -ge 1 ]]; then
         for ((i = 1; i <= $RepoSum; i++)); do
-            local arr_num=$((i - 1))
+            arr_num=$((i - 1))
             ## 仓库地址（如若未定义或格式错误则跳过视为无效配置）
-            local tmp_url="$(get_repoconf ".[$arr_num] | .url")"
+            tmp_url="$(get_repoconf ".[$arr_num] | .url")"
             if [[ -z "${tmp_url}" ]] || [[ "${tmp_url}" == "null" ]]; then
-                # echo -e "$ERROR 未检测到第${i}个仓库配置的远程地址，跳过..."
+                # echo -e "$ERROR 未检测到第$(($repo_num+ 1))个仓库配置的远程地址，跳过..."
                 continue
             fi
             # 判断仓库地址格式
             echo "${tmp_url}" | grep -Eq "\.git$" # 链接必须以.git结尾
             if [ $? -ne 0 ]; then
-                echo -e "$ERROR 检测到第${i}个仓库配置的远程地址无效"
+                echo -e "$ERROR 检测到第$(($repo_num + 1))个仓库配置的远程地址无效"
                 continue
             fi
             echo "${tmp_url}" | grep -Eq "https?:"
             if [ $? -ne 0 ]; then
                 echo "${tmp_url}" | grep -Eq "^git\@"
                 if [ $? -ne 0 ]; then
-                    echo -e "$ERROR 检测到第${i}个仓库配置的远程地址无效"
+                    echo -e "$ERROR 检测到第$(($repo_num + 1))个仓库配置的远程地址无效"
                     continue
                 fi
             fi
             ## 仓库分支（如若未定义或格式错误则跳过视为无效配置）
-            local tmp_branch="$(get_repoconf ".[$arr_num] | .branch")"
+            tmp_branch="$(get_repoconf ".[$arr_num] | .branch")"
             if [[ -z "${tmp_branch}" ]] || [[ "${tmp_branch}" == "null" ]]; then
-                # echo -e "$ERROR 未检测到第${i}个仓库配置的分支名称，跳过..."
+                # echo -e "$ERROR 未检测到第$(($repo_num+ 1))个仓库配置的分支名称，跳过..."
                 continue
             fi
-            Array_Repo_url[$arr_num]="${tmp_url}"
-            Array_Repo_branch[$arr_num]="${tmp_branch}"
+            Array_Repo_url[$repo_num]="${tmp_url}"
+            Array_Repo_branch[$repo_num]="${tmp_branch}"
             ## 仓库名称（如若未定义则采用远程地址中的仓库名称）
-            Array_Repo_name[$arr_num]="$(get_repoconf ".[$arr_num] | .name")"
-            if [[ -z "${Array_Repo_name[arr_num]}" || "${Array_Repo_name[arr_num]}" == "null" ]]; then
-                Array_Repo_name[$arr_num]="$(echo ${Array_Repo_url[$arr_num]} | sed "s|\.git||g" | awk -F "/|:" '{print$NF}')"
+            Array_Repo_name[$repo_num]="$(get_repoconf ".[$arr_num] | .name")"
+            if [[ -z "${Array_Repo_name[repo_num]}" || "${Array_Repo_name[repo_num]}" == "null" ]]; then
+                Array_Repo_name[$repo_num]="$(echo ${Array_Repo_url[repo_num]} | sed "s|\.git||g" | awk -F "/|:" '{print$NF}')"
             fi
             ## 仓库路径
-            Array_Repo_dir[$arr_num]="$(echo "${Array_Repo_url[$arr_num]}" | sed "s|\.git||g" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
-            Array_Repo_path[$arr_num]="$RepoDir/${Array_Repo_dir[$arr_num]}"
+            Array_Repo_dir[$repo_num]="$(echo "${Array_Repo_url[repo_num]}" | sed "s|\.git||g" | awk -F "/|:" '{print $((NF - 1)) "_" $NF}')"
+            Array_Repo_path[$repo_num]="$RepoDir/${Array_Repo_dir[repo_num]}"
             ## 仓库启用状态（默认启用）
             if [[ "$(get_repoconf ".[$arr_num] | .enable")" == "false" ]]; then
-                Array_Repo_enable[$arr_num]="false"
+                Array_Repo_enable[$repo_num]="false"
             else
-                Array_Repo_enable[$arr_num]="true"
+                Array_Repo_enable[$repo_num]="true"
             fi
             # 定时启用状态（默认禁用）
             if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.updateTaskList")" == "true" ]]; then
-                Array_Repo_cronSettings_updateTaskList[$arr_num]="true"
+                Array_Repo_cronSettings_updateTaskList[$repo_num]="true"
             else
-                Array_Repo_cronSettings_updateTaskList[$arr_num]="false"
-            fi
-            # 自动禁用新的定时任务（默认禁用）
-            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.autoDisable")" == "true" ]]; then
-                Array_Repo_cronSettings_autoDisable[$arr_num]="true"
-            else
-                Array_Repo_cronSettings_autoDisable[$arr_num]="false"
-            fi
-            # 新增定时任务推送通知提醒（默认启用）
-            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.addNotify")" == "false" ]]; then
-                Array_Repo_cronSettings_addNotify[$arr_num]="false"
-            else
-                Array_Repo_cronSettings_addNotify[$arr_num]="true"
-            fi
-            # 过期定时任务推送通知提醒（默认启用）
-            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.delNotify")" == "false" ]]; then
-                Array_Repo_cronSettings_delNotify[$arr_num]="false"
-            else
-                Array_Repo_cronSettings_delNotify[$arr_num]="true"
+                Array_Repo_cronSettings_updateTaskList[$repo_num]="false"
             fi
             # 定时脚本路径（如若未定义则默认为'/'，表示根目录）
             if [[ -z "$(get_repoconf ".[$arr_num] | .cronSettings.scriptsPath")" || "$(get_repoconf ".[$arr_num] | .cronSettings.scriptsPath")" == "null" ]]; then
-                Array_Repo_cronSettings_scriptsPath[$arr_num]="/"
+                Array_Repo_cronSettings_scriptsPath[$repo_num]="/"
             else
-                Array_Repo_cronSettings_scriptsPath[$arr_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsPath")"
+                Array_Repo_cronSettings_scriptsPath[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsPath")"
             fi
             # 定时脚本类型（如若未定义则默认为js、py、ts）
             if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays")" ]]; then
-                Array_Repo_cronSettings_scriptsType[$arr_num]="js py ts"
+                Array_Repo_cronSettings_scriptsType[$repo_num]="js py ts"
             else
-                Array_Repo_cronSettings_scriptsType[$arr_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays" | jq -r 'join("  ")')"
+                Array_Repo_cronSettings_scriptsType[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays" | jq -r 'join("  ")')"
             fi
             # 定时脚本白名单（如若未定义则默认为空）
             if [[ -z "$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")" || "$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")" == "null" ]]; then
-                Array_Repo_cronSettings_whiteList[$arr_num]=""
+                Array_Repo_cronSettings_whiteList[$repo_num]=""
             else
-                Array_Repo_cronSettings_whiteList[$arr_num]="$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")"
+                Array_Repo_cronSettings_whiteList[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")"
             fi
             # 定时脚本黑名单（如若未定义则默认为空）
             if [[ -z "$(get_repoconf ".[$arr_num] | .cronSettings.blackList")" || "$(get_repoconf ".[$arr_num] | .cronSettings.blackList")" == "null" ]]; then
-                Array_Repo_cronSettings_blackList[$arr_num]=""
+                Array_Repo_cronSettings_blackList[$repo_num]=""
             else
-                Array_Repo_cronSettings_blackList[$arr_num]="$(get_repoconf ".[$arr_num] | .cronSettings.blackList")"
+                Array_Repo_cronSettings_blackList[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.blackList")"
+            fi
+            # 自动禁用新的定时任务（默认禁用）
+            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.autoDisable")" == "true" ]]; then
+                Array_Repo_cronSettings_autoDisable[$repo_num]="true"
+            else
+                Array_Repo_cronSettings_autoDisable[$repo_num]="false"
+            fi
+            # 新增定时任务推送通知提醒（默认启用）
+            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.addNotify")" == "false" ]]; then
+                Array_Repo_cronSettings_addNotify[$repo_num]="false"
+            else
+                Array_Repo_cronSettings_addNotify[$repo_num]="true"
+            fi
+            # 过期定时任务推送通知提醒（默认启用）
+            if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.delNotify")" == "false" ]]; then
+                Array_Repo_cronSettings_delNotify[$repo_num]="false"
+            else
+                Array_Repo_cronSettings_delNotify[$repo_num]="true"
             fi
 
-            # echo "第${i}个仓库的定时配置：
-            # updateTaskList: ${Array_Repo_cronSettings_updateTaskList[arr_num]}
-            # autoDisable: ${Array_Repo_cronSettings_autoDisable[arr_num]}
-            # addNotify: ${Array_Repo_cronSettings_addNotify[arr_num]}
-            # delNotify: ${Array_Repo_cronSettings_delNotify[arr_num]}
-            # scriptsPath: ${Array_Repo_cronSettings_scriptsPath[arr_num]}
-            # scriptsType: ${Array_Repo_cronSettings_scriptsType[arr_num]}
-            # whiteList: ${Array_Repo_cronSettings_whiteList[arr_num]}
-            # blackList: ${Array_Repo_cronSettings_blackList[arr_num]}"
+            # echo "第$(($repo_num + 1))个脚本仓库的配置：
+            # name: ${Array_Repo_name[repo_num]}
+            # url: ${Array_Repo_url[repo_num]}
+            # branch: ${Array_Repo_branch[repo_num]}
+            # enable: ${Array_Repo_enable[repo_num]}
+            # dir: ${Array_Repo_dir[repo_num]}
+            # path: ${Array_Repo_path[repo_num]}
+            # updateTaskList: ${Array_Repo_cronSettings_updateTaskList[repo_num]}
+            # autoDisable: ${Array_Repo_cronSettings_autoDisable[repo_num]}
+            # addNotify: ${Array_Repo_cronSettings_addNotify[repo_num]}
+            # delNotify: ${Array_Repo_cronSettings_delNotify[repo_num]}
+            # scriptsPath: ${Array_Repo_cronSettings_scriptsPath[repo_num]}
+            # scriptsType: ${Array_Repo_cronSettings_scriptsType[repo_num]}
+            # whiteList: ${Array_Repo_cronSettings_whiteList[repo_num]}
+            # blackList: ${Array_Repo_cronSettings_blackList[repo_num]}"
+
+            let repo_num++
         done
     fi
 }
@@ -163,37 +173,47 @@ function gen_rawconf_array() {
         cat $FileSyncConfUser | yq '.raw' | jq -rc "$1"
     }
 
-    local FormatUrl ReformatUrl RepoBranch RepoUrl RepoPlatformUrl DownloadUrl
+    local raw_num=0
+    local arr_num tmp_url
     if [[ $RawSum -ge 1 ]]; then
         for ((i = 1; i <= $RawSum; i++)); do
-            local arr_num=$((i - 1))
+            arr_num=$((i - 1))
             ## 脚本地址（如若未定义或格式错误则跳过视为无效配置）
-            local tmp_url="$(get_rawconf ".[$arr_num] | .url")"
+            tmp_url="$(get_rawconf ".[$arr_num] | .url")"
             if [[ -z "${tmp_url}" ]] || [[ "${tmp_url}" == "null" ]]; then
-                # echo -e "$ERROR 未检测到第${i}个远程脚本配置的远程地址，跳过..."
+                # echo -e "$ERROR 未检测到第$(($raw_num+ 1))个远程脚本配置的远程地址，跳过..."
                 continue
             fi
-            ## 脚本名称（如若未定义则采用远程地址中的脚本名称）
-            Array_Raw_fileName[$arr_num]="${Array_Raw_url[arr_num]##*/}"
-            if [[ "$(get_rawconf ".[$arr_num] | .name")" == "null" ]]; then
-                Array_Raw_name[$arr_num]="${Array_Raw_fileName[arr_num]}"
-            else
-                Array_Raw_name[$arr_num]="$(get_rawconf ".[$arr_num] | .name")"
-            fi
-            # 定时启用状态（默认禁用）
-            if [[ "$(get_rawconf ".[$arr_num] | .cronSettings.enabled")" == "true" ]]; then
-                Array_Raw_cronSettings_updateTaskList[$arr_num]="true"
-            else
-                Array_Raw_cronSettings_updateTaskList[$arr_num]="false"
-            fi
-            Array_Raw_url[$arr_num]="${tmp_url}"
-            Array_Raw_path[$arr_num]="${RawDir}/${Array_Raw_url[$arr_num]##*/}"
-
+            Array_Raw_url[$raw_num]="${tmp_url}"
+            Array_Raw_path[$raw_num]="${RawDir}/${Array_Raw_url[raw_num]##*/}"
             ## 仓库原始文件地址自动纠正
             import utils/request
-            if [[ "$(get_correct_raw_url "${Array_Raw_url[arr_num]}")" ]]; then
-                Array_Raw_url[$arr_num]="$(get_correct_raw_url "${Array_Raw_url[arr_num]}")"
+            if [[ "$(get_correct_raw_url "${Array_Raw_url[raw_num]}")" ]]; then
+                Array_Raw_url[$raw_num]="$(get_correct_raw_url "${Array_Raw_url[raw_num]}")"
             fi
+            ## 脚本名称（如若未定义则采用远程地址中的脚本名称）
+            Array_Raw_fileName[$raw_num]="${Array_Raw_url[raw_num]##*/}"
+            if [[ "$(get_rawconf ".[$arr_num] | .name")" == "null" ]]; then
+                Array_Raw_name[$raw_num]="${Array_Raw_fileName[raw_num]}"
+            else
+                Array_Raw_name[$raw_num]="$(get_rawconf ".[$arr_num] | .name")"
+            fi
+            # 定时启用状态（默认禁用）
+            if [[ "$(get_rawconf ".[$arr_num] | .cronSettings.updateTaskList")" == "true" ]]; then
+                Array_Raw_cronSettings_updateTaskList[$raw_num]="true"
+            else
+                Array_Raw_cronSettings_updateTaskList[$raw_num]="false"
+            fi
+
+            # echo -e "第$(($raw_num + 1))个远程脚本的配置：
+            # name: ${Array_Raw_name[raw_num]}
+            # url: ${Array_Raw_url[raw_num]}
+            # path: ${Array_Raw_path[raw_num]}
+            # fileName: ${Array_Raw_fileName[raw_num]}
+            # Array_Raw_cronSettings_updateTaskList: ${Array_Raw_cronSettings_updateTaskList[raw_num]}
+            # "
+
+            let raw_num++
         done
     fi
 }
@@ -201,13 +221,12 @@ function gen_rawconf_array() {
 ## 生成定时任务脚本的绝对路径清单
 function gen_repocron_list() {
 
-    ## 生成脚本清单对应的配置（对应仓库的配置数据）用于在更新定时请求时携带
+    ## 生成脚本清单对应的配置（部分用于在更新定时请求时携带）
     function gen_script_listconf() {
         echo "$(cat $ListConfScripts | jq '."'"$1"'"='"$2"'')" >$ListConfScripts
     }
 
-    local CurrentDir=$(pwd)
-
+    local current_dir=$(pwd)
     # 生成模式
     case "$1" in
     "old")
@@ -321,5 +340,5 @@ function gen_repocron_list() {
     fi
     ## 汇总去重
     echo "$(sort -u $writeFile)" >$writeFile
-    cd $CurrentDir
+    cd $current_dir
 }

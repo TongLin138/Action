@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-05-30
 
 ## 更新所有仓库
 # update repo
@@ -13,6 +13,7 @@ function update_all_repo() {
         ## 遍历仓库配置数组
         for ((i = 0; i < ${#Array_Repo_url[*]}; i++)); do
             ## 判断仓库是否启用
+            [[ -z "${Array_Repo_url[i]}" || -z "${Array_Repo_branch[i]}" ]] && continue
             [[ ${Array_Repo_enable[i]} == "false" ]] && continue
 
             ## 更新/克隆仓库

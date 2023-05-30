@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-29
+## Modified: 2023-05-30
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -8,6 +8,11 @@ function update_raw() {
     # 读取脚本同步全局配置
     function get_gobalconf() {
         cat $FileSyncConfUser | yq '.gobal' | jq -rc "$1"
+    }
+
+    ## 生成脚本清单对应的配置（部分用于在更新定时请求时携带）
+    function gen_script_listconf() {
+        echo "$(cat $ListConfScripts | jq '."'"$1"'"='"$2"'')" >$ListConfScripts
     }
 
     local RemoveMark
@@ -23,15 +28,16 @@ function update_raw() {
             local filter="node_modules"
         fi
         ## 生成旧的定时脚本清单
-        if [[ ${Array_Raw_cronSettings_updateTaskList[i]} == "true" ]]; then
+        if [[ "${Array_Raw_cronSettings_updateTaskList[i]}" == "true" ]]; then
             if [[ $(ls $RawDir 2>/dev/null | grep -Ev "${filter}") ]]; then
                 for file in $(ls $RawDir 2>/dev/null | grep -Ev "${filter}"); do
-                    echo "${Array_Raw_path[i]}" >>$ListOldScripts
+                    echo "$RawDir/$file" >>$ListOldScripts
                 done
             fi
         fi
         ## 遍历远程脚本配置数组，更新并生成新的定时脚本清单
         for ((i = 0; i < ${#Array_Raw_url[*]}; i++)); do
+            [[ -z "${Array_Raw_url[i]}" ]] && continue
             echo "${Array_Raw_url[i]}" | grep -Eq "github|gitee|gitlab"
             if [ $? -eq 0 ]; then
                 echo ${Array_Raw_url[i]} | grep -E "git.*\.io/" -q
@@ -40,10 +46,10 @@ function update_raw() {
                 else
                     echo -e "\n$WORKING 开始从仓库下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
                 fi
-                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" ${Array_Raw_url[i]} -T 30
+                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" "${Array_Raw_url[i]}" -T 30
             else
                 echo -e "\n$WORKING 开始从网站下载 ${BLUE}${Array_Raw_fileName[i]}${PLAIN} 脚本..."
-                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" ${Array_Raw_url[i]} -T 30
+                wget -q --no-check-certificate -O "$RawDir/${Array_Raw_fileName[i]}.new" "${Array_Raw_url[i]}" -T 30
             fi
             if [ $? -eq 0 ]; then
                 mv -f "$RawDir/${Array_Raw_fileName[i]}.new" "$RawDir/${Array_Raw_fileName[i]}"
@@ -57,7 +63,10 @@ function update_raw() {
                 [ -f "$RawDir/${Array_Raw_fileName[i]}.new" ] && rm -f "$RawDir/${Array_Raw_fileName[i]}.new"
             fi
 
-            [[ ${Array_Raw_cronSettings_updateTaskList[i]} == "true" ]] && echo "${Array_Raw_path[i]}" >>$ListNewScripts
+            if [[ ${Array_Raw_cronSettings_updateTaskList[i]} == "true" ]]; then
+                echo "${Array_Raw_path[i]}" >>$ListNewScripts
+                gen_script_listconf "${Array_Raw_path[i]}" '{"path": "'"${Array_Raw_path[i]}"'", "autoDisable": "false", "addNotify": "false", "delNotify": "false"}'
+            fi
         done
         ## 清理 raw 目录下无关的文件
         if [[ $(ls $RawDir 2>/dev/null | grep -Ev "${filter}") ]]; then
