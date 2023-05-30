@@ -17,7 +17,7 @@ const {logger} = require("../core/logger");
  */
 api.post('/auth', async (request, response) => {
     let {username, password, captcha = ''} = request.body;
-    logger.info(`用户：${username} 开始登录...`)
+    logger.info(`检测到用户登录行为，尝试登录用户名 ${username}`)
     let con = getJsonFile(CONFIG_FILE_KEY.AUTH);
     let curTime = new Date();
     let authErrorCount = con['authErrorCount'] || 0;
@@ -26,7 +26,8 @@ api.post('/auth', async (request, response) => {
         // 判断登录是否间隔一分钟
         let limitTime = 60 - (curTime.getTime() - authErrorTime)/1000;
         if (limitTime > 0) {
-            response.send(API_STATUS_CODE.failData('面板错误登录次数到达3次，请间隔一分钟之后进行登录!', {
+            // 累计错误登录次数超过3次锁定1分钟
+            response.send(API_STATUS_CODE.failData('面板错误登录次数过多，请一分钟再进行尝试登录!', {
                 showCaptcha: true,
                 limitTime:Math.floor(limitTime),
             }))
@@ -50,7 +51,7 @@ api.post('/auth', async (request, response) => {
             if (password === "passwd") {
                 //如果是默认密码
                 con.password = random(16);
-                logger.info(`系统检测到您的密码为初始密码，已修改为随机密码：${con.password}`);
+                logger.info(`系统检测到密码为初始密码，已修改为随机密码：${con.password}`);
                 result.newPwd = con.password;
             }
             con['authErrorCount'] = 0;
@@ -104,7 +105,7 @@ api.post('/changePwd', function (request, response) {
         config.user = username;
         config.openApiToken = random(32);
         saveNewConf(CONFIG_FILE_KEY.AUTH, config, true);
-        logger.info(`用户修改了用户名密码，且 openApiToken 已重置为：${config.openApiToken}`)
+        logger.info(`用户修改了用户名密码，openApiToken 已重置为：${config.openApiToken}`)
         response.send(API_STATUS_CODE.ok("修改成功！"));
     } else {
         response.send(API_STATUS_CODE.fail("请输入用户名密码!"));

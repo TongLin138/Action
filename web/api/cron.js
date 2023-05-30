@@ -95,7 +95,7 @@ api.put('/', async function (request, response) {
             throw new Error('cron表达式错误')
         }
         await curd.updateById(task)
-        logger.info('添加定时任务', request.query.id, task)
+        logger.info('修改定时任务', task.id, task)
         task = await curd.getById(task.id)
         if (task && task.cron && task.cron !== task.cron) {
             await curd.fixCron(task.id)

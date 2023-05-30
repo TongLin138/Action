@@ -1,5 +1,5 @@
 /**
- * 日志
+ * 日志组件
  * */
 
 let log4js = require("log4js");
@@ -8,7 +8,8 @@ log4js.configure({
     appenders: {
         MAIN: {
             type: "file",
-            filename: "/arcadia/log/server.log"
+            filename: "/arcadia/log/server.log",
+            pattern: "yyyy-MM-dd hh-mm-ss"
         }
     },
     categories: {
@@ -18,6 +19,5 @@ log4js.configure({
         }
     },
 });
-
 
 module.exports.logger = log4js.getLogger("MAIN");
