@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-05-30
 
 ## 一键添加脚本仓库命令
 # arcadia repo <name> <url> <branch> [--options]
@@ -188,7 +188,7 @@ function add_repo_conf() {
         [ "${updateTaskList}" ] && sed -i "s|updateTaskList: false|updateTaskList: ${updateTaskList}|g" $tmp_file
         [ "${scriptsPath}" ] && sed -i "s|scriptsPath: \'\'|scriptsPath: \"${scriptsPath}\"|g" $tmp_file
         [ "${whiteList}" ] && sed -i "s|whiteList: \'\'|whiteList: \'$(echo "${whiteList}" | sed -e 's/[]\/$*.^[]/\\&/g')\'|g" $tmp_file
-        [ "${blackList}" ] && sed -i "s|blackList: \'\'|blackList: \'$(echo "${whiteList}" | sed -e 's/[]\/$*.^[]/\\&/g')\'|g" $tmp_file
+        [ "${blackList}" ] && sed -i "s|blackList: \'\'|blackList: \'$(echo "${blackList}" | sed -e 's/[]\/$*.^[]/\\&/g')\'|g" $tmp_file
         [ "${autoDisable}" ] && sed -i "s|autoDisable: false|autoDisable: ${autoDisable}|g" $tmp_file
         [ "${addNotify}" ] && sed -i "s|addNotify: true|addNotify: ${addNotify}|g" $tmp_file
         [ "${delNotify}" ] && sed -i "s|delNotify: true|delNotify: ${delNotify}|g" $tmp_file
