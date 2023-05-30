@@ -9,7 +9,6 @@ log4js.configure({
         MAIN: {
             type: "file",
             filename: "/arcadia/log/server.log",
-            pattern: "yyyy-MM-dd hh-mm-ss"
         }
     },
     categories: {
