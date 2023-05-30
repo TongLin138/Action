@@ -97,7 +97,7 @@ api.put('/', async function (request, response) {
         await curd.updateById(task)
         logger.info('修改定时任务', task.id, task)
         task = await curd.getById(task.id)
-        if (task && task.cron && task.cron !== task.cron) {
+        if (task && task.cron) {
             await curd.fixCron(task.id)
         }
         response.send(API_STATUS_CODE.okData(!!task))
