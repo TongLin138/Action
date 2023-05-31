@@ -60,6 +60,11 @@ api.get('/', async function (request, response) {
         orderBy: [{name: 'sort', desc: true}]
     })
     tasks.data.forEach((task) => task.create_time = new Date(task.create_time))
+    tasks.data.forEach((task) => {
+        if (task.last_runtime) {
+            task.last_runtime = new Date(task.last_runtime)
+        }
+    })
     tasks.data.forEach((task) => (task.running_status = !!core.running[task.id]))
     response.send(API_STATUS_CODE.okData(tasks))
 })
