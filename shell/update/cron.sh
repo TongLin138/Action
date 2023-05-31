@@ -120,7 +120,7 @@ function update_cron() {
         else
             active=1
         fi
-        data_tmp='{"path": "'"${path}"'", "active": '"${active}"'}'
+        data_tmp='{"path": "'"${path}"'", "active": '${active}'}'
         if [[ $i -eq 0 ]]; then
             newFiles="${data_tmp}"
         else
