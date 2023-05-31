@@ -102,6 +102,7 @@ api.put('/', async function (request, response) {
         }
     }
     try {
+        let ok = false
         for (const task of tasks) {
             await curd.updateById(task)
             logger.info('修改定时任务', task.id, task)
@@ -109,8 +110,11 @@ api.put('/', async function (request, response) {
             if (task && task.cron && task1.cron !== task.cron) {
                 await curd.fixCron(task.id)
             }
+            if (!ok) {
+                ok = !!task
+            }
         }
-        response.send(API_STATUS_CODE.okData(!!task))
+        response.send(API_STATUS_CODE.okData(ok))
     } catch (e) {
         response.send(API_STATUS_CODE.fail(e.message || e))
     }
