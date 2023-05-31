@@ -17,7 +17,7 @@ async def beaninfo(event):
             logger.info(text)
         else:
             await tgbot.send_message(chat_id, '请在 /beaninfo 后面加上账号序号使用哦~')
-        logger.info('[OK] 执行' + event.raw_text.split('\n')[0] + '命令完毕')
+        logger.info('执行' + event.raw_text.split('\n')[0] + ' 命令完毕')
             
 
     except Exception as e:
