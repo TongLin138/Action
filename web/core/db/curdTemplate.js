@@ -185,7 +185,7 @@ module.exports = function curd(tableName, entity, idKey, idType) {
             //fixme,返回id或者填充id
             if (!Array.isArray(entities)) {
                 return db.exec(`
-                    into ${tableName} (${keys.filter(k => entities[k] !== undefined).join(', ')})
+                    insert into ${tableName} (${keys.filter(k => entities[k] !== undefined).join(', ')})
                     values (${keys.filter(k => entities[k] !== undefined).map(s => '?').join(', ')})
                 `, keys.filter(k => entities[k] !== undefined).map(k => entities[k]))
                     .then(e => {
@@ -197,7 +197,7 @@ module.exports = function curd(tableName, entity, idKey, idType) {
                 db.serialize(() => {
                     db.sqlite.run('BEGIN TRANSACTION');
                     db.execGroup(`
-                                replace into ${tableName} (${keysNoId.join(', ')})
+                                insert into ${tableName} (${keysNoId.join(', ')})
                                 values (${keysNoId.map(s => '?').join(', ')})
                         `,
                         entities.map(e => keysNoId.reduce((p, c) => p[c] = e[c], {})))
