@@ -239,7 +239,7 @@ module.exports = function curd(tableName, entity, idKey, idType) {
                         })
                         .join(",")
                     }
-                where ${idKey} = ?`, [...param, id]).then(e => e.changes() > 0)
+                where ${idKey} = ?`, [...param, id]).then(e => e.change() > 0)
         },
 
         /**
