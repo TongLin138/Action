@@ -120,7 +120,7 @@ function get_Cron() {
     ## 去除首尾空格
     cron="$(echo "${cron}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
     ## 校验定时表达式
-    check_cron_expression
+    cron="$(check_cron_expression "${cron}")"
     ## 如果未检测到或表达式不合法就随机一个每天执行 1 次的定时
     if [ "${cron}" ]; then
         echo "${cron}"
