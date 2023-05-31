@@ -1,0 +1,1 @@
+import{_ as t}from"./history-3d880f51.js";import{_ as e}from"./index-7ca99342.js";import{a6 as n,a7 as r}from"./vendor-b0543d82.js";const _={};function c(s,a){const o=t;return n(),r(o,{style:{"vertical-align":"baseline"}})}const f=e(_,[["render",c]]);export{f as default};
