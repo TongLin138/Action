@@ -8,7 +8,6 @@ const eventBus = require("../eventBus").task;
 
 const template = require("../db/curdTemplate");
 const {logger} = require("../logger");
-const {aw} = require("../../public/assets/vendor-b0543d82");
 const taskCoreCurd = template("task_core", {
     id: "", cron: "", callback: ""
 }, "id", "");
