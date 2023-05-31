@@ -86,19 +86,29 @@ api.post('/', async function (request, response) {
  * 修改
  */
 api.put('/', async function (request, response) {
-    let task = Object.assign({}, request.body)
-    delete task.sort
-    delete task.bind
-    delete task.create_time
-    try {
+    let tasks
+    if (Array.isArray(request)) {
+        tasks = request.body.map((task) => Object.assign({}, task))
+    } else {
+        tasks = [Object.assign({}, request.body)]
+    }
+    for (const task of tasks) {
+        delete task.sort
+        delete task.bind
+        delete task.create_time
         if (task.cron && !cron.validate(task.cron)) {
-            throw new Error('cron表达式错误')
+            response.send(API_STATUS_CODE.fail('cron表达式错误'))
+            return
         }
-        await curd.updateById(task)
-        logger.info('修改定时任务', task.id, task)
-        let task1 = await curd.getById(task.id)
-        if (task && task.cron && task1.cron !== task.cron) {
-            await curd.fixCron(task.id)
+    }
+    try {
+        for (const task of tasks) {
+            await curd.updateById(task)
+            logger.info('修改定时任务', task.id, task)
+            let task1 = await curd.getById(task.id)
+            if (task && task.cron && task1.cron !== task.cron) {
+                await curd.fixCron(task.id)
+            }
         }
         response.send(API_STATUS_CODE.okData(!!task))
     } catch (e) {
