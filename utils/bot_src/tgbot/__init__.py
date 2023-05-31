@@ -19,7 +19,7 @@ BOT_SET_JSON_FILE = f'{BOT_DIR}/set.json'
 if not os.path.exists(f'{LOG_DIR}/TelegramBot'):
     os.mkdir(f'{LOG_DIR}/TelegramBot')
 logging.basicConfig(
-    format='%(asctime)s-%(name)s-%(levelname)s=> [%(funcName)s] %(message)s ', level=logging.INFO, filename=BOT_LOG_FILE,
+    format='[%(asctime)s] %(levelname)s => %(funcName)s %(message)s', level=logging.INFO, filename=BOT_LOG_FILE,
     filemode='w')
 logger = logging.getLogger(__name__)
 if os.path.exists(BOT_JSON_FILE):
