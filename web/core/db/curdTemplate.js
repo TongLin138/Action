@@ -185,7 +185,7 @@ module.exports = function curd(tableName, entity, idKey, idType) {
             //fixme,返回id或者填充id
             if (!Array.isArray(entities)) {
                 return db.exec(`
-                    replace into ${tableName} (${keys.filter(k => entities[k] !== undefined).join(', ')})
+                    into ${tableName} (${keys.filter(k => entities[k] !== undefined).join(', ')})
                     values (${keys.filter(k => entities[k] !== undefined).map(s => '?').join(', ')})
                 `, keys.filter(k => entities[k] !== undefined).map(k => entities[k]))
                     .then(e => {
@@ -239,8 +239,7 @@ module.exports = function curd(tableName, entity, idKey, idType) {
                         })
                         .join(",")
                     }
-                where ${idKey} = ?`, [...param, id])
-
+                where ${idKey} = ?`, [...param, id]).then(e => e.changes() > 0)
         },
 
         /**

@@ -8,6 +8,7 @@ const eventBus = require("../eventBus").task;
 
 const template = require("../db/curdTemplate");
 const {logger} = require("../logger");
+const {aw} = require("../../public/assets/vendor-b0543d82");
 const taskCoreCurd = template("task_core", {
     id: "", cron: "", callback: ""
 }, "id", "");
@@ -63,17 +64,24 @@ async function onCronTask(taskId) {
         return
     }
     running[taskId] = task;
+    let date = new Date();
     //fixme:需要其他操作,如指定日志等
     taskRunner.execShell(task.shell, {
         callback: (error, stdout, stderr) => {
             if (error) {
-                logger.log("task over", taskId, stdout.substring(stdout.length - 1000))
-            } else {
+                // logger.log("task over", taskId, stdout.substring(stdout.length - 1000))
+                // } else {
                 logger.warn("task error", taskId, error.substring(stdout.length - 1000))
             }
         },
         onExit: (code) => {
             delete running[taskId]
+            curd.updateById({
+                id: taskId,
+                last_runtime: date,
+                last_run_use: (new Date().getTime() - date.getTime()) / 1000
+            }).catch(e => {
+            })
         }
     })
 
@@ -92,7 +100,10 @@ module.exports = {
      * @param {string} callback
      */
     setTaskCore: async (id, cron, callback) => {
-        await taskCoreCurd.save({id, cron, callback})
+        let change = await taskCoreCurd.updateById({id, cron, callback});
+        if (!change) {
+            await taskCoreCurd.save({id, cron, callback})
+        }
         engine.setTask(id, cron, () => onCron({
             id: id, cron: cron, callback: ""
         }))

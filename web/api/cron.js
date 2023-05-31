@@ -96,8 +96,8 @@ api.put('/', async function (request, response) {
         }
         await curd.updateById(task)
         logger.info('修改定时任务', task.id, task)
-        task = await curd.getById(task.id)
-        if (task && task.cron) {
+        let task1 = await curd.getById(task.id)
+        if (task && task.cron && task1.cron !== task.cron) {
             await curd.fixCron(task.id)
         }
         response.send(API_STATUS_CODE.okData(!!task))
@@ -179,28 +179,32 @@ innerCornApi.post('/updateAll', async function (request, response) {
 
         //1.删除定时任务
         if (deleteFiles && deleteFiles.length > 0) {
-            await curd.deleteCustomize(
-                `bind in (${deleteFiles.map((_) => '?').join(',')})`,
-                deleteFiles.map((s) => toBind(type, s.path))
-            )
-            for (const item of deleteFiles) {
-                let arr = item.path.split('/');
-                let name = arr[arr.length - 1];
+            let deleteTask = await curd.list({}, [], (o, sql, params) => {
+                    params.push(...deleteFiles.map((s) => toBind(type, s.path)))
+                    return `bind in (${deleteFiles.map((_) => '?').join(',')})`
+                }
+            );
+            await curd.deleteById(deleteTask.map((s) => s.id))
+            for (const item of deleteTask) {
+                let paths = item.bind.split("#");
+                let path = paths[1] + "/" + paths[2];
                 try {
                     await curd.fixCron(item.id);
                     infos.push({
                         success: true,
                         type: 1,
-                        path: item.path,
-                        name: name,
+                        path: path,
+                        name: item.name,
+                        remark: item.remark,
                         message: `ok`
                     })
                 } catch (e) {
                     infos.push({
                         success: false,
                         type: 1,
-                        path: item.path,
-                        name: name,
+                        path: path,
+                        name: item.name,
+                        remark: item.remark,
                         message: `${e.message || e}`
                     })
                 }
@@ -208,12 +212,16 @@ innerCornApi.post('/updateAll', async function (request, response) {
         }
         //2.新增定时任务
         if (newFiles && newFiles.length > 0) {
-            await curd.deleteCustomize(
-                `bind in (${newFiles.map((_) => '?').join(',')})`,
-                newFiles.map((s) => toBind('system', s.path))
-            )
-            for (const item of newFiles) {
-                await curd.fixCron(item.id);
+            {
+                let deleteTask = await curd.list({}, [], (o, sql, params) => {
+                        params.push(...newFiles.map((s) => toBind(type, s.path)))
+                        return `bind in (${newFiles.map((_) => '?').join(',')})`
+                    }
+                );
+                await curd.deleteById(deleteTask.map((s) => s.id))
+                for (const item of deleteTask) {
+                    await curd.fixCron(item.id);
+                }
             }
             //2.1,批量插入定时任务
             for (let item of newFiles) {
