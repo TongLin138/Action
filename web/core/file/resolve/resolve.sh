@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-13
+## Modified: 2023-06-01
 ## 新增定时任务解析模块
 
 ## 定时表达式匹配算法 - 解析脚本内预设的定时表达式
@@ -8,7 +8,7 @@ function Get_Cron() {
     function Gen_Random_Cron() {
         local Random_Minute=$((${RANDOM} % 60))
         local Random_Hour=$((${RANDOM} % 24))
-        echo -e "${Random_Minute} ${Random_Hour} * * * *"
+        echo -e "${Random_Minute} ${Random_Hour} * * *"
     }
     local path="$1"
     local ScriptName=$(echo ${path##*/} | awk -F "." '{print $1}')
