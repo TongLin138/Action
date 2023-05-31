@@ -68,7 +68,7 @@ function main() {
                 break
                 ;;
             [Nn] | [Nn][Oo])
-                TmpParam2=" --mute"
+                TmpParam2=" --silent"
                 break
                 ;;
             esac
