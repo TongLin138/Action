@@ -1,18 +1,11 @@
 const {exec} = require('child_process');
 
 /**
- * @callback callback
- * @param {any}error
- * @param {string}stdout
- * @param {string}stderr
- */
-
-/**
  * 执行shell
  * @param {string} shell
  * @param {{
- * callback:callback?,
- * onChange:function(data,type)?,
+ * callback:(error:any,stdout:string,stderr:string)=>?,
+ * onChange:function(data:{},type:'stdout'|'stderr')?,
  * onExit:function(code:number)?,
  * onException:function(error)?
  * }?} config
