@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-30
+## Modified: 2023-06-01
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -77,7 +77,6 @@ function update_raw() {
                         RemoveMark="no"
                         break
                     fi
-                    ${Array_Raw_url[$arr_num]##*/}
                 done
                 [[ $RemoveMark == yes ]] && rm -f $RawDir/$file 2>/dev/null
             done
