@@ -3,7 +3,7 @@
 ## 新增定时任务解析模块
 
 ## 定时表达式匹配算法 - 解析脚本内预设的定时表达式
-function get_Cron() {
+function get_cron() {
     local path="$1"
 
     ## 校验定时表达式合法性
@@ -12,40 +12,72 @@ function get_Cron() {
         local is_six=0
         local seconds_field=""
         local fields=()
-
         # 校验字段合法性
         check_field() {
-            local field=$1
+            local field="$1"
             local max_value=$2
-            # 校验字段
-            if [[ $field == "*" ]]; then
-                return 0
-            elif [[ $field =~ ^[0-9]+$ && $field -le $max_value ]]; then
-                return 0
-            elif [[ $field =~ ^[0-9]+\-[0-9]+$ ]]; then
-                local start_end=($(echo "$field" | tr '-' ' '))
-                local start=${start_end[0]}
-                local end=${start_end[1]}
-                if [[ $start -le $end && $start -le $max_value && $end -le $max_value ]]; then
+            local item sub_item
+
+            function normal_check1() {
+                local content="$1"
+                if [[ $content == "*" ]]; then
                     return 0
-                fi
-            elif [[ $field =~ ^\*/[0-9]+$ ]]; then
-                local divisor=${field:2}
-                if [[ $divisor -ne 0 && $divisor -le $max_value ]]; then
+                elif [[ $content =~ ^[0-9]+$ && $content -le $max_value ]]; then
                     return 0
-                fi
-            elif [[ $field =~ ^[0-9]+(,[0-9]+)*$ ]]; then
-                local values=($(echo "$field" | tr ',' ' '))
-                for value in "${values[@]}"; do
-                    if [[ $value =~ ^[0-9]+$ && $value -le $max_value ]]; then
-                        continue
+                elif [[ $content =~ ^[0-9]+\-[0-9]+$ ]]; then
+                    local start_end=($(echo "$content" | tr '-' ' '))
+                    local start=${start_end[0]}
+                    local end=${start_end[1]}
+                    if [[ $start -le $end && $start -le $max_value && $end -le $max_value ]]; then
+                        return 0
                     else
                         return 1
                     fi
-                done
+                else
+                    return 1
+                fi
                 return 0
-            fi
-            return 1
+            }
+            function normal_check2() {
+                local content="$1"
+                if [[ $content =~ ^[0-9]+$ ]]; then
+                    return 0
+                else
+                    return 1
+                fi
+                return 0
+            }
+
+            ## 校验字段
+            # 先遍历 ',' 多表达式,，然后遍历 '/' 周期（之所以要遍历是因为前者代表目标单位范围而后者代表无上限的周期间隔）
+            field="$(echo "${field}" | sed "s|\*|o|g")" # field 中的 * 临时替换
+            for item in ${field//,/ }; do
+                item="$(echo "${item}" | sed "s|o|\*|g")" # field 中的 \* 临时替换还原
+                echo "${item}" | grep '/' -q
+                if [ $? -eq 0 ]; then
+                    local sub_item_mark=0
+                    for sub_item in ${item//\// }; do
+                        if [ $sub_item_mark -eq 0 ]; then
+                            if ! normal_check1 "${sub_item}"; then
+                                return 1
+                            fi
+                        elif [ $sub_item_mark -eq 1 ]; then
+                            if ! normal_check2 "${sub_item}"; then
+                                return 1
+                            fi
+                        else
+                            # / 超出1个
+                            return 1
+                        fi
+                        let sub_item_mark++
+                    done
+                else
+                    if ! normal_check1 "${item}"; then
+                        return 1
+                    fi
+                fi
+            done
+            return 0
         }
 
         # 按空格拆分表达式为数组
@@ -61,13 +93,13 @@ function get_Cron() {
             fields=("${fields[@]:1}")
             is_six=1
         else
-            # echo '\033[31m[×]\033[0m'
+            # echo -e '\033[31m[×]\033[0m'
             echo '' # 判断为非法表达式，返回为空值
             return
         fi
         # 校验秒字段
         if ! check_field "$seconds_field" 59; then
-            # echo '\033[31m[×]\033[0m'
+            # echo -e '\033[31m[×]\033[0m'
             echo '' # 判断为非法表达式，返回为空值
             return
         fi
@@ -88,12 +120,12 @@ function get_Cron() {
                 max_value=7
             fi
             if ! check_field "$field" "$max_value"; then
-                # echo '\033[31m[×]\033[0m'
+                # echo -e '\033[31m[×]\033[0m'
                 echo '' # 判断为非法表达式，返回为空值
                 return
             fi
         done
-        # echo '\033[32m[✔]\033[0m'
+        # echo -e '\033[32m[✔]\033[0m'
         echo "${expression}" # 判断为合法表达式，返回表达式
     }
 
@@ -122,11 +154,9 @@ function get_Cron() {
     ## 校验定时表达式
     cron="$(check_cron_expression "${cron}")"
     ## 如果未检测到或表达式不合法就随机一个每天执行 1 次的定时
-    if [ "${cron}" ]; then
-        echo "${cron}"
-    else
-        echo "$(gen_random_cron)"
-    fi
+    [ -z "${cron}" ] && cron="$(gen_random_cron)"
+
+    echo "${cron}"
 }
 
 ## 查询脚本名 - 解析脚本名称
@@ -163,7 +193,7 @@ function query_scriptname() {
 }
 
 ## 获取标签
-function Get_Tag() {
+function get_tag() {
     local path="$1"
     echo "$path" | grep "^${ARCADIA_DIR}/repo/" -q
     if [ $? -eq 0 ]; then
@@ -180,10 +210,10 @@ function Get_Tag() {
 
 function main() {
     local path="$1"
-    local CronString="$(get_Cron "${path}")"
+    local CronString="$(get_cron "${path}")"
     local ScriptName="$(query_scriptname "${path}")"
     local FormatPath="$(echo "${path}" | sed "s|^${ARCADIA_DIR}/repo/||g")"
-    local Tags=$(Get_Tag "${path}")
+    local Tags=$(get_tag "${path}")
 
     ## 返回json格式
     echo '{"path": "'"${path}"'", "runPath": "'"${FormatPath}"'", "name": "'"${ScriptName}"'", "cron": "'"${CronString}"'", "tags": "'"${Tags}"'"}' | jq -c
