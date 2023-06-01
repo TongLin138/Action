@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-06-01
 
 ## Telegram Bot 功能
 # arcadia tgbot start/stop/logs/update
@@ -66,7 +66,7 @@ function tgbot_manage() {
             local ExitStatustgbot=$?
             case $1 in
             ## 开启/重启服务
-            start)
+            start | restart)
                 ## 删除日志
                 rm -rf $BotLogDir/up.log /root/.pm2/logs/tgbot-*.log
                 if [[ ${ExitStatustgbot} -eq 0 ]]; then

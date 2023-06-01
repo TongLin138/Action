@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-06-01
 
 function main() {
     case $# in
@@ -28,7 +28,7 @@ function main() {
                 case $1 in
                 service)
                     case $2 in
-                    start | stop | info | respwd)
+                    start | restart | stop | info | respwd)
                         import arcadia/service
                         main_service_manage $2
                         ;;
@@ -39,7 +39,7 @@ function main() {
                     ;;
                 tgbot)
                     case $2 in
-                    start | stop | logs | update)
+                    start | restart | stop | logs | update)
                         import arcadia/tgbot
                         tgbot_manage $2
                         ;;

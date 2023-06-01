@@ -1,8 +1,8 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-06-01
 
 ## 后端服务控制
-# arcadia service start/stop/info/respwd
+# arcadia service start/restart/stop/info/respwd
 function main_service_manage() {
 
     ## 更新源码
@@ -42,7 +42,7 @@ function main_service_manage() {
     local ExitStatusTTYD=$?
     case $1 in
     ## 开启/重启服务
-    start)
+    start | restart)
         ## 删除日志
         rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/inner_server-*.log /root/.pm2/logs/web_terminal-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
