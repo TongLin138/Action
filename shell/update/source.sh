@@ -43,7 +43,9 @@ function update_sourcecode() {
     ## 检测依赖变动
     [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)
     if [[ "$PanelDependOld" != "$PanelDependNew" ]]; then
-        pm2 delete server >/dev/null 2>&1
+        pm2 delete web_server >/dev/null 2>&1
+        pm2 delete inner_server >/dev/null 2>&1
+        pm2 delete web_terminal >/dev/null 2>&1
         $ContrlCmd service start
     fi
     ## 检测配置文件版本
