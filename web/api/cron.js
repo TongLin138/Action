@@ -115,10 +115,11 @@ api.put('/', async function (request, response) {
     try {
         let ok = false
         for (const task of tasks) {
+            const originTask = await curd.getById(task.id)
             await curd.updateById(task)
             logger.info('修改定时任务', task.id, task)
-            let task1 = await curd.getById(task.id)
-            if (task && task.cron && task1.cron !== task.cron) {
+            // 定时规则变更，重新加载定时任务
+            if (task && task.cron && originTask.cron !== task.cron) {
                 await curd.fixCron(task.id)
             }
             if (!ok) {
