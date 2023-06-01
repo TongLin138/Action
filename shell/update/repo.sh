@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-30
+## Modified: 2023-06-01
 
 ## 更新所有仓库
 # update repo
@@ -74,7 +74,7 @@ function update_designated_repo() {
     ## 判定是否存在仓库
     if [ -d ${AbsolutePath}/.git ]; then
         if [[ "${AbsolutePath}" = "$RootDir" ]]; then
-            print_title "source"
+            print_title_start "source"
             update_sourcecode
         else
             make_dir $RepoDir $LogTmpDir
@@ -96,7 +96,7 @@ function update_designated_repo() {
                     [ $? -eq 0 ] && local current_num=$i && configured_repo=true && break
                 done
             fi
-            print_title "designated"
+            print_title_start "designated"
             if [ $configured_repo == true ]; then
                 # 生成旧的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then
