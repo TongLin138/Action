@@ -103,7 +103,9 @@ api.put('/', async function (request, response) {
         delete task.sort
         delete task.bind
         delete task.create_time
-        if (task.cron && !cron.validate(task.cron)) {
+        try {
+            cron.CronTime(task.cron)
+        } catch (e) {
             response.send(API_STATUS_CODE.fail('cron表达式错误'))
             return
         }
