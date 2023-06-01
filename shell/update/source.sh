@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-01
 
 ## 更新项目源码
 # update source
@@ -44,7 +44,7 @@ function update_sourcecode() {
     [ -f $PanelDir/package.json ] && PanelDependNew=$(cat $PanelDir/package.json)
     if [[ "$PanelDependOld" != "$PanelDependNew" ]]; then
         pm2 delete server >/dev/null 2>&1
-        $ContrlCmd service on
+        $ContrlCmd service start
     fi
     ## 检测配置文件版本
     detect_config_version
