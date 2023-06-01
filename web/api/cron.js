@@ -76,7 +76,7 @@ api.post('/', async function (request, response) {
     delete task.id
     try {
         try {
-            cron.CronTime(task.cron)
+           new cron.CronTime(task.cron)
         } catch (e) {
             throw new Error('cron表达式错误:' + (e.message || e))
         }
@@ -105,7 +105,7 @@ api.put('/', async function (request, response) {
         delete task.create_time
         if (task.cron) {
             try {
-                cron.CronTime(task.cron)
+                new cron.CronTime(task.cron)
             } catch (e) {
                 response.send(API_STATUS_CODE.fail('cron表达式错误: ' + (e.message || e)))
                 return

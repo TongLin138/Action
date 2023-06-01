@@ -19,10 +19,11 @@ module.exports = {
             id2task[id] = task
         }
         task.callback = callback
-        task.task = Cron.CronJob(cron, () => {
+        let job = new Cron.CronJob(cron, () => {
             task.callback()
-        })
-        task.task.start()
+        });
+        task.task = job
+        job.start()
     },
     /**
      * 移除定时任务
