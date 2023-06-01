@@ -78,7 +78,7 @@ api.post('/', async function (request, response) {
         try {
             cron.CronTime(task.cron)
         } catch (e) {
-            throw new Error('cron表达式错误')
+            throw new Error('cron表达式错误:' + (e.message || e))
         }
         await curd.save(task)
         logger.info('添加定时任务', request.query.id, task)
@@ -103,11 +103,13 @@ api.put('/', async function (request, response) {
         delete task.sort
         delete task.bind
         delete task.create_time
-        try {
-            cron.CronTime(task.cron)
-        } catch (e) {
-            response.send(API_STATUS_CODE.fail('cron表达式错误'))
-            return
+        if (task.cron) {
+            try {
+                cron.CronTime(task.cron)
+            } catch (e) {
+                response.send(API_STATUS_CODE.fail('cron表达式错误: ' + (e.message || e)))
+                return
+            }
         }
     }
     try {
