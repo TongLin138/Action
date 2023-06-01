@@ -1,4 +1,4 @@
-const cronCron = require('node-cron');
+const Cron = require('cron');
 
 const id2task = {}
 
@@ -19,9 +19,10 @@ module.exports = {
             id2task[id] = task
         }
         task.callback = callback
-        task.task = cronCron.schedule(cron, () => {
+        task.task = Cron.CronJob(cron, () => {
             task.callback()
         })
+        task.task.start()
     },
     /**
      * 移除定时任务

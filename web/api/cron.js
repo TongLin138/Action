@@ -1,13 +1,13 @@
 const express = require('express')
-const cron = require('node-cron')
+const cron = require('cron')
 let api = express()
 
 const core = require('../core/cron/core')
 const curd = require('../core/cron/curd')
-const {API_STATUS_CODE} = require('../core/http')
-const {logger} = require('../core/logger')
+const { API_STATUS_CODE } = require('../core/http')
+const { logger } = require('../core/logger')
 const scriptResolve = require('../core/file/scriptResolve')
-const {DIR_KEY} = require("../core/file");
+const { DIR_KEY } = require("../core/file");
 
 /**
  * 获取定时任务列表
@@ -57,7 +57,7 @@ api.get('/', async function (request, response) {
             }
             return sql
         },
-        orderBy: [{name: 'sort', desc: true}]
+        orderBy: [{ name: 'sort', desc: true }]
     })
     tasks.data.forEach((task) => task.create_time = new Date(task.create_time))
     tasks.data.forEach((task) => {
@@ -72,10 +72,12 @@ api.get('/', async function (request, response) {
  * 创建定时任务
  */
 api.post('/', async function (request, response) {
-    let task = Object.assign({}, request.body, {create_time: new Date()})
+    let task = Object.assign({}, request.body, { create_time: new Date() })
     delete task.id
     try {
-        if (!cron.validate(task.cron)) {
+        try {
+            cron.CronTime(task.cron)
+        } catch (e) {
             throw new Error('cron表达式错误')
         }
         await curd.save(task)
@@ -194,14 +196,14 @@ innerCornApi.post('/updateAll', async function (request, response) {
         }
 
         let infos = []
-        let {deleteFiles, newFiles, type} = request.body
+        let { deleteFiles, newFiles, type } = request.body
 
         //1.删除定时任务
         if (deleteFiles && deleteFiles.length > 0) {
             let deleteTask = await curd.list({}, [], (o, sql, params) => {
-                    params.push(...deleteFiles.map((s) => toBind(type, s.path)))
-                    return `bind in (${deleteFiles.map((_) => '?').join(',')})`
-                }
+                params.push(...deleteFiles.map((s) => toBind(type, s.path)))
+                return `bind in (${deleteFiles.map((_) => '?').join(',')})`
+            }
             );
             await curd.deleteById(deleteTask.map((s) => s.id))
             for (const item of deleteTask) {
@@ -233,9 +235,9 @@ innerCornApi.post('/updateAll', async function (request, response) {
         if (newFiles && newFiles.length > 0) {
             {
                 let deleteTask = await curd.list({}, [], (o, sql, params) => {
-                        params.push(...newFiles.map((s) => toBind(type, s.path)))
-                        return `bind in (${newFiles.map((_) => '?').join(',')})`
-                    }
+                    params.push(...newFiles.map((s) => toBind(type, s.path)))
+                    return `bind in (${newFiles.map((_) => '?').join(',')})`
+                }
                 );
                 await curd.deleteById(deleteTask.map((s) => s.id))
                 for (const item of deleteTask) {
