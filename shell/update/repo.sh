@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-06-02
 
 ## 更新所有仓库
 # update repo
@@ -42,7 +42,7 @@ function update_all_repo() {
             [[ ${Array_Repo_cronSettings_updateTaskList[i]} == "true" ]] && gen_repocron_list "new" "${Array_Repo_path[i]}" "${Array_Repo_cronSettings_scriptsPath[i]}" "${Array_Repo_cronSettings_scriptsType[i]}" "${Array_Repo_cronSettings_whiteList[i]}" "${Array_Repo_cronSettings_blackList[i]}" "${Array_Repo_cronSettings_autoDisable[i]}" "${Array_Repo_cronSettings_addNotify[i]}" "${Array_Repo_cronSettings_delNotify[i]}"
         done
     else
-        echo -e "$ERROR 未检测到任何有效的仓库配置，跳过更新仓库..."
+        echo -e "\n$TIP 未检测到任何有效的仓库配置，跳过更新仓库..."
     fi
 }
 

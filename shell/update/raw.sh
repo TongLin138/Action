@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-06-02
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -82,6 +82,6 @@ function update_raw() {
             done
         fi
     else
-        echo -e "$ERROR 未检测到任何有效的远程脚本配置，跳过更新远程脚本..."
+        echo -e "\n$TIP 未检测到任何有效的远程脚本配置，跳过更新远程脚本..."
     fi
 }
