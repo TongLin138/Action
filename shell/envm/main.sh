@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-02
 
 ## 添加
 function add_environment_variable() {
@@ -17,7 +17,7 @@ function add_environment_variable() {
     grep "# 可在下方编写你需要用到的环境变量" $FileConfUser -q
     ## 插入内容
     if [ $? -eq 0 ]; then
-        perl -i -pe "s|(# 可在下方编写你需要用到的环境变量.+\n)|\1\n${FullContent}|" $FileConfUser
+        perl -i -pe "s|(# 可在下方编写你需要用到的环境变量.*$)|\1\n\n${FullContent}|" $FileConfUser
     else
         sed -i "9 i ${FullContent}" $FileConfUser
     fi
