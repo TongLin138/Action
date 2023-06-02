@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-03
 
 ## 统计数量
 function count_usersum() {
@@ -14,10 +14,9 @@ function count_usersum() {
 ## 随机延迟
 function random_delay() {
     if [[ -n ${RandomDelay} ]] && [[ ${RandomDelay} -gt 0 ]]; then
-        local CurMin=$(date "+%-M")
-        local CurDelay=$((${RANDOM} % ${RandomDelay} + 1))
-        echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${CurDelay} 秒后开始运行..."
-        sleep ${CurDelay}
+        local current_delay=$((${RANDOM} % ${RandomDelay} + 1))
+        echo -en "\n$WORKING 已启用随机延迟，此任务将在 ${BLUE}${current_delay}${PLAIN} 秒后开始运行..."
+        sleep ${current_delay}
     fi
 }
 
@@ -43,7 +42,7 @@ function wait_before_run() {
         FormatPrint=" ${BLUE}${Tmp}${PLAIN} 秒"
         ;;
     esac
-    echo -en "\n$WORKING 此任务将在${FormatPrint}后开始运行..."
+    echo -en "\n$WORKING 此任务将在 ${BLUE}${FormatPrint}${PLAIN} 后开始运行..."
     sleep ${RUN_WAIT_TIMES}
     echo ''
 }
