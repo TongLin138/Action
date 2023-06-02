@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-06-03
 
 ## 更新项目源码
 # update source
@@ -19,9 +19,9 @@ function update_sourcecode() {
             if [ ! -f $FileSendMark ]; then
                 local NotifyTitle="配置文件更新通知"
                 local NotifyContent="更新日期: $UpdateDate\n当前版本: $VerConfUser\n新的版本: $VerConfSample\n更新内容: $UpdateContent"
+                echo -e "\n$TIP 检测到配置文件更新"
                 echo -e $NotifyContent
                 send_notify "$NotifyTitle" "$NotifyContent"
-                echo ''
                 [ $? -eq 0 ] && echo $VerConfSample >$FileSendMark
             fi
         else
