@@ -1,4 +1,4 @@
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 
 /**
  * 执行shell
@@ -14,19 +14,21 @@ const {exec} = require('child_process');
 function execShell(shell, config) {
     try {
         const process = exec(shell, config.callback);
+        if (config.onExit) {
+            process.on("exit", config.onExit)
+        }
         const onChange = config.onChange;
         if (onChange) {
             process.stdout.on("data", (data) => onChange(data, "stdout"))
             process.stderr.on("data", (data) => onChange(data, "stderr"))
         }
-        if (config.onExit) {
-            process.on("exit", config.onExit)
-        }
         return process
     } catch (e) {
-        config.onException && config.onException(e)
-    } finally {
-        config.onExit && config.onExit(1)
+        try {
+            config.onException && config.onException(e)
+        } catch {
+            config.onExit && config.onExit(1)
+        }
     }
 }
 
