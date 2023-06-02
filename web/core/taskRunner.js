@@ -26,7 +26,7 @@ function execShell(shell, config) {
     } catch (e) {
         try {
             config.onException && config.onException(e)
-        } catch {
+        } finally {
             config.onExit && config.onExit(1)
         }
     }
