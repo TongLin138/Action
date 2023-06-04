@@ -208,7 +208,7 @@ const getDirTree = (type, dir, query) => {
         }
 
         let files = fs.readdirSync(dir)
-        result.children = arrayObjectSort("type", files.filter(item => {
+        let children = arrayObjectSort("type", files.filter(item => {
             return !options.excludeRegExp.test(item)
         }).map(function (file) {
             let subPath = path.join(dir, file)
@@ -219,11 +219,16 @@ const getDirTree = (type, dir, query) => {
             return {
                 path: subPath,
                 name: file,
-                type: 1
+                type: 1,
+                mTime: stats.mtime
             }
         }).filter((item) => {
             return dirQueryAfter(parentDir, item, options);
         }), true)
+        if(type === DIR_NAME.LOG){
+            children.sort((a, b) => b.mTime - a.mTime)
+        }
+        result.children = children;
         return result //返回数据
     }
     if (type === "repo_scripts" || type === "all") {
