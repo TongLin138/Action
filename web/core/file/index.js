@@ -86,7 +86,7 @@ const CONFIG_FILE_KEY = {
  * @return {{excludeRegExp: RegExp, keywords: string, startTime: string, endTime: string, isDir: boolean}}
  */
 const getOptions = (options) => {
-    let excludeRegExp = /(.git)|(.tmp)|(.check)|(node_modules)|(auth.json)|(crontab.list)|(crontab.sample.list)/;
+    let excludeRegExp = /(user.session)|(.git)|(.tmp)|(.check)|(node_modules)|(auth.json)|(crontab.list)|(crontab.sample.list)/;
     let keywords = "";
     //用于日志查询
     let startTime = "";
@@ -564,7 +564,7 @@ function loadLogTree(keywords) {
 
 function loadFileTree(loadPath, dirName, keywords, onlyRunJs) {
     let arrFiles = [], arrDirs = [];
-    let excludeRegExp = /(.git)|(.github)|(node_modules)|(icon)/;
+    let excludeRegExp = /(user.session)|(.git)|(.github)|(node_modules)|(icon)/;
     let fileRegExp = /.*?/g;
     if (onlyRunJs) {
         excludeRegExp = /(.git)|(.github)|(node_modules)|(icon)|AGENTS|Cookie|cookie|Token|ShareCodes|sendNotify|JDJR|validate|ZooFaker|MovementFaker|tencentscf|api_test|app.|main.|jd_update.js|jd_env_copy.js|main.js|.json|ql.js|jdEnv|(.json)|(.jpg)|(.png)|(.gif)|(.jpeg)/
