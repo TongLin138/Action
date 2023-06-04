@@ -294,8 +294,6 @@ function gen_repocron_list() {
                     continue
                 fi
             done
-        else
-            continue
         fi
     else
         local FormatPath path

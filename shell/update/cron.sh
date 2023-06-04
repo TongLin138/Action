@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-03
+## Modified: 2023-06-04
 
 ## 更新定时任务（后端处理）
 function update_cron() {
@@ -37,7 +37,7 @@ function update_cron() {
 
             case "${type}" in
             0)
-                [[ "${success}" == "true" ]] && status="添加成功" || status="添加失败（${message}）"
+                [[ "${success}" == "true" ]] && status="✅ 添加成功" || status="❌ 添加失败（${message}）"
                 array_title_add[$array_num_add]="${name}"
                 array_msg_add[$array_num_add]="${status}"
                 ## 推送通知提醒
