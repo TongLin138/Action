@@ -34,12 +34,18 @@ let repoPath = path.join(rootPath, DIR_KEY.REPO);
 let configPath = path.join(rootPath, DIR_KEY.CONFIG);
 //sample目录
 let samplePath = path.join(rootPath, DIR_KEY.SAMPLE);
+//rawPath目录
+let rawPath = path.join(rootPath, DIR_KEY.RAW);
 if (!fs.existsSync(scriptsPath)) {
     fs.mkdirSync(scriptsPath);
 }
 if (!fs.existsSync(repoPath)) {
     fs.mkdirSync(repoPath);
 }
+if (!fs.existsSync(rawPath)) {
+    fs.mkdirSync(rawPath);
+}
+
 // config.sh 文件所在目录
 let configFile = path.join(configPath, 'config.sh');
 
