@@ -1,4 +1,4 @@
-require("./dbInit")
+
 
 let engine = require('./engine');
 const db = require("../db");
@@ -16,15 +16,24 @@ const TaskCoreType = taskCoreCurd.Type;
 
 const running = {};
 
-setTimeout(async () => {
-    let tasks = await taskCoreCurd.list()
-    for (let task of tasks) {
-        if (task.cron.split(" ").length < 5) {
-            continue
+/**
+ * 任务初始化
+ */
+function cronInit(){
+    require("./dbInit");
+    setTimeout(async () => {
+        let tasks = await taskCoreCurd.list()
+        for (let task of tasks) {
+            if (task.cron.split(" ").length < 5) {
+                continue
+            }
+            engine.setTask(task.id, task.cron, () => onCron(task))
         }
-        engine.setTask(task.id, task.cron, () => onCron(task))
-    }
-}, 100)
+    }, 100)
+
+}
+
+
 
 /**
  * 定时任务回调
@@ -86,6 +95,7 @@ async function onCronTask(taskId) {
 }
 
 module.exports = {
+    cronInit,
     /**
      * 运行中的任务
      */

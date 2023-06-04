@@ -18,6 +18,9 @@ const {
 
 const {API_STATUS_CODE} = require("./core/http");
 const {logger} = require("./core/logger");
+const cronCore = require("./core/cron/core");
+
+cronCore.cronInit();
 
 const app = express();
 const server = require("http").createServer(app);
@@ -140,6 +143,7 @@ app.use('/api/config', require("./api/configs").configAPI);
  * socket init
  */
 const {setSocket} = require("./core/socket/common");
+const core = require("./core/cron/core");
 setSocket(require("./core/socket")(server, sessionMiddleware))
 
 checkConfigFile();

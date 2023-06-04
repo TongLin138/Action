@@ -1,4 +1,4 @@
-require("./dbInit")
+
 const template = require("../db/curdTemplate");
 
 let curd = template("config", {
