@@ -108,7 +108,7 @@ api.post('/', async function (request, response) {
  */
 api.put('/', async function (request, response) {
     let tasks
-    if (Array.isArray(request)) {
+    if (Array.isArray(request.body)) {
         tasks = request.body.map((task) => Object.assign({}, task))
     } else {
         tasks = [Object.assign({}, request.body)]
