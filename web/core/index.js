@@ -32,10 +32,10 @@ function getLocalIp() {
     try {
         const res = execSync(`ifdata -pa eth0`, {encoding: 'utf8'});
         const ipArr = res.split('\n');
-        console.log(ipArr);
+        // console.log(ipArr);
         return ipArr[0] || '';
     } catch (e) {
-        console.log(e.message)
+        // console.log(e.message)
     }
     return "127.0.0.1"
 

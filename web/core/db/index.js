@@ -116,7 +116,7 @@ const db = {
     sqlite.on('trace', (sql) => {
         if (starting) {
             if (sql.includes("create") || sql.includes("CREATE")) {
-                console.log('CREATE SQL: ', sql)
+                // console.log('CREATE SQL: ', sql)
                 logger.info('SQL: ', sql)
             }
             return

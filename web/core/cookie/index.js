@@ -1,5 +1,6 @@
 const got = require('got');
 const util = require("../../utils");
+const {logger} = require("../logger");
 const {CONFIG_FILE_KEY, getFile, getJsonFile, saveNewConf} = require("../file");
 
 /**
@@ -223,11 +224,7 @@ function updateCookie({ck, remarks = '无', phone}) {
     let remark_tmp = '';
     if (remarks) remark_tmp += ` · ${remarks}`;
     if (phone) remark_tmp += ` · ${phone}`;
-    if (isUpdate) {
-        console.log(`[${updateTime}] - 更新账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`);
-    } else {
-        console.log(`[${updateTime}] - 新增账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`);
-    }
+    logger.log(`${isUpdate ? "更新" : "新增"}账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`)
 
     return cookieList.length;
 }
@@ -275,11 +272,7 @@ function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
         let remark_tmp = '';
         if (remarks) remark_tmp += ` · ${remarks}`;
         if (phone) remark_tmp += ` · ${phone}`;
-        if (isUpdate) {
-            console.log(`[${updateTime}] - 更新账号(wskey) => ${ptPin}${remark_tmp}`);
-        } else {
-            console.log(`[${updateTime}] - 新增账号(wskey) => ${ptPin}${remark_tmp}`);
-        }
+        logger.log(`${isUpdate ? "更新" : "新增"}账号(wskey) => ${ptPin}${remark_tmp}`)
 
     }
     return getCount();

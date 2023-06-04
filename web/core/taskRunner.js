@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+const {logger} = require('../core/logger')
 
 /**
  * 执行shell
@@ -13,6 +14,8 @@ const { exec } = require('child_process');
  */
 function execShell(shell, config) {
     try {
+        // 执行定时任务命令
+        logger.log("触发定时任务", shell)
         const process = exec(shell, config.callback);
         if (config.onExit) {
             process.on("exit", config.onExit)

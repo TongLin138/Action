@@ -17,6 +17,7 @@ const {
 } = require("./core/file");
 
 const {API_STATUS_CODE} = require("./core/http");
+const {logger} = require("./core/logger");
 
 const app = express();
 const server = require("http").createServer(app);
@@ -149,7 +150,7 @@ try {
     const extraServer = require(extraServerFile);
     if (typeof extraServer === 'function') {
         extraServer(app);
-        console.log('用户自定义API => 初始化成功');
+        logger.log('用户自定义API模块初始化成功')
     }
 } catch (e) {
 }

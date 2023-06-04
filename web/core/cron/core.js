@@ -20,7 +20,6 @@ setTimeout(async () => {
     let tasks = await taskCoreCurd.list()
     for (let task of tasks) {
         if (task.cron.split(" ").length < 5) {
-            console.error("cron表达式错误", task)
             continue
         }
         engine.setTask(task.id, task.cron, () => onCron(task))

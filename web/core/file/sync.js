@@ -1,7 +1,7 @@
 const fs = require("fs");
 const _path = require("path");
 const curd = require("../cron/curd");
-const cronCore = require("../cron/core");
+// const cronCore = require("../cron/core");
 const scriptResolve = require("./scriptResolve");
 
 /**
