@@ -710,6 +710,7 @@ function emptyDir(path) {
         const stats = fs.statSync(filePath);
         if (stats.isDirectory()) {
             emptyDir(filePath);
+            fs.rmdirSync(filePath)
         } else {
             fs.unlinkSync(filePath);
         }
