@@ -354,12 +354,13 @@ function bakConfigFile(file) {
     return oldConfContent;
 }
 
-function checkConfigSave(content) {
+function checkConfigSave(oldContent) {
     if (os.type() === 'Linux') {
         //判断格式是否正确
         try {
             execSync(`bash ${configFile} >${logPath}.check`, {encoding: 'utf8'});
         } catch (e) {
+            fs.writeFileSync(configFile, oldContent);
             let errorMsg, line;
             try {
                 errorMsg = /(?<=line\s[0-9]*:)([^"]+)/.exec(e.message)[0];
@@ -369,7 +370,6 @@ function checkConfigSave(content) {
             throw new Error(errorMsg && line ? `第 ${line} 行:${errorMsg}` : e.message);
         }
     }
-    fs.writeFileSync(configFile, content);
 
 }
 
@@ -384,7 +384,8 @@ function saveNewConf(file, content, isBak = true) {
     switch (file) {
         case CONFIG_FILE_KEY.CONFIG:
         case 'config.sh':
-            checkConfigSave(content);
+            fs.writeFileSync(configFile, content);
+            isBak && checkConfigSave(oldContent);
             break;
         case CONFIG_FILE_KEY.CRONTAB:
         case 'crontab.list':
