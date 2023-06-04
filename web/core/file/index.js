@@ -72,7 +72,7 @@ let os = require('os');
 let {
     execSync
 } = require('child_process');
-const {arrayObjectSort, parseFileNameDate} = require("../../utils");
+const {arrayObjectSort, parseFileNameDate, dateToFileName,getDateStr} = require("../../utils");
 const {API_STATUS_CODE} = require("../http/apiCode");
 const {logger} = require("../logger");
 
@@ -231,7 +231,7 @@ const getDirTree = (type, dir, query) => {
         }).filter((item) => {
             return dirQueryAfter(parentDir, item, options);
         }), true)
-        if(type === DIR_NAME.LOG){
+        if (type === DIR_NAME.LOG) {
             children.sort((a, b) => b.mTime - a.mTime)
         }
         result.children = children;
@@ -317,21 +317,11 @@ function checkConfigFile() {
 function bakConfigFile(file) {
     mkdirConfigBakDir();
     let date = new Date();
-    let bakConfigFile =
-        confBakDir +
-        file +
-        '_' +
-        date.getFullYear() +
-        '-' +
-        (date.getMonth() + 1) +
-        '-' +
-        date.getDate() +
-        '-' +
-        date.getHours() +
-        '-' +
-        date.getMinutes() +
-        '-' +
-        date.getMilliseconds();
+    let bakDir = path.join(confBakDir,getDateStr(date));
+    if (!fs.existsSync(bakDir)) {
+        fs.mkdirSync(bakDir);
+    }
+    let bakConfigFile = bakDir + "/" + file + '_' + dateToFileName(date);
     let oldConfContent = '';
     switch (file) {
         case CONFIG_FILE_KEY.CONFIG:
@@ -663,7 +653,7 @@ function saveFileByPath(filePath, content) {
         saveNewConf(CONFIG_FILE_KEY.CONFIG, content, true)
         return;
     }
-    if(filePath.endsWith(".js") || filePath.endsWith(".sh") || filePath.endsWith(".py") || filePath.endsWith(".ts")) {
+    if (filePath.endsWith(".js") || filePath.endsWith(".sh") || filePath.endsWith(".py") || filePath.endsWith(".ts")) {
         content = content.replace(/\r\n/g, '\n');
     }
     fs.writeFileSync(filePath, content);

@@ -12,7 +12,8 @@ function dateFormat(fmt, date) {
         "d+": date.getDate().toString(),            // 日
         "h+": date.getHours().toString(),           // 时
         "m+": date.getMinutes().toString(),         // 分
-        "s+": date.getSeconds().toString()          // 秒
+        "s+": date.getSeconds().toString(),          // 秒
+        "S+": date.getMilliseconds().toString()          // 毫秒
         // 有其他格式化字符需求可以继续添加，必须转化成字符串
     };
     for (let k in opt) {
@@ -23,10 +24,17 @@ function dateFormat(fmt, date) {
     }
     return fmt;
 }
-
+function getDateStr(date) {
+    return dateFormat('yyyy-MM-dd', date)
+}
 function dateToString(date) {
     return dateFormat('yyyy-MM-dd hh:mm:ss', date)
 }
+
+function dateToFileName(date) {
+    return dateFormat('yyyy_MM_dd-hh_mm_ss.SSS', date)
+}
+
 
 Date.prototype.toJSON = function () {
     return dateToString(this);
@@ -95,6 +103,6 @@ function regExecFirst(str = "", reg) {
 }
 
 module.exports = {
-    dateToString,
+    dateToString,dateToFileName,getDateStr,
     dateFormat, parseFileNameDate, randomNumber, arrayObjectSort, inArray, isNotEmpty, strTrim, regExecFirst
 }
