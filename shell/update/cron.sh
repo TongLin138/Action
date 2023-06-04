@@ -98,13 +98,16 @@ function update_cron() {
         [ ! -f $ListAddScripts ] && touch $ListAddScripts
         [ ! -f $ListDelScripts ] && touch $ListDelScripts
     elif [ ! -s $ListOldScripts ] && [ ! -s $ListNewScripts ]; then
-        return # 清单无变化直接跳出
+        return # 无定时任务跳出
     elif [ ! -s $ListOldScripts ] && [ -s $ListNewScripts ]; then
         cp -f $ListNewScripts $ListAddScripts
     elif [ -s $ListOldScripts ] && [ ! -s $ListNewScripts ]; then
         cp -f $ListOldScripts $ListDelScripts
     fi
-    echo -e "\n$WORKING 开始更新定时任务...\n"
+    if [ ! -s $ListAddScripts ] && [ ! -s $ListDelScripts ]; then
+        return # 清单无变化跳出
+    fi
+    echo -e "\n$WORKING 开始更新定时任务..."
 
     ## 定义数据变量
     AddArr=(
