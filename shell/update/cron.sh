@@ -22,8 +22,7 @@ function update_cron() {
         local request="$1"
 
         if [[ "$(echo "${request}" | jq -r '.code')" != "1" ]]; then
-            echo "${request}" | jq -r '.message'
-            echo -e "\n$ERROR 更新定时任务失败，接口响应错误！"
+            echo -e "\n$ERROR 更新定时任务失败，接口响应错误 => $(echo "${request}" | jq -r '.message')"
             return
         fi
 
@@ -88,6 +87,7 @@ function update_cron() {
             send_notify "过期定时任务" "$(cat $send_mark_del)"
             rm -f $send_mark_del
         fi
+        echo -e "\n$COMPLETE 更新定时任务完成"
     }
 
     local AddArr DelArr file newFiles deleteFiles
@@ -104,6 +104,7 @@ function update_cron() {
     elif [ -s $ListOldScripts ] && [ ! -s $ListNewScripts ]; then
         cp -f $ListOldScripts $ListDelScripts
     fi
+    echo -e "\n$WORKING 开始更新定时任务...\n"
 
     ## 定义数据变量
     AddArr=(
