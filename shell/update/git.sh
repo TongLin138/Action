@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-06-04
 
 ## 克隆仓库
 ## 注释  $1：仓库地址，$2：仓库保存路径，$3：分支（可省略）
@@ -43,8 +43,6 @@ function reset_romote_url() {
         cd $work_dir
         export GIT_TERMINAL_PROMPT=0
         git remote set-url origin $url >/dev/null 2>&1
-        git fetch --all >/dev/null 2>&1
-        git reset --hard origin/$branch >/dev/null 2>&1
         cd $current_dir
     fi
 }
