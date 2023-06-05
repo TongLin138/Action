@@ -95,7 +95,7 @@ api.post('/', async function (request, response) {
             throw new Error('cron表达式错误:' + (e.message || e))
         }
         await curd.save(task)
-        logger.info('添加定时任务', request.query.id, task)
+        logger.info('添加定时任务', task)
         await curd.fixOrder()
         await curd.fixCron(task.id)
         response.send(API_STATUS_CODE.okData(task))
@@ -131,7 +131,7 @@ api.put('/', async function (request, response) {
         for (const task of tasks) {
             const originTask = await curd.getById(task.id)
             await curd.updateById(task)
-            logger.info('修改定时任务', task.id, task)
+            logger.info('修改定时任务', task)
             // 定时规则变更，重新加载定时任务
             if (task && task.cron && originTask.cron !== task.cron) {
                 await curd.fixCron(task.id)

@@ -25,7 +25,7 @@ module.exports = (server, sessionMiddleware) => {
 
     io.on("connection", (socket) => {
         const user = socket.request.user;
-        logger.info(`${user.username} connected`)
+        logger.info(`用户 ${user.username} 已连接`)
     });
     return io;
 }
