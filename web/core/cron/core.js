@@ -63,11 +63,11 @@ async function onCronTask(taskId) {
         return
     }
     if (task.active <= 0) {
-        logger.log("task not active,skip", task.name, taskId)
+        logger.log("定时任务已被禁用，跳过执行", task.shell)
         return
     }
     if (running[taskId]) {
-        logger.log("task is running,skip", taskId)
+        logger.log("定时任务正在运行，跳过执行", task.shell)
         return
     }
     running[taskId] = task;

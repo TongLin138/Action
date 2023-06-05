@@ -1,1 +1,0 @@
-import{_ as o}from"./square-edit-outline-360452b8.js";import{_ as t}from"./index-d34c0c00.js";import{a6 as _,a7 as n}from"./vendor-3aaf0758.js";const r={};function c(a,s){const e=o;return _(),n(e,{style:{"vertical-align":"baseline"}})}const p=t(r,[["render",c]]);export{p as default};

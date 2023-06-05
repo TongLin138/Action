@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-02
+## Modified: 2023-06-05
 
 ## 更新所有 Raw 脚本
 # update raw
@@ -73,7 +73,7 @@ function update_raw() {
             for file in $(ls $RawDir 2>/dev/null | grep -Ev "${filter}"); do
                 RemoveMark="yes"
                 for ((i = 0; i < ${#Array_Raw_url[*]}; i++)); do
-                    if [[ $file == "${Array_Raw_path[arr_num]##*/}" ]]; then
+                    if [[ $file == "${Array_Raw_fileName[i]}" ]]; then
                         RemoveMark="no"
                         break
                     fi
