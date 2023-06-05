@@ -1,0 +1,1 @@
+import{_ as n}from"./Icon-7a9ac468.js";import{_ as c}from"./index-f8002877.js";import{a6 as r,a7 as t}from"./vendor-c47b8ac0.js";import"./propTypes-8a448afd.js";const e={};function s(_,a){const o=n;return r(),t(o,{icon:"svg-spinners:12-dots-scale-rotate"})}const u=c(e,[["render",s]]);export{u as default};
