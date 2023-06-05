@@ -73,7 +73,7 @@ function update_raw() {
             for file in $(ls $RawDir 2>/dev/null | grep -Ev "${filter}"); do
                 RemoveMark="yes"
                 for ((i = 0; i < ${#Array_Raw_url[*]}; i++)); do
-                    if [[ $file == "${Array_Raw_path[i]##*/}" ]]; then
+                    if [[ $file == "${Array_Raw_fileName[i]}" ]]; then
                         RemoveMark="no"
                         break
                     fi
