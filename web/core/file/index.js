@@ -244,6 +244,7 @@ const getDirTree = (type, dir, query) => {
         }
         filesNameArr.push(readDirs(dir + "/" + DIR_NAME.SCRIPTS, dir + "/" + DIR_NAME.SCRIPTS))
         filesNameArr.push(readDirs(dir + "/" + DIR_NAME.REPO, dir + "/" + DIR_NAME.REPO))
+        filesNameArr.push(readDirs(dir + "/" + DIR_NAME.RAW, dir + "/" + DIR_NAME.RAW))
     } else {
         filesNameArr.push(readDirs(dir, dir))
     }
