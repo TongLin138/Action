@@ -134,21 +134,26 @@ const updateCookies = async (pt_pin) => {
             let headerMsg = `Cookie => [${pt_pin}] `;
             if (account.ws_key && account.ws_key !== "") {
                 let success = false;
-                let ck = await getCkByWsKey(account);
-                if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("undefined") === -1 && ck.indexOf("pt_key=;") === -1) {
-                    // let checkResult = await checkCookie(ck);
-                    let checkResult = true;
-                    if (checkResult) {
-                        updateCookie({ck, remarks, phone});
-                        success = true;
-                        globalOptions.successCount++;
-                        globalOptions.message += `${headerMsg} ${success ? '更新成功 ✅' : '更新失败 ❌'}\n`;
-                    } else if (!checkResult) {
-                        globalOptions.message += `${headerMsg} 生成的cookie已失效\n`;
+                try{
+                    let ck = await getCkByWsKey(account);
+                    if (ck !== '' && ck.indexOf("fake_") === -1 && ck.indexOf("undefined") === -1 && ck.indexOf("pt_key=;") === -1) {
+                        // let checkResult = await checkCookie(ck);
+                        let checkResult = true;
+                        if (checkResult) {
+                            updateCookie({ck, remarks, phone});
+                            success = true;
+                            globalOptions.successCount++;
+                            globalOptions.message += `${headerMsg} ${success ? '更新成功 ✅' : '更新失败 ❌'}\n`;
+                        } else if (!checkResult) {
+                            globalOptions.message += `${headerMsg} 生成的cookie已失效\n`;
+                        }
+                    } else {
+                        globalOptions.message += `${headerMsg} 更新失败，请检查ws_key是否正确\n`;
                     }
-                } else {
-                    globalOptions.message += `${headerMsg} 更新失败，请检查ws_key是否正确\n`;
+                }catch(e){
+                    globalOptions.message += `${headerMsg} 更新出错，错误原因：${e}\n`;
                 }
+                
             } else {
                 globalOptions.message += `${headerMsg} 未设置ws_key不更新\n`;
             }
