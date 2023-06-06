@@ -29,7 +29,7 @@ function cronInit(){
             }
             engine.setTask(task.id, task.cron, () => onCron(task))
         }
-    }, 100)
+    }, 500)
 
 }
 
