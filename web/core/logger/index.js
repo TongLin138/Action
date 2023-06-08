@@ -6,17 +6,20 @@ let log4js = require("log4js");
 
 log4js.configure({
     appenders: {
-        MAIN: {
-            type: "file",
-            filename: "/arcadia/log/server.log",
+        console: { type: 'console' },
+        file: {
+            type: 'file',
+            filename: '/arcadia/log/server.log',
+            pattern: '-yyyy-MM-dd',
+            layout: {
+                type: 'pattern',
+                pattern: '%d{yyyy-MM-dd hh:mm:ss} [%p] %c - %m%n'
+            }
         }
     },
     categories: {
-        default: {
-            appenders: ["MAIN"],
-            level: "info"
-        }
-    },
+        default: { appenders: ['console', 'file'], level: 'debug' }
+    }
 });
 
 module.exports.logger = log4js.getLogger("MAIN");
