@@ -121,7 +121,7 @@ function saveCookiesToConfig(cookieList = []) {
             i = writeIndex - 1;
         }
     }
-    saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'));
+    saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'),false);
     return cookieList;
 }
 
