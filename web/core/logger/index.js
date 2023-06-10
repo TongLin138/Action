@@ -10,7 +10,6 @@ log4js.configure({
         file: {
             type: 'file',
             filename: '/arcadia/log/server.log',
-            pattern: '-yyyy-MM-dd',
             layout: {
                 type: 'pattern',
                 pattern: '%d{yyyy-MM-dd hh:mm:ss} [%p] %c - %m%n'
