@@ -155,13 +155,13 @@ function main() {
                     echo -e "\n$ERROR 目录不存在或输入有误！"
                 fi
             done
-            ls ${AbsolutePath} | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${AbsolutePath}/|g; s|//|/|;}" | sort -u >$RunFile
+            ls ${AbsolutePath} | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | perl -pe "{s|^|${AbsolutePath}/|g; s|//|/|;}" | sort -u 2>/dev/null >$RunFile
             local WorkDir=${AbsolutePath}
             break
             ;;
         2)
             local WorkDir=$ScriptsDir
-            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u >$RunFile
+            ls $ScriptsDir | egrep "${ScriptType}" | grep -Ev "/|${ShieldingKeywords}" | sort -u 2>/dev/null >$RunFile
             break
             ;;
         esac

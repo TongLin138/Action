@@ -337,6 +337,9 @@ function gen_repocron_list() {
         done
     fi
     ## 汇总去重
-    echo "$(sort -u $writeFile)" >$writeFile
+    if [ -s $writeFile ]; then
+        echo "$(sort -u $writeFile 2>/dev/null)" >$writeFile
+    fi
+
     cd $current_dir
 }
