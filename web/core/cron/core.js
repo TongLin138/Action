@@ -22,6 +22,7 @@ const running = {};
 function cronInit(){
     require("./dbInit");
     setTimeout(async () => {
+        logger.log(`任务开始初始化，任务数量：${tasks.length}`)
         let tasks = await taskCoreCurd.list()
         for (let task of tasks) {
             if (task.cron.split(" ").length < 5) {
@@ -29,7 +30,8 @@ function cronInit(){
             }
             engine.setTask(task.id, task.cron, () => onCron(task))
         }
-    }, 500)
+        logger.log(`任务初始化完成`)
+    }, 1000)
 
 }
 
