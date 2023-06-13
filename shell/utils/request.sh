@@ -64,7 +64,7 @@ function parse_encode_string_to_chinese() {
 
 ## 解析 json 数据
 function json_parse() {
-    jq -n "$1" | jq -rc "$2"
+    jq -n "$1" | jq -rcM "$2"
 }
 
 ## 仓库原始文件地址自动纠正

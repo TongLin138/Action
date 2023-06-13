@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-13
 
 ## 目录
 RootDir=${ARCADIA_DIR}
@@ -139,13 +139,13 @@ function output_table_data() {
         fi
         shift
     done
-    echo '['"${data}"']' | ctp -s
+    echo '['"${data}"']' | ctp -s 2>/dev/null
 }
 # output_table_data_file <target_file>
 function output_table_data_file() {
     local target_file=$1
     if [ -s "$target_file" ]; then
-        cat $target_file | jq | ctp -s
+        cat $target_file | jq -cM 2>/dev/null | ctp -s 2>/dev/null
     fi
 }
 

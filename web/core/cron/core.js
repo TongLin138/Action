@@ -26,7 +26,6 @@ function cronInit(){
             if (task.cron.split(" ").length < 5) {
                 continue
             }
-            logger.log(`设置定时任务${task.id}`, task.cron, task.shell)
             engine.setTask(task.id, task.cron, () => onCron(task))
         }
         logger.log(`任务初始化结束`)

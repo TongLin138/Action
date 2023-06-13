@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-30
+## Modified: 2023-06-13
 
 ## 统计脚本仓库数量
 function count_reposum() {
@@ -40,7 +40,7 @@ function gen_repoconf_array() {
 
     # 读取脚本仓库配置
     function get_repoconf() {
-        cat $FileSyncConfUser | yq '.repo' | jq -rc "$1"
+        cat $FileSyncConfUser | yq '.repo' | jq -rcM "$1"
     }
 
     local repo_num=0
@@ -170,7 +170,7 @@ function gen_rawconf_array() {
 
     # 读取远程脚本配置
     function get_rawconf() {
-        cat $FileSyncConfUser | yq '.raw' | jq -rc "$1"
+        cat $FileSyncConfUser | yq '.raw' | jq -rcM "$1"
     }
 
     local raw_num=0
