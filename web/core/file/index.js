@@ -283,6 +283,7 @@ function mkdirConfigBakDir() {
 function getNeatContent(origin) {
     return (origin || '').replace(/\033\[0m/g, '')
         .replace(/\033\[1m/g, '')
+        .replace(/\033\[01m/g, '')
         .replace(/\033\[31m/g, '')
         .replace(/\033\[32m/g, '')
         .replace(/\033\[33m/g, '')
@@ -294,7 +295,8 @@ function getNeatContent(origin) {
         .replace(/\033\[1;33m/g, '')
         .replace(/\033\[1;34m/g, '')
         .replace(/\033\[1;35m/g, '')
-        .replace(/\033\[1;36m/g, '');
+        .replace(/\033\[1;36m/g, '')
+        .replace(/\033\[1;37m/g, '');
 }
 
 /**
