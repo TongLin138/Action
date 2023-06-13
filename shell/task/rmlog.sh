@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-13
 
 ## 删除日志功能
 # task rmlog [days]
@@ -49,6 +49,7 @@ function remove_logs() {
     if [ -n "${RmDays}" ]; then
         echo -e "\n$WORKING 开始检索并删除超过 ${BLUE}${RmDays}${PLAIN} 天的日志文件和日志内容...\n"
         rm_script_log # 删除脚本运行日志
+        rm_log_universal "$LogDir/server.log" # 删除后端服务日志
         rm_log_universal "$LogDir/update.log" # 删除 update 的运行日志
         rm_log_universal "$BotLogDir/run.log" # 删除 Telegram Bot 的运行日志
         rm_empty_dir # 删除日志目录下的空文件夹
