@@ -80,7 +80,7 @@ async function onCronTask(taskId) {
             if (error) {
                 // logger.log("task over", taskId, stdout.substring(stdout.length - 1000))
                 // } else {
-                logger.warn("task error", taskId, error.substring(stdout.length - 1000))
+                logger.warn("task error", taskId, error.toString().substring(stdout.length - 1000))
             }
         },
         onExit: (code) => {
