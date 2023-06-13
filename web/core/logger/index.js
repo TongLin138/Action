@@ -12,7 +12,7 @@ log4js.configure({
             filename: '/arcadia/log/server.log',
             layout: {
                 type: 'pattern',
-                pattern: '%d{yyyy-MM-dd hh:mm:ss} [%p] %c - %m%n'
+                pattern: '%d{yyyy-MM-dd hh:mm:ss} [%p] %c - %m'
             }
         }
     },
