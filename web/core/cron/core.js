@@ -22,8 +22,8 @@ const running = {};
 function cronInit(){
     require("./dbInit");
     setTimeout(async () => {
-        logger.log(`任务开始初始化，任务数量：${tasks.length}`)
         let tasks = await taskCoreCurd.list()
+        logger.log(`任务开始初始化，任务数量：${tasks.length}`)
         for (let task of tasks) {
             if (task.cron.split(" ").length < 5) {
                 continue
@@ -65,11 +65,11 @@ async function onCronTask(taskId) {
         return
     }
     if (task.active <= 0) {
-        logger.log("定时任务已被禁用，跳过执行", task.shell)
+        logger.log("触发定时任务", task.shell, "任务已被禁用跳过执行")
         return
     }
     if (running[taskId]) {
-        logger.log("定时任务正在运行，跳过执行", task.shell)
+        logger.log("触发定时任务", task.shell, "任务正在运行跳过执行")
         return
     }
     running[taskId] = task;
