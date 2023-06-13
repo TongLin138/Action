@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-06-13
 
 function main() {
     case $# in
@@ -22,7 +22,15 @@ function main() {
         *)
             case $# in
             1)
-                output_command_error 1 # 命令错误
+                case $1 in
+                dev)
+                    import arcadia/dev
+                    change_dev_version
+                    ;;
+                *)
+                    output_command_error 1 # 命令错误
+                    ;;
+                esac
                 ;;
             2)
                 case $1 in

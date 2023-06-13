@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-29
+## Modified: 2023-06-13
 
 function main() {
     case $# in
@@ -29,20 +29,6 @@ function main() {
             import task/process
             process_cleanup
             ;;
-        # debug)
-        #     local CurrentBranch=$(git status | head -n 1 | awk -F ' ' '{print$NF}')
-        #     if [[ ${CurrentBranch} == "master" ]]; then
-        #         echo ''
-        #         git reset --hard
-        #         git checkout dev
-        #         echo -e "\n$COMPLETE 已为您切换至开发分支，感谢参与测试\n"
-        #     elif [[ ${CurrentBranch} == "dev" ]]; then
-        #         echo ''
-        #         git reset --hard
-        #         git checkout master
-        #         echo -e "\n$COMPLETE 已切换回用户分支\n"
-        #     fi
-        #     ;;
         *)
             import core/help
             print_help $TaskCmd
