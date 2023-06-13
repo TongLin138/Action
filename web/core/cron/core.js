@@ -1,7 +1,5 @@
-
-
 let engine = require('./engine');
-const db = require("../db");
+// const db = require("../db");
 const curd = require("./curd");
 const taskRunner = require("../taskRunner");
 const eventBus = require("../eventBus").task;
@@ -12,7 +10,7 @@ const taskCoreCurd = template("task_core", {
     id: "", cron: "", callback: ""
 }, "id", "");
 
-const TaskCoreType = taskCoreCurd.Type;
+// const TaskCoreType = taskCoreCurd.Type;
 
 const running = {};
 
@@ -23,14 +21,15 @@ function cronInit(){
     require("./dbInit");
     setTimeout(async () => {
         let tasks = await taskCoreCurd.list()
-        logger.log(`任务开始初始化，任务数量：${tasks.length}`)
+        logger.log(`定时任务初始化开始`)
         for (let task of tasks) {
             if (task.cron.split(" ").length < 5) {
                 continue
             }
+            logger.log(`设置定时任务${task.id}`, task.cron, task.shell)
             engine.setTask(task.id, task.cron, () => onCron(task))
         }
-        logger.log(`任务初始化完成`)
+        logger.log(`任务初始化结束`)
     }, 1000)
 
 }
@@ -65,11 +64,11 @@ async function onCronTask(taskId) {
         return
     }
     if (task.active <= 0) {
-        logger.log("触发定时任务", task.shell, "任务已被禁用跳过执行")
+        logger.log("触发定时任务", task.shell, "（PASS，原因：已被禁用）")
         return
     }
     if (running[taskId]) {
-        logger.log("触发定时任务", task.shell, "任务正在运行跳过执行")
+        logger.log("触发定时任务", task.shell, "（PASS，原因：正在运行）")
         return
     }
     running[taskId] = task;
@@ -78,9 +77,9 @@ async function onCronTask(taskId) {
     taskRunner.execShell(task.shell, {
         callback: (error, stdout, stderr) => {
             if (error) {
-                // logger.log("task over", taskId, stdout.substring(stdout.length - 1000))
+                // logger.log("定时任务运行完毕", task.shell, stdout.substring(stdout.length - 1000))
                 // } else {
-                logger.warn("task error", taskId, error.toString().substring(stdout.length - 1000))
+                logger.warn("定时任务异常", task.shell, error.toString().substring(stdout.length - 1000))
             }
         },
         onExit: (code) => {
