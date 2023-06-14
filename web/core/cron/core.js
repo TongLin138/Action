@@ -22,13 +22,15 @@ function cronInit(){
     setTimeout(async () => {
         let tasks = await taskCoreCurd.list()
         logger.log(`定时任务初始化开始`)
+        logger.log('任务总数', tasks.length)
         for (let task of tasks) {
             if (task.cron.split(" ").length < 5) {
                 continue
             }
             engine.setTask(task.id, task.cron, () => onCron(task))
+            logger.log('设置定时任务', task.id.split("T_")[1])
         }
-        logger.log(`任务初始化结束`)
+        logger.log(`定时任务初始化结束`)
     }, 1000)
 
 }
@@ -60,6 +62,7 @@ async function onCronTask(taskId) {
     let task = await curd.getById(taskId);
     if (!task) {
         //todo:报错?
+        await taskCoreCurd.deleteById(taskId) // 删除不存在的定时任务
         return
     }
     if (task.active <= 0) {
