@@ -273,7 +273,7 @@ innerCornApi.post('/updateAll', async function (request, response) {
                         type: type,
                         cron: task.cron,
                         shell: `task run ${task.runPath}`,
-                        active: item.active || 1, // 默认启用
+                        active: item.active === 0 ? 0 : 1, // 默认启用
                         config: '',
                         tags: task.tags || '',
                         create_time: new Date(),

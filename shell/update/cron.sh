@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-06
+## Modified: 2023-06-16
 
 ## 更新定时任务（后端处理）
 function update_cron() {
@@ -139,8 +139,8 @@ function update_cron() {
             deleteFiles="${deleteFiles}, ${data_tmp}"
         fi
     done
-    # echo -e "AddArr:\n${#AddArr[@]}"
-    # echo -e "DelArr:\n${#DelArr[@]}"
+    # echo -e "AddArr: ${#AddArr[@]}"
+    # echo -e "DelArr: ${#DelArr[@]}"
     # echo -e "newFiles:\n${newFiles}"
     # echo -e "deleteFiles:\n${deleteFiles}"
 
