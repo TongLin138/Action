@@ -29,7 +29,7 @@ function cronInit(){
             }
             try {
                 engine.setTask(task.id, task.cron, () => onCron(task))
-                logger.log('设置定时任务成功', task.id.split("T_")[1])
+                // logger.log('设置定时任务成功', task.id.split("T_")[1])
             } catch (e) {
                 logger.log('设置定时任务失败', task.id.split("T_")[1], `=> ${task.cron} ${e.message || e}`)
             }
