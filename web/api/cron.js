@@ -171,6 +171,7 @@ api.delete('/', async function (request, response) {
         await curd.fixOrder()
         response.send(API_STATUS_CODE.okData(!!res.change()))
     } catch (e) {
+        logger.error(e)
         response.send(API_STATUS_CODE.fail(e.message || e))
     } finally {
         await curd.fixCron(request.query.id)

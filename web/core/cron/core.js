@@ -22,7 +22,7 @@ function cronInit(){
     setTimeout(async () => {
         let tasks = await taskCoreCurd.list()
         logger.log(`定时任务初始化开始`)
-        logger.log('任务总数', tasks.length)
+        // logger.log('任务总数', tasks.length)
         for (let task of tasks) {
             if (task.cron.split(" ").length < 5) {
                 continue
@@ -31,7 +31,7 @@ function cronInit(){
                 engine.setTask(task.id, task.cron, () => onCron(task))
                 // logger.log('设置定时任务成功', task.id.split("T_")[1])
             } catch (e) {
-                logger.log('设置定时任务失败', task.id.split("T_")[1], `=> ${task.cron} ${e.message || e}`)
+                logger.error('设置定时任务失败', task.id.split("T_")[1], `=> ${task.cron} ${e.message || e}`)
             }
         }
         logger.log(`定时任务初始化结束`)
@@ -69,7 +69,7 @@ async function onCronTask(taskId) {
         return
     }
     if (task.active <= 0) {
-        logger.log("触发定时任务", task.shell, "（PASS，原因：已被禁用）")
+        // logger.log("触发定时任务", task.shell, "（PASS，原因：已被禁用）")
         return
     }
     if (running[taskId]) {

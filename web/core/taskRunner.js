@@ -15,7 +15,7 @@ const {logger} = require('../core/logger')
 function execShell(shell, config) {
     try {
         // 执行定时任务命令
-        logger.log("触发定时任务", shell)
+        // logger.log("触发定时任务", shell)
         const process = exec(shell, config.callback);
         if (config.onExit) {
             process.on("exit", config.onExit)

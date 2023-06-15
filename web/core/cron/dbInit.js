@@ -1,10 +1,10 @@
 const db = require("../db");
-const {logger} = require("../logger");
+// const {logger} = require("../logger");
 const eventBus = require("../eventBus").db;
 
 ((async () => {
     if (await db.existTable("tasks")) {
-        logger.info("检查tasks表完成,已存在")
+        // logger.info("检查tasks表完成,已存在")
         return
     }
     await db.exec(`
@@ -31,7 +31,7 @@ const eventBus = require("../eventBus").db;
 
 ((async () => {
     if (await db.existTable("task_core")) {
-        logger.info("检查task_core表完成,已存在")
+        // logger.info("检查task_core表完成,已存在")
         return
     }
     await db.exec(`

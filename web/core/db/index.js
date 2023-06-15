@@ -127,7 +127,7 @@ const db = {
 module.exports = db;
 (async function () {
     if (await db.existTable("info")) {
-        logger.info("检查info表完成,已存在")
+        // logger.info("检查info表完成,已存在")
         await db.exec(`update info
                        set value=?
                        where name = ?`,
