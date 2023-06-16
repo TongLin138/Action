@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-06-17
 
 ## 账号控制功能
 # task cookie check/update/beans/list
@@ -508,7 +508,10 @@ function accounts_control() {
             if [[ ${#Name_Array[@]} -gt 0 ]]; then
                 Income=0
                 Expense=0
-                echo -e "[最新时间]                         [变动渠道]                          [明细]\n"
+                # echo -e "[最新时间]                         [变动渠道]                          [明细]\n"
+                local tmp_file="$RootDir/.tmp.json"
+                echo "[]" >$tmp_file
+                local num=0
                 ## 遍历数组，打印数据
                 for i in ${Name_Array[@]}; do
                     defaultLength=50
@@ -534,19 +537,25 @@ function accounts_control() {
                     [[ $(echo "${Name}" | grep -c "‘") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "‘")
                     [[ $(echo "${Name}" | grep -c "’") -gt 0 ]] && let defaultLength+=$(echo "${Name}" | grep -c "’")
                     spacesNums=$(($(($defaultLength - ${LengthTmp} - ${#Name})) / 2))
-                    for ((i = 1; i <= ${spacesNums}; i++)); do
-                        Name=" ${Name}"
-                    done
+                    # for ((i = 1; i <= ${spacesNums}; i++)); do
+                    #     Name=" ${Name}"
+                    # done
                     Name=$(echo "${Name}" | sed "s/“/ “/g; s/”/” /g; s/‘/ ‘/g; s/’/’ /g")
                     if [[ $Beans -gt 0 ]]; then
                         Income=$(($Income + $Beans))
-                        printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
+                        # printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${GREEN}%8s${PLAIN}\n" "$Time" "$Name" "+$Beans"
+                        echo "$(cat $tmp_file | jq '.['$num']={ "最新时间": "'"$Time"'", "变动渠道": "'"$Name"'", "明细": "'"+$Beans"'" }')" >$tmp_file
                     else
                         Expense=$(($Expense + $Beans))
-                        printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
+                        # printf "· %-12s ${BLUE}%-$(($defaultLength + ${LengthTmp}))s${PLAIN}    ${RED}%8s${PLAIN}\n" "$Time" "$Name" "-$((0 - $Beans))"
+                        echo "$(cat $tmp_file | jq '.['$num']={ "最新时间": "'"$Time"'", "变动渠道": "'"$Name"'", "明细": "'"-$((0 - $Beans))"'" }')" >$tmp_file
                     fi
+                    let num++
                 done
-                echo -e "\n                [${BLUE}今日收入${PLAIN}] ${Income}🐶                    [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
+                output_table_data_file "$tmp_file"
+                [ -f $tmp_file ] && rm -f $tmp_file
+                echo -e "\n [${BLUE}今日收入${PLAIN}] ${Income}🐶    [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
+                # echo -e "\n                [${BLUE}今日收入${PLAIN}] ${Income}🐶                    [${BLUE}今日支出${PLAIN}] $((0 - $Expense))🐶"
             else
                 echo -e "未查询到今日京豆变动明细数据，快去参与活动获取吧~"
             fi
