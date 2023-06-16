@@ -290,6 +290,7 @@ function getNeatContent(origin) {
         .replace(/\033\[34m/g, '')
         .replace(/\033\[35m/g, '')
         .replace(/\033\[36m/g, '')
+        .replace(/\033\[37m/g, '')
         .replace(/\033\[1;31m/g, '')
         .replace(/\033\[1;32m/g, '')
         .replace(/\033\[1;33m/g, '')

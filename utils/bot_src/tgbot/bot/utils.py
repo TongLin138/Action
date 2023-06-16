@@ -62,7 +62,7 @@ async def cmd(cmdtext, FotmatCode = False):
     try:
         msg = await tgbot.send_message(chat_id, '开始执行命令')
         p = await asyncio.create_subprocess_shell(
-            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]m//g'" + ' 2>&1', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            cmdtext + "| sed 's/\[3[0-9]m//g; s/\[4[0-9]\;3[0-9]m//g; s/\[[0-1]\;3[0-9]m//g; s/\[[0-1]m//g; s/\[[0-1][0-1]m//g'" + ' 2>&1', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         res_bytes, res_err = await p.communicate()
         res = res_bytes.decode('utf-8')
         res = reContent_INVALID(res)
