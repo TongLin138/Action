@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-06-29
 
 ## 后端服务控制
 # arcadia service start/restart/stop/info/respwd
@@ -43,6 +43,8 @@ function main_service_manage() {
     case $1 in
     ## 开启/重启服务
     start | restart)
+        ## 禁用 Core Dump
+        ulimit -c 0 >/dev/null 2>&1
         ## 删除日志
         rm -rf /root/.pm2/logs/web_server-*.log /root/.pm2/logs/inner_server-*.log /root/.pm2/logs/web_terminal-*.log
         if [[ ${ExitStatusSERVER} -eq 0 ]]; then
