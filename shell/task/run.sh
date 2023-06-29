@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-03
+## Modified: 2023-06-29
 
 ## 统计数量
 function count_usersum() {
@@ -498,6 +498,8 @@ function run_script() {
             source $FileTaskBeforeExtra
         fi
     fi
+    ## 禁用 Core Dump
+    ulimit -c 0 >/dev/null 2>&1
     case "${RUN_MODE}" in
     run)
         run_normal
