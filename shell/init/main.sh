@@ -70,9 +70,9 @@ function Init() {
   echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➂ 启动电报机器人结束 -----\n"
 
   # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 第 四 区 域 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ #
-  import_config_not_check
-  if [[ "${EnableInitExtra}" == true ]]; then
-    if [ -f $FileInitExtra ]; then
+  if [[ -f $FileConfUser && -f $FileInitExtra ]]; then
+    cat $FileConfUser | grep -Eq "^EnableInitExtra=[\"\']true[\"\']"
+    if [$? -eq 0 ]; then
       echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➃ 自定义初始化脚本开始 -----\n"
       source $FileInitExtra
       echo -e "\n\033[1;34m$(date "+%Y-%m-%d %T")${PLAIN} ----- ➃ 自定义初始化脚本结束 -----\n"
