@@ -74,9 +74,24 @@ api.get('/', async function (request, response) {
         task.logPath = ''
         if (task.bind && task.bind.startsWith('system#') && task.last_runtime) {
             try {
-                task.logPath = `/${DIR_KEY.ROOT}${DIR_KEY.LOG}${task.bind.split('#')[1]}_${task.bind.split('#')[2].split('\.')[0]}`
+                let targetDir = task.bind.split('#')[1]
+                let targetFile = task.bind.split('#')[2]
+                task.logPath = `/${DIR_KEY.ROOT}${DIR_KEY.LOG}${targetDir}_${targetFile.split('\.')[0]}`
             } catch (e) {
                 task.logPath = ''
+            }
+        }
+    })
+    // 脚本路径
+    tasks.data.forEach((task) => {
+        task.scriptPath = ''
+        if (task.bind && task.bind.startsWith('system#')) {
+            try {
+                let targetDir = task.bind.split('#')[1]
+                let targetFile = task.bind.split('#')[2]
+                task.scriptPath = `/${DIR_KEY.ROOT}${targetDir === 'raw' ? DIR_KEY.RAW : DIR_KEY.REPO + targetDir + '/'}${targetFile}`
+            } catch (e) {
+                task.scriptPath = ''
             }
         }
     })
@@ -200,7 +215,6 @@ api.get('/bindGroup', async function (request, response) {
 })
 
 let innerCornApi = express()
-
 innerCornApi.post('/updateAll', async function (request, response) {
     try {
         function toBind(type, s) {
