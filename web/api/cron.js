@@ -21,6 +21,8 @@ api.get('/', async function (request, response) {
     let filter = Object.assign({}, request.query)
     delete filter.active
     delete filter.tags
+    delete filter.sort
+    delete filter.order
     let likeKeys = ['remark']
     if (request.query.bind) {
         likeKeys.push('bind')
@@ -95,6 +97,37 @@ api.get('/', async function (request, response) {
             }
         }
     })
+    // 排序
+    if (request.query.sort && (request.query.order === '0' || request.query.order === '1')) {
+        switch (request.query.sort) {
+            case 'last_runtime':
+                if (request.query.order === '0') {
+                    tasks.data.sort((a, b) => {
+                        if (a.last_runtime === null && b.last_runtime === null) return 0;
+                        if (a.last_runtime === null) return 1;
+                        if (b.last_runtime === null) return -1;
+                        return b.last_runtime - a.last_runtime; // 升序排序
+                    });
+                } else if (request.query.order === '1') {
+                    tasks.data.sort((a, b) => {
+                        if (a.last_runtime === null && b.last_runtime === null) return 0;
+                        if (a.last_runtime === null) return -1;
+                        if (b.last_runtime === null) return 1;
+                        return a.last_runtime - b.last_runtime; // 降序排序
+                    });
+                } 
+                // 空值始终在最后
+                tasks.data.sort((a, b) => {
+                    if (a.last_runtime === null) return 1; // a 的 last_runtime 为 null，排在后面
+                    if (b.last_runtime === null) return -1; // b 的 last_runtime 为 null，排在前面
+                    return 0; // 保持原有顺序
+                });
+                // logger.info(tasks.data)
+                break;
+            default:
+                break;
+        }
+    }
     response.send(API_STATUS_CODE.okData(tasks))
 })
 /**
