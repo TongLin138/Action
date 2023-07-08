@@ -1,1 +1,0 @@
-import{_ as e}from"./description-outline-rounded-15b42bae.js";import{_ as n}from"./index-bbe7d773.js";import{a6 as t,a7 as r}from"./vendor-605eddea.js";const _={};function c(s,a){const o=e;return t(),r(o,{style:{"vertical-align":"baseline"}})}const p=n(_,[["render",c]]);export{p as default};

@@ -1,0 +1,1 @@
+import{_ as n}from"./Icon-0384803e.js";import{_ as c}from"./index-a28ae7ef.js";import{a6 as e,a7 as r}from"./vendor-605eddea.js";import"./propTypes-8a448afd.js";const s={};function t(_,a){const o=n;return e(),r(o,{icon:"svg-spinners:blocks-scale",style:{"vertical-align":"0"}})}const f=c(s,[["render",t]]);export{f as default};
