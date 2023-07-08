@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-13
+## Modified: 2023-07-08
 
 ## 目录
 RootDir=${ARCADIA_DIR}
@@ -145,7 +145,9 @@ function output_table_data() {
 function output_table_data_file() {
     local target_file=$1
     if [ -s "$target_file" ]; then
-        cat $target_file | jq -cM 2>/dev/null | ctp -s 2>/dev/null
+        ulimit -c 0 >/dev/null 2>&1 # 禁用 Core Dump
+        local data="$(cat $target_file | jq -cM 2>/dev/null)"
+        echo "${data}" | ctp -s 2>/dev/null
     fi
 }
 
