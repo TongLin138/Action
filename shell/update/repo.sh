@@ -100,7 +100,6 @@ function update_designated_repo() {
                 done
             fi
             if [ $configured_repo == true ]; then
-                echo 1
                 # 生成旧的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then
                     gen_repocron_list "old" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
