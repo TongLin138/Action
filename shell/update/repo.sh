@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-02
+## Modified: 2023-07-13
 
 ## 更新所有仓库
 # update repo
@@ -49,42 +49,41 @@ function update_all_repo() {
 ## 更新指定路径下的仓库
 # update <path>
 function update_designated_repo() {
-    local InputContent AbsolutePath PwdTmp
+    local input_content format_path pwd_tmp
     ## 去掉最后一个/
     echo $1 | grep "/$" -q
     if [ $? -eq 0 ]; then
-        local InputContent="${1%?}"
+        local input_content="${1%?}"
     else
-        local InputContent="$1"
+        local input_content="$1"
     fi
     ## 判定传入的是绝对路径还是相对路径
-    echo "${InputContent}" | grep "^$RootDir" -q
+    echo "${input_content}" | grep "^$RootDir" -q
     if [ $? -eq 0 ]; then
-        AbsolutePath="${InputContent}"
+        format_path="${input_content}"
     else
         ## 处理上级目录
-        echo "${InputContent}" | grep "\.\./" -q
+        echo "${input_content}" | grep "\.\./" -q
         if [ $? -eq 0 ]; then
-            PwdTmp=$(pwd | sed "s|/$(pwd | awk -F '/' '{printf$NF}')||g")
-            AbsolutePath=$(echo "${InputContent}" | sed "s|\.\./|${PwdTmp}/|g")
+            pwd_tmp=$(pwd | sed "s|/$(pwd | awk -F '/' '{printf$NF}')||g")
+            format_path=$(echo "${input_content}" | sed "s|\.\./|${pwd_tmp}/|g")
         else
-            AbsolutePath=$(echo "${InputContent}" | sed "s|\.\/||g; s|^*|$(pwd)/|g")
+            format_path=$(echo "${input_content}" | sed "s|\.\/||g; s|^*|$(pwd)/|g")
         fi
     fi
     ## 判定是否存在仓库
-    if [ -d ${AbsolutePath}/.git ]; then
-        if [[ "${AbsolutePath}" = "$RootDir" ]]; then
+    if [ -d ${format_path}/.git ]; then
+        if [[ "${format_path}" = "$RootDir" ]]; then
             print_title_start "source"
+            import update/source
             update_sourcecode
         else
+            print_title_start "designated"
             make_dir $RepoDir $LogTmpDir
-
             import sync
             import update/cron
-
             count_reposum
             gen_repoconf_array
-
             ## 清空定时任务关联脚本清单内容
             clean_list_scripts
             ## 判断仓库是否在配置文件中
@@ -92,12 +91,16 @@ function update_designated_repo() {
             local configured_repo=false # 是否为已配置的仓库
             if [[ $RepoSum -ge 1 && ${#Array_Repo_url[*]} -ge 1 ]]; then
                 for ((i = 0; i < ${#Array_Repo_url[*]}; i++)); do
-                    echo "${AbsolutePath}" | grep "${Array_Repo_path[i]}" -q
-                    [ $? -eq 0 ] && local current_num=$i && configured_repo=true && break
+                    echo "${Array_Repo_path[i]}" | grep "${format_path}" -q
+                    if [ $? -eq 0 ]; then
+                        local current_num=$i
+                        configured_repo=true
+                        break
+                    fi
                 done
             fi
-            print_title_start "designated"
             if [ $configured_repo == true ]; then
+                echo 1
                 # 生成旧的定时脚本清单
                 if [[ ${Array_Repo_cronSettings_updateTaskList[current_num]} == "true" ]]; then
                     gen_repocron_list "old" "${Array_Repo_path[current_num]}" "${Array_Repo_cronSettings_scriptsPath[current_num]}" "${Array_Repo_cronSettings_scriptsType[current_num]}" "${Array_Repo_cronSettings_whiteList[current_num]}" "${Array_Repo_cronSettings_blackList[current_num]}" "${Array_Repo_cronSettings_autoDisable[current_num]}" "${Array_Repo_cronSettings_addNotify[current_num]}" "${Array_Repo_cronSettings_delNotify[current_num]}"
@@ -117,7 +120,7 @@ function update_designated_repo() {
                 ## 更新定时任务
                 update_cron
             else
-                git_pull "${AbsolutePath}" $(grep "branch" ${AbsolutePath}/.git/config | awk -F '\"' '{print$2}')
+                git_pull "${format_path}" $(grep "branch" ${format_path}/.git/config | awk -F '\"' '{print$2}')
                 if [[ $EXITSTATUS -eq 0 ]]; then
                     echo -e "\n$COMPLETE 仓库更新完成"
                 else
@@ -126,10 +129,10 @@ function update_designated_repo() {
             fi
         fi
     else
-        if [ -d ${AbsolutePath} ]; then
-            output_error "未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径下存在任何仓库，请重新确认！"
+        if [ -d ${format_path} ]; then
+            output_error "未检测到 ${BLUE}${format_path}${PLAIN} 路径下存在任何仓库，请重新确认！"
         else
-            output_error "未检测到 ${BLUE}${AbsolutePath}${PLAIN} 路径不存在，请重新确认！"
+            output_error "未检测到 ${BLUE}${format_path}${PLAIN} 路径不存在，请重新确认！"
         fi
     fi
 }
