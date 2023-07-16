@@ -32,6 +32,8 @@ const {errorCount} = require("../core");
 const {logger} = require("../core/logger");
 const socketCommon = require("../core/socket/common");
 
+const taskRunning = {};
+
 let api = express();
 /**
  * 登录是否显示验证码
@@ -55,6 +57,9 @@ api.get('/captcha', function (req, res) {
     res.status(200).send(captcha.data);
 });
 
+/**
+ * 调用命令执行
+ */
 api.post('/runCmd', function (request, response) {
     const cmd = `cd ${rootPath};` + request.body.cmd;
     let name = "runLog";
@@ -62,16 +67,23 @@ api.post('/runCmd', function (request, response) {
     try {
         let result = exec(cmd, {encoding: 'utf-8'});
         result.stdout.on("data", (data) => {
+            taskRunning[runId] = true;
             socketCommon.emit(name, API_STATUS_CODE.okData({
                 runId, log: getNeatContent(data), over: false
             }))
         })
         result.stderr.on("data", (data) => {
+            if (taskRunning[runId]) {
+                delete taskRunning[runId]
+            }
             socketCommon.emit(name, API_STATUS_CODE.failData("run fail", {
                 runId, log: getNeatContent(data), over: false
             }))
         })
         result.on("exit", (code) => {
+            if (taskRunning[runId]) {
+                delete taskRunning[runId]
+            }
             //结束
             socketCommon.emit(name, API_STATUS_CODE.ok("run over", {
                 runId, over: true
@@ -81,6 +93,23 @@ api.post('/runCmd', function (request, response) {
         logger.error(err)
     }
 
+    response.send(API_STATUS_CODE.okData(runId));
+});
+
+/**
+ * 查询调用命令任务的状态
+ */
+api.get('/runCmdStatus', function (request, response) {
+    const id = request.query.id;
+    try {
+        if (taskRunning[id]) {
+            response.send(API_STATUS_CODE.okData(true));
+        } else {
+            response.send(API_STATUS_CODE.okData(false));
+        }
+    } catch (err) {
+        response.send(API_STATUS_CODE.okData(false));
+    }
     response.send(API_STATUS_CODE.okData(runId));
 });
 
