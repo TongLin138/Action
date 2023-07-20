@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-29
+## Modified: 2023-07-21
 
 ## 后端服务控制
 # arcadia service start/restart/stop/info/respwd
@@ -28,6 +28,7 @@ function main_service_manage() {
             -t fontSize=14 \
             -t lineHeight=1.5 \
             -t disableLeaveAlert=true \
+            -t disableResizeOverlay=true \
             -t macOptionIsMeta=true \
             -t macOptionClickForcesSelection=true \
             bash

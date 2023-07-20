@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-5-23
+## Modified: 2023-07-21
 
 function Init() {
   source ${ARCADIA_DIR}/shell/core/main.sh
@@ -39,6 +39,7 @@ function Init() {
     -t fontSize=14 \
     -t lineHeight=1.5 \
     -t disableLeaveAlert=true \
+    -t disableResizeOverlay=true \
     -t macOptionIsMeta=true \
     -t macOptionClickForcesSelection=true \
     bash
