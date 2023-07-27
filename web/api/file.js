@@ -104,8 +104,8 @@ api.get('/tree', function (request, response) {
  */
 api.get('/dir', function (request, response) {
     let path = request.query.path;
-    pathCheck(path);
     try {
+        pathCheck(path);
         response.send(API_STATUS_CODE.okData(getDirectory(path,
             queryOptions(request)
         )));
