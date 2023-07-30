@@ -380,7 +380,7 @@ function run_concurrent() {
         ## 执行脚本
         local cmd global_proxy_cmd
         if [[ "${EnableGlobalProxy}" == true ]]; then
-            global_proxy_cmd=" -r 'global-agent/bootstrap'"
+            global_proxy_cmd=" -r 'global-agent/bootstrap' "
         else
             global_proxy_cmd=""
         fi
