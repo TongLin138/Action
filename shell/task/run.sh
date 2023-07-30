@@ -143,7 +143,7 @@ function run_normal() {
             else
                 bash -c "${cmd}"
             fi
-            echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看最新日志\n"
+            echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}$(echo "${LogPath}" | awk -F "${RootDir}/" '{print$2}')${PLAIN} 目录查看最新日志\n"
         else
             ## 记录执行开始时间
             local starttime=$(date +'%Y-%m-%d %H:%M:%S')
@@ -477,7 +477,7 @@ function run_concurrent() {
             run_concurrent_main ${UserNum}
         done
     fi
-    echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}${LogPath:4}${PLAIN} 目录查看相关日志\n"
+    echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}$(echo "${LogPath}" | awk -F "${RootDir}/" '{print$2}')${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
     if [[ ${RUN_REMOTE} == true && ${AutoDelRawFiles} == true ]]; then
