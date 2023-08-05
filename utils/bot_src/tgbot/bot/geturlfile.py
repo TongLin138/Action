@@ -49,7 +49,7 @@ async def bot_url_file(event):
                         backup_file(f'{SCRIPTS_DIR}/{file_name}')
                         with open(f'{SCRIPTS_DIR}/{file_name}', 'w+', encoding='utf-8') as f:
                             f.write(resp)
-                        cmdtext = f'{TASK_CMD} {SCRIPTS_DIR}/{file_name} now'
+                        cmdtext = f'{TASK_CMD} run {SCRIPTS_DIR}/{file_name}'
                         if res2 == 'yes':
                             await add_cron(tgbot, conv, resp, file_name,
                                          msg, SENDER, markup, SCRIPTS_DIR)

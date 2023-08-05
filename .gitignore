@@ -6,7 +6,7 @@ repo/
 log/
 logs/
 config/
-tgbot/
+./tgbot/
 utils/.sign/
 web/node_modules/
 web/package-lock.json

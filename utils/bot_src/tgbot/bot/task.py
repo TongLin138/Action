@@ -13,7 +13,7 @@ async def bot_node(event):
         text = None
     if not text:
         res = '''请正确使用 /task 命令，如
-/task example.js now
+/task run example.js
 /task author_repo/example.js
 /task https://raw.githubusercontent.com/author/repo/main/example.js'''
         await tgbot.send_message(chat_id, res)

@@ -254,7 +254,7 @@ async def run_btn(conv, sender, path, msg, page, files_list):
             conv.cancel()
             logger.info(f'{path}/{res} 脚本即将在后台运行')
             msg = await tgbot.edit_message(msg, f'{res} 已部署后台任务')
-            cmdtext = f'{TASK_CMD} {path}/{res} now -b'
+            cmdtext = f'{TASK_CMD} run {path}/{res} -b'
             return None, None, None, f'CMD-->{cmdtext}'
         else:
             return f'{path}/{res}', msg, page, None

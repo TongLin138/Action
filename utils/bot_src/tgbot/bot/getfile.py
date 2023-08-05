@@ -34,7 +34,7 @@ async def bot_get_file(event):
                         await tgbot.download_media(event.message, SCRIPTS_DIR)
                         with open(f'{SCRIPTS_DIR}/{filename}', 'r', encoding='utf-8') as f:
                             resp = f.read()
-                        cmdtext = f'{TASK_CMD} {SCRIPTS_DIR}/{filename} now'
+                        cmdtext = f'{TASK_CMD} run {SCRIPTS_DIR}/{filename}'
                         if res2 == 'yes':
                             await add_cron(tgbot, conv, resp, filename, msg, SENDER, markup, SCRIPTS_DIR)
                         else:
