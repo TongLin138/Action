@@ -668,8 +668,15 @@ function saveFileByPath(filePath, content) {
  * @param checkPath
  */
 function rootPathCheck(checkPath) {
-    if (!checkPath.startsWith(rootPath)) {
-        throw new Error(`目录必须以${rootPath}开头`)
+    let root = '';
+    try {
+        root = rootPath.split('arcadia')[0];
+    }
+    catch {
+        root = '/';
+    }
+    if (!checkPath.startsWith(root)) {
+        throw new Error(`目录必须以${root}开头 ${rootPath}`)
     }
 
 }
