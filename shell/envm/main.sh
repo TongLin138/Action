@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-02
+## Modified: 2023-08-15
 
 ## 添加
 function add_environment_variable() {
@@ -263,7 +263,6 @@ function handle_environment_variable() {
 
     ## 删除变量
     del)
-        echo 1
         case $# in
         1)
             read -p "$(echo -e "\n${BOLD}└ 请输入需要删除的环境变量名称：${PLAIN}")" Variable

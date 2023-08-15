@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-08-15
 ## 新增定时任务解析模块
 
 ## 定时表达式匹配算法 - 解析脚本内预设的定时表达式
@@ -7,13 +7,13 @@ function get_cron() {
     local path="$1"
 
     ## 校验定时表达式合法性
-    check_cron_expression() {
+    function check_cron_expression() {
         local expression=$1 # 定时表达式
         local is_six=0
         local seconds_field=""
         local fields=()
         # 校验字段合法性
-        check_field() {
+        function check_field() {
             local field="$1"
             local max_value=$2
             local item sub_item

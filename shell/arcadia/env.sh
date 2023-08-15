@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-27
+## Modified: 2023-08-15
 
 ## 检测项目配置文件完整性
 # arcadia check config
@@ -18,8 +18,8 @@ function check_conf_files() {
 ## 处理环境软件包和模块
 # arcadia env install/repairs
 function environment_package() {
-    local npm_packages_armv7="date-fns dotenv png-js ws@7.4.3"
-    local npm_packages_full="date-fns dotenv png-js ws@7.4.3 file-system-cache tunnel js-base64 ds ts-md5 tslib"
+    local npm_packages_armv7="date-fns qs dotenv png-js file-system-cache tunnel js-base64 ds ts-md5 tslib"
+    local npm_packages_full="date-fns qs dotenv png-js file-system-cache tunnel js-base64 ds ts-md5 tslib"
 
     ## 安装 Python3
     function install_python3() {

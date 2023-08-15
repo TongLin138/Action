@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-13
+## Modified: 2023-08-15
 
 ## 统计脚本仓库数量
 function count_reposum() {
@@ -51,27 +51,27 @@ function gen_repoconf_array() {
             ## 仓库地址（如若未定义或格式错误则跳过视为无效配置）
             tmp_url="$(get_repoconf ".[$arr_num] | .url")"
             if [[ -z "${tmp_url}" ]] || [[ "${tmp_url}" == "null" ]]; then
-                # echo -e "$ERROR 未检测到第$(($repo_num+ 1))个仓库配置的远程地址，跳过..."
+                # echo -e "$WARN 未检测到第$(($repo_num+ 1))个仓库配置的远程地址，跳过..."
                 continue
             fi
             # 判断仓库地址格式
             echo "${tmp_url}" | grep -Eq "\.git$" # 链接必须以.git结尾
             if [ $? -ne 0 ]; then
-                echo -e "$ERROR 检测到第$(($repo_num + 1))个仓库配置的远程地址无效"
+                echo -e "$WARN 检测到第$(($repo_num + 1))个仓库配置的远程地址无效，跳过..."
                 continue
             fi
             echo "${tmp_url}" | grep -Eq "https?:"
             if [ $? -ne 0 ]; then
                 echo "${tmp_url}" | grep -Eq "^git\@"
                 if [ $? -ne 0 ]; then
-                    echo -e "$ERROR 检测到第$(($repo_num + 1))个仓库配置的远程地址无效"
+                    echo -e "$WARN 检测到第$(($repo_num + 1))个仓库配置的远程地址无效"
                     continue
                 fi
             fi
             ## 仓库分支（如若未定义或格式错误则跳过视为无效配置）
             tmp_branch="$(get_repoconf ".[$arr_num] | .branch")"
             if [[ -z "${tmp_branch}" ]] || [[ "${tmp_branch}" == "null" ]]; then
-                # echo -e "$ERROR 未检测到第$(($repo_num+ 1))个仓库配置的分支名称，跳过..."
+                # echo -e "$WARN 未检测到第$(($repo_num+ 1))个仓库配置的分支名称，跳过..."
                 continue
             fi
             Array_Repo_url[$repo_num]="${tmp_url}"
@@ -106,7 +106,7 @@ function gen_repoconf_array() {
             if [[ "$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays")" ]]; then
                 Array_Repo_cronSettings_scriptsType[$repo_num]="js py ts"
             else
-                Array_Repo_cronSettings_scriptsType[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays" | jq -r 'join("  ")')"
+                Array_Repo_cronSettings_scriptsType[$repo_num]="$(get_repoconf ".[$arr_num] | .cronSettings.scriptsType | arrays" | jq -r 'join(" ")')"
             fi
             # 定时脚本白名单（如若未定义则默认为空）
             if [[ -z "$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")" || "$(get_repoconf ".[$arr_num] | .cronSettings.whiteList")" == "null" ]]; then

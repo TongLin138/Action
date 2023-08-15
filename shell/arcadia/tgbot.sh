@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-01
+## Modified: 2023-08-15
 
 ## Telegram Bot 功能
 # arcadia tgbot start/stop/logs/update
@@ -7,14 +7,6 @@ function tgbot_manage() {
 
     ## 安装 Telegram Bot
     function install_main() {
-        ## 安装依赖
-        echo -e "\n$WORKING 开始安装依赖...\n"
-        apk --no-cache add -f python3-dev py3-pip zlib-dev gcc g++ jpeg-dev musl-dev freetype-dev
-        if [ $? -eq 0 ]; then
-            echo -e "\n$COMPLETE 依赖安装完成\n"
-        else
-            echo -e "\n$FAIL 依赖安装失败，请检查原因后重试！\n"
-        fi
         ## 检测配置文件是否存在
         if [ ! -s $ConfigDir/bot.json ]; then
             cp -fv $SampleDir/bot.json $ConfigDir/bot.json
