@@ -27,7 +27,7 @@ api.post('/auth', async (request, response) => {
         let limitTime = 60 - (curTime.getTime() - authErrorTime)/1000;
         if (limitTime > 0) {
             // 累计错误登录次数超过3次锁定1分钟
-            response.send(API_STATUS_CODE.failData('面板错误登录次数过多，请一分钟再进行尝试登录!', {
+            response.send(API_STATUS_CODE.failData('认证失败次数过多，请过一会儿再尝试进行登录!', {
                 showCaptcha: true,
                 limitTime:Math.floor(limitTime),
             }))
