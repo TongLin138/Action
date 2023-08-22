@@ -160,7 +160,7 @@ module.exports = {
      * @param {string} callback
      */
     setTaskCore: async (id, cron, callback) => {
-        const formatCron = cron.trim() // 去除首尾空格
+        let formatCron = cron.trim() // 去除首尾空格
         let change = await taskCoreCurd.updateById({ id, cron: formatCron, callback })
         if (!change) {
             await taskCoreCurd.save({ id, cron: formatCron, callback })
