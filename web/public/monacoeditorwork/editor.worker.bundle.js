@@ -1,5 +1,5 @@
 (() => {
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/errors.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/errors.js
   var ErrorHandler = class {
     constructor() {
       this.listeners = [];
@@ -88,7 +88,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/functional.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/functional.js
   function once(fn) {
     const _this = this;
     let didCall = false;
@@ -103,7 +103,7 @@
     };
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/iterator.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/iterator.js
   var Iterable;
   (function(Iterable2) {
     function is(thing) {
@@ -222,7 +222,7 @@
     Iterable2.consume = consume;
   })(Iterable || (Iterable = {}));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/lifecycle.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/lifecycle.js
   var TRACK_DISPOSABLES = false;
   var disposableTracker = null;
   function setDisposableTracker(tracker) {
@@ -451,7 +451,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/linkedList.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/linkedList.js
   var Node = class _Node {
     constructor(element) {
       this.element = element;
@@ -559,7 +559,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/stopwatch.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/stopwatch.js
   var hasPerformanceNow = globalThis.performance && typeof globalThis.performance.now === "function";
   var StopWatch = class _StopWatch {
     static create(highResolution) {
@@ -581,7 +581,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/event.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/event.js
   var _enableDisposeWithListenerWarning = false;
   var _enableSnapshotPotentialLeakWarning = false;
   var Event;
@@ -949,6 +949,7 @@
           }
         };
         observable.addObserver(observer);
+        observable.reportChanges();
         return {
           dispose() {
             observable.removeObserver(observer);
@@ -1244,18 +1245,17 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/types.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/types.js
   function isString(str) {
     return typeof str === "string";
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/objects.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/objects.js
   function getAllPropertyNames(obj) {
     let res = [];
-    let proto = Object.getPrototypeOf(obj);
-    while (Object.prototype !== proto) {
-      res = res.concat(Object.getOwnPropertyNames(proto));
-      proto = Object.getPrototypeOf(proto);
+    while (Object.prototype !== obj) {
+      res = res.concat(Object.getOwnPropertyNames(obj));
+      obj = Object.getPrototypeOf(obj);
     }
     return res;
   }
@@ -1282,7 +1282,7 @@
     return result;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/nls.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/nls.js
   var isPseudo = typeof document !== "undefined" && document.location && document.location.hash.indexOf("pseudo=true") >= 0;
   function _format(message, args) {
     let result;
@@ -1313,7 +1313,7 @@
     return void 0;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/platform.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/platform.js
   var _a;
   var LANGUAGE_DEFAULT = "en";
   var _isWindows = false;
@@ -1429,7 +1429,7 @@
   var isEdge = !!(userAgent && userAgent.indexOf("Edg/") >= 0);
   var isAndroid = !!(userAgent && userAgent.indexOf("Android") >= 0);
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/cache.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/cache.js
   var LRUCachedFunction = class {
     constructor(fn) {
       this.fn = fn;
@@ -1446,7 +1446,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/lazy.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/lazy.js
   var Lazy = class {
     constructor(executor) {
       this.executor = executor;
@@ -1481,7 +1481,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/strings.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/strings.js
   var _a2;
   function escapeRegExpCharacters(value) {
     return value.replace(/[\\\{\}\*\+\?\|\^\$\.\[\]\(\)]/g, "\\$&");
@@ -1668,7 +1668,7 @@
   };
   InvisibleCharacters._data = void 0;
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/worker/simpleWorker.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/worker/simpleWorker.js
   var INITIALIZE = "$initialize";
   var RequestMessage = class {
     constructor(vsWorker, req, method, args) {
@@ -1965,7 +1965,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/diff/diffChange.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/diff/diffChange.js
   var DiffChange = class {
     /**
      * Constructs a new DiffChange with the given sequence information
@@ -1991,7 +1991,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/hash.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/hash.js
   function numberHash(val, initialHashVal) {
     return (initialHashVal << 5) - initialHashVal + val | 0;
   }
@@ -2189,7 +2189,7 @@
   };
   StringSHA1._bigBlock32 = new DataView(new ArrayBuffer(320));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/diff/diff.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/diff/diff.js
   var StringDiffSequence = class {
     constructor(source) {
       this.source = source;
@@ -2926,7 +2926,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/process.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/process.js
   var safeProcess;
   if (typeof globals.vscode !== "undefined" && typeof globals.vscode.process !== "undefined") {
     const sandboxProcess = globals.vscode.process;
@@ -2981,7 +2981,7 @@
   var env = safeProcess.env;
   var platform = safeProcess.platform;
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/path.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/path.js
   var CHAR_UPPERCASE_A = 65;
   var CHAR_LOWERCASE_A = 97;
   var CHAR_UPPERCASE_Z = 90;
@@ -4029,7 +4029,7 @@
   var extname = platformIsWin32 ? win32.extname : posix.extname;
   var sep = platformIsWin32 ? win32.sep : posix.sep;
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/uri.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/uri.js
   var _schemePattern = /^\w[\w\d+.-]*$/;
   var _singleSlashStart = /^\//;
   var _doubleSlashStart = /^\/\//;
@@ -4561,7 +4561,7 @@
     return str.replace(_rEncodedAsHex, (match) => decodeURIComponentGraceful(match));
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/position.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/position.js
   var Position = class _Position {
     constructor(lineNumber, column) {
       this.lineNumber = lineNumber;
@@ -4684,7 +4684,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/range.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/range.js
   var Range = class _Range {
     constructor(startLineNumber, startColumn, endLineNumber, endColumn) {
       if (startLineNumber > endLineNumber || startLineNumber === endLineNumber && startColumn > endColumn) {
@@ -5055,7 +5055,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/arrays.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/arrays.js
   var CompareResult;
   (function(CompareResult2) {
     function isLessThan(result) {
@@ -5118,7 +5118,7 @@
   CallbackIterable.empty = new CallbackIterable((_callback) => {
   });
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/uint.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/uint.js
   function toUint8(v) {
     if (v < 0) {
       return 0;
@@ -5138,7 +5138,7 @@
     return v | 0;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/model/prefixSumComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/model/prefixSumComputer.js
   var PrefixSumComputer = class {
     constructor(values) {
       this.values = values;
@@ -5274,7 +5274,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/model/mirrorTextModel.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/model/mirrorTextModel.js
   var MirrorTextModel = class {
     constructor(uri, lines, eol, versionId) {
       this._uri = uri;
@@ -5365,7 +5365,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/wordHelper.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/wordHelper.js
   var USUAL_WORD_SEPARATORS = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?";
   function createWordRegExp(allowInWords = "") {
     let source = "(-?\\d*\\.\\d\\w*)|([^";
@@ -5465,7 +5465,7 @@
     return null;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/characterClassifier.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/characterClassifier.js
   var CharacterClassifier = class _CharacterClassifier {
     constructor(_defaultValue) {
       const defaultValue = toUint8(_defaultValue);
@@ -5499,7 +5499,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/languages/linkComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/languages/linkComputer.js
   var Uint8Matrix = class {
     constructor(rows, cols, defaultValue) {
       const data = new Uint8Array(rows * cols);
@@ -5862,7 +5862,7 @@
     return LinkComputer.computeLinks(model);
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/languages/supports/inplaceReplaceSupport.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/languages/supports/inplaceReplaceSupport.js
   var BasicInplaceReplace = class {
     constructor() {
       this._defaultValueSet = [
@@ -5941,7 +5941,7 @@
   };
   BasicInplaceReplace.INSTANCE = new BasicInplaceReplace();
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/cancellation.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/cancellation.js
   var shortcutEvent = Object.freeze(function(callback, context) {
     const handle = setTimeout(callback.bind(context), 0);
     return { dispose() {
@@ -6038,7 +6038,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/keyCodes.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/keyCodes.js
   var KeyCodeStrMap = class {
     constructor() {
       this._keyCodeToStr = [];
@@ -6389,7 +6389,7 @@
     return (firstPart | chordPart) >>> 0;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/selection.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/selection.js
   var Selection = class _Selection extends Range {
     constructor(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn) {
       super(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn);
@@ -6515,7 +6515,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/codicons.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/codicons.js
   var _codiconFontCharacters = /* @__PURE__ */ Object.create(null);
   function register(id, fontCharacter) {
     if (isString(fontCharacter)) {
@@ -7071,7 +7071,7 @@
     quickInputBack: register("quick-input-back", "arrow-left")
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/tokenizationRegistry.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/tokenizationRegistry.js
   var __awaiter = function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve2) {
@@ -7222,7 +7222,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/languages.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/languages.js
   var Token = class {
     constructor(offset, type, language) {
       this.offset = offset;
@@ -7452,6 +7452,112 @@
     DocumentHighlightKind3[DocumentHighlightKind3["Read"] = 1] = "Read";
     DocumentHighlightKind3[DocumentHighlightKind3["Write"] = 2] = "Write";
   })(DocumentHighlightKind || (DocumentHighlightKind = {}));
+  var symbolKindNames = {
+    [
+      17
+      /* SymbolKind.Array */
+    ]: localize("Array", "array"),
+    [
+      16
+      /* SymbolKind.Boolean */
+    ]: localize("Boolean", "boolean"),
+    [
+      4
+      /* SymbolKind.Class */
+    ]: localize("Class", "class"),
+    [
+      13
+      /* SymbolKind.Constant */
+    ]: localize("Constant", "constant"),
+    [
+      8
+      /* SymbolKind.Constructor */
+    ]: localize("Constructor", "constructor"),
+    [
+      9
+      /* SymbolKind.Enum */
+    ]: localize("Enum", "enumeration"),
+    [
+      21
+      /* SymbolKind.EnumMember */
+    ]: localize("EnumMember", "enumeration member"),
+    [
+      23
+      /* SymbolKind.Event */
+    ]: localize("Event", "event"),
+    [
+      7
+      /* SymbolKind.Field */
+    ]: localize("Field", "field"),
+    [
+      0
+      /* SymbolKind.File */
+    ]: localize("File", "file"),
+    [
+      11
+      /* SymbolKind.Function */
+    ]: localize("Function", "function"),
+    [
+      10
+      /* SymbolKind.Interface */
+    ]: localize("Interface", "interface"),
+    [
+      19
+      /* SymbolKind.Key */
+    ]: localize("Key", "key"),
+    [
+      5
+      /* SymbolKind.Method */
+    ]: localize("Method", "method"),
+    [
+      1
+      /* SymbolKind.Module */
+    ]: localize("Module", "module"),
+    [
+      2
+      /* SymbolKind.Namespace */
+    ]: localize("Namespace", "namespace"),
+    [
+      20
+      /* SymbolKind.Null */
+    ]: localize("Null", "null"),
+    [
+      15
+      /* SymbolKind.Number */
+    ]: localize("Number", "number"),
+    [
+      18
+      /* SymbolKind.Object */
+    ]: localize("Object", "object"),
+    [
+      24
+      /* SymbolKind.Operator */
+    ]: localize("Operator", "operator"),
+    [
+      3
+      /* SymbolKind.Package */
+    ]: localize("Package", "package"),
+    [
+      6
+      /* SymbolKind.Property */
+    ]: localize("Property", "property"),
+    [
+      14
+      /* SymbolKind.String */
+    ]: localize("String", "string"),
+    [
+      22
+      /* SymbolKind.Struct */
+    ]: localize("Struct", "struct"),
+    [
+      25
+      /* SymbolKind.TypeParameter */
+    ]: localize("TypeParameter", "type parameter"),
+    [
+      12
+      /* SymbolKind.Variable */
+    ]: localize("Variable", "variable")
+  };
   var SymbolKinds;
   (function(SymbolKinds2) {
     const byKind = /* @__PURE__ */ new Map();
@@ -7537,7 +7643,7 @@
   })(InlayHintKind || (InlayHintKind = {}));
   var TokenizationRegistry2 = new TokenizationRegistry();
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js
   var AccessibilitySupport;
   (function(AccessibilitySupport2) {
     AccessibilitySupport2[AccessibilitySupport2["Unknown"] = 0] = "Unknown";
@@ -7638,146 +7744,147 @@
     EditorOption2[EditorOption2["accessibilitySupport"] = 2] = "accessibilitySupport";
     EditorOption2[EditorOption2["accessibilityPageSize"] = 3] = "accessibilityPageSize";
     EditorOption2[EditorOption2["ariaLabel"] = 4] = "ariaLabel";
-    EditorOption2[EditorOption2["autoClosingBrackets"] = 5] = "autoClosingBrackets";
-    EditorOption2[EditorOption2["screenReaderAnnounceInlineSuggestion"] = 6] = "screenReaderAnnounceInlineSuggestion";
-    EditorOption2[EditorOption2["autoClosingDelete"] = 7] = "autoClosingDelete";
-    EditorOption2[EditorOption2["autoClosingOvertype"] = 8] = "autoClosingOvertype";
-    EditorOption2[EditorOption2["autoClosingQuotes"] = 9] = "autoClosingQuotes";
-    EditorOption2[EditorOption2["autoIndent"] = 10] = "autoIndent";
-    EditorOption2[EditorOption2["automaticLayout"] = 11] = "automaticLayout";
-    EditorOption2[EditorOption2["autoSurround"] = 12] = "autoSurround";
-    EditorOption2[EditorOption2["bracketPairColorization"] = 13] = "bracketPairColorization";
-    EditorOption2[EditorOption2["guides"] = 14] = "guides";
-    EditorOption2[EditorOption2["codeLens"] = 15] = "codeLens";
-    EditorOption2[EditorOption2["codeLensFontFamily"] = 16] = "codeLensFontFamily";
-    EditorOption2[EditorOption2["codeLensFontSize"] = 17] = "codeLensFontSize";
-    EditorOption2[EditorOption2["colorDecorators"] = 18] = "colorDecorators";
-    EditorOption2[EditorOption2["colorDecoratorsLimit"] = 19] = "colorDecoratorsLimit";
-    EditorOption2[EditorOption2["columnSelection"] = 20] = "columnSelection";
-    EditorOption2[EditorOption2["comments"] = 21] = "comments";
-    EditorOption2[EditorOption2["contextmenu"] = 22] = "contextmenu";
-    EditorOption2[EditorOption2["copyWithSyntaxHighlighting"] = 23] = "copyWithSyntaxHighlighting";
-    EditorOption2[EditorOption2["cursorBlinking"] = 24] = "cursorBlinking";
-    EditorOption2[EditorOption2["cursorSmoothCaretAnimation"] = 25] = "cursorSmoothCaretAnimation";
-    EditorOption2[EditorOption2["cursorStyle"] = 26] = "cursorStyle";
-    EditorOption2[EditorOption2["cursorSurroundingLines"] = 27] = "cursorSurroundingLines";
-    EditorOption2[EditorOption2["cursorSurroundingLinesStyle"] = 28] = "cursorSurroundingLinesStyle";
-    EditorOption2[EditorOption2["cursorWidth"] = 29] = "cursorWidth";
-    EditorOption2[EditorOption2["disableLayerHinting"] = 30] = "disableLayerHinting";
-    EditorOption2[EditorOption2["disableMonospaceOptimizations"] = 31] = "disableMonospaceOptimizations";
-    EditorOption2[EditorOption2["domReadOnly"] = 32] = "domReadOnly";
-    EditorOption2[EditorOption2["dragAndDrop"] = 33] = "dragAndDrop";
-    EditorOption2[EditorOption2["dropIntoEditor"] = 34] = "dropIntoEditor";
-    EditorOption2[EditorOption2["emptySelectionClipboard"] = 35] = "emptySelectionClipboard";
-    EditorOption2[EditorOption2["experimentalWhitespaceRendering"] = 36] = "experimentalWhitespaceRendering";
-    EditorOption2[EditorOption2["extraEditorClassName"] = 37] = "extraEditorClassName";
-    EditorOption2[EditorOption2["fastScrollSensitivity"] = 38] = "fastScrollSensitivity";
-    EditorOption2[EditorOption2["find"] = 39] = "find";
-    EditorOption2[EditorOption2["fixedOverflowWidgets"] = 40] = "fixedOverflowWidgets";
-    EditorOption2[EditorOption2["folding"] = 41] = "folding";
-    EditorOption2[EditorOption2["foldingStrategy"] = 42] = "foldingStrategy";
-    EditorOption2[EditorOption2["foldingHighlight"] = 43] = "foldingHighlight";
-    EditorOption2[EditorOption2["foldingImportsByDefault"] = 44] = "foldingImportsByDefault";
-    EditorOption2[EditorOption2["foldingMaximumRegions"] = 45] = "foldingMaximumRegions";
-    EditorOption2[EditorOption2["unfoldOnClickAfterEndOfLine"] = 46] = "unfoldOnClickAfterEndOfLine";
-    EditorOption2[EditorOption2["fontFamily"] = 47] = "fontFamily";
-    EditorOption2[EditorOption2["fontInfo"] = 48] = "fontInfo";
-    EditorOption2[EditorOption2["fontLigatures"] = 49] = "fontLigatures";
-    EditorOption2[EditorOption2["fontSize"] = 50] = "fontSize";
-    EditorOption2[EditorOption2["fontWeight"] = 51] = "fontWeight";
-    EditorOption2[EditorOption2["fontVariations"] = 52] = "fontVariations";
-    EditorOption2[EditorOption2["formatOnPaste"] = 53] = "formatOnPaste";
-    EditorOption2[EditorOption2["formatOnType"] = 54] = "formatOnType";
-    EditorOption2[EditorOption2["glyphMargin"] = 55] = "glyphMargin";
-    EditorOption2[EditorOption2["gotoLocation"] = 56] = "gotoLocation";
-    EditorOption2[EditorOption2["hideCursorInOverviewRuler"] = 57] = "hideCursorInOverviewRuler";
-    EditorOption2[EditorOption2["hover"] = 58] = "hover";
-    EditorOption2[EditorOption2["inDiffEditor"] = 59] = "inDiffEditor";
-    EditorOption2[EditorOption2["inlineSuggest"] = 60] = "inlineSuggest";
-    EditorOption2[EditorOption2["letterSpacing"] = 61] = "letterSpacing";
-    EditorOption2[EditorOption2["lightbulb"] = 62] = "lightbulb";
-    EditorOption2[EditorOption2["lineDecorationsWidth"] = 63] = "lineDecorationsWidth";
-    EditorOption2[EditorOption2["lineHeight"] = 64] = "lineHeight";
-    EditorOption2[EditorOption2["lineNumbers"] = 65] = "lineNumbers";
-    EditorOption2[EditorOption2["lineNumbersMinChars"] = 66] = "lineNumbersMinChars";
-    EditorOption2[EditorOption2["linkedEditing"] = 67] = "linkedEditing";
-    EditorOption2[EditorOption2["links"] = 68] = "links";
-    EditorOption2[EditorOption2["matchBrackets"] = 69] = "matchBrackets";
-    EditorOption2[EditorOption2["minimap"] = 70] = "minimap";
-    EditorOption2[EditorOption2["mouseStyle"] = 71] = "mouseStyle";
-    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 72] = "mouseWheelScrollSensitivity";
-    EditorOption2[EditorOption2["mouseWheelZoom"] = 73] = "mouseWheelZoom";
-    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 74] = "multiCursorMergeOverlapping";
-    EditorOption2[EditorOption2["multiCursorModifier"] = 75] = "multiCursorModifier";
-    EditorOption2[EditorOption2["multiCursorPaste"] = 76] = "multiCursorPaste";
-    EditorOption2[EditorOption2["multiCursorLimit"] = 77] = "multiCursorLimit";
-    EditorOption2[EditorOption2["occurrencesHighlight"] = 78] = "occurrencesHighlight";
-    EditorOption2[EditorOption2["overviewRulerBorder"] = 79] = "overviewRulerBorder";
-    EditorOption2[EditorOption2["overviewRulerLanes"] = 80] = "overviewRulerLanes";
-    EditorOption2[EditorOption2["padding"] = 81] = "padding";
-    EditorOption2[EditorOption2["pasteAs"] = 82] = "pasteAs";
-    EditorOption2[EditorOption2["parameterHints"] = 83] = "parameterHints";
-    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 84] = "peekWidgetDefaultFocus";
-    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 85] = "definitionLinkOpensInPeek";
-    EditorOption2[EditorOption2["quickSuggestions"] = 86] = "quickSuggestions";
-    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 87] = "quickSuggestionsDelay";
-    EditorOption2[EditorOption2["readOnly"] = 88] = "readOnly";
-    EditorOption2[EditorOption2["readOnlyMessage"] = 89] = "readOnlyMessage";
-    EditorOption2[EditorOption2["renameOnType"] = 90] = "renameOnType";
-    EditorOption2[EditorOption2["renderControlCharacters"] = 91] = "renderControlCharacters";
-    EditorOption2[EditorOption2["renderFinalNewline"] = 92] = "renderFinalNewline";
-    EditorOption2[EditorOption2["renderLineHighlight"] = 93] = "renderLineHighlight";
-    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 94] = "renderLineHighlightOnlyWhenFocus";
-    EditorOption2[EditorOption2["renderValidationDecorations"] = 95] = "renderValidationDecorations";
-    EditorOption2[EditorOption2["renderWhitespace"] = 96] = "renderWhitespace";
-    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 97] = "revealHorizontalRightPadding";
-    EditorOption2[EditorOption2["roundedSelection"] = 98] = "roundedSelection";
-    EditorOption2[EditorOption2["rulers"] = 99] = "rulers";
-    EditorOption2[EditorOption2["scrollbar"] = 100] = "scrollbar";
-    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 101] = "scrollBeyondLastColumn";
-    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 102] = "scrollBeyondLastLine";
-    EditorOption2[EditorOption2["scrollPredominantAxis"] = 103] = "scrollPredominantAxis";
-    EditorOption2[EditorOption2["selectionClipboard"] = 104] = "selectionClipboard";
-    EditorOption2[EditorOption2["selectionHighlight"] = 105] = "selectionHighlight";
-    EditorOption2[EditorOption2["selectOnLineNumbers"] = 106] = "selectOnLineNumbers";
-    EditorOption2[EditorOption2["showFoldingControls"] = 107] = "showFoldingControls";
-    EditorOption2[EditorOption2["showUnused"] = 108] = "showUnused";
-    EditorOption2[EditorOption2["snippetSuggestions"] = 109] = "snippetSuggestions";
-    EditorOption2[EditorOption2["smartSelect"] = 110] = "smartSelect";
-    EditorOption2[EditorOption2["smoothScrolling"] = 111] = "smoothScrolling";
-    EditorOption2[EditorOption2["stickyScroll"] = 112] = "stickyScroll";
-    EditorOption2[EditorOption2["stickyTabStops"] = 113] = "stickyTabStops";
-    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 114] = "stopRenderingLineAfter";
-    EditorOption2[EditorOption2["suggest"] = 115] = "suggest";
-    EditorOption2[EditorOption2["suggestFontSize"] = 116] = "suggestFontSize";
-    EditorOption2[EditorOption2["suggestLineHeight"] = 117] = "suggestLineHeight";
-    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 118] = "suggestOnTriggerCharacters";
-    EditorOption2[EditorOption2["suggestSelection"] = 119] = "suggestSelection";
-    EditorOption2[EditorOption2["tabCompletion"] = 120] = "tabCompletion";
-    EditorOption2[EditorOption2["tabIndex"] = 121] = "tabIndex";
-    EditorOption2[EditorOption2["unicodeHighlighting"] = 122] = "unicodeHighlighting";
-    EditorOption2[EditorOption2["unusualLineTerminators"] = 123] = "unusualLineTerminators";
-    EditorOption2[EditorOption2["useShadowDOM"] = 124] = "useShadowDOM";
-    EditorOption2[EditorOption2["useTabStops"] = 125] = "useTabStops";
-    EditorOption2[EditorOption2["wordBreak"] = 126] = "wordBreak";
-    EditorOption2[EditorOption2["wordSeparators"] = 127] = "wordSeparators";
-    EditorOption2[EditorOption2["wordWrap"] = 128] = "wordWrap";
-    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 129] = "wordWrapBreakAfterCharacters";
-    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 130] = "wordWrapBreakBeforeCharacters";
-    EditorOption2[EditorOption2["wordWrapColumn"] = 131] = "wordWrapColumn";
-    EditorOption2[EditorOption2["wordWrapOverride1"] = 132] = "wordWrapOverride1";
-    EditorOption2[EditorOption2["wordWrapOverride2"] = 133] = "wordWrapOverride2";
-    EditorOption2[EditorOption2["wrappingIndent"] = 134] = "wrappingIndent";
-    EditorOption2[EditorOption2["wrappingStrategy"] = 135] = "wrappingStrategy";
-    EditorOption2[EditorOption2["showDeprecated"] = 136] = "showDeprecated";
-    EditorOption2[EditorOption2["inlayHints"] = 137] = "inlayHints";
-    EditorOption2[EditorOption2["editorClassName"] = 138] = "editorClassName";
-    EditorOption2[EditorOption2["pixelRatio"] = 139] = "pixelRatio";
-    EditorOption2[EditorOption2["tabFocusMode"] = 140] = "tabFocusMode";
-    EditorOption2[EditorOption2["layoutInfo"] = 141] = "layoutInfo";
-    EditorOption2[EditorOption2["wrappingInfo"] = 142] = "wrappingInfo";
-    EditorOption2[EditorOption2["defaultColorDecorators"] = 143] = "defaultColorDecorators";
-    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 144] = "colorDecoratorsActivatedOn";
+    EditorOption2[EditorOption2["ariaRequired"] = 5] = "ariaRequired";
+    EditorOption2[EditorOption2["autoClosingBrackets"] = 6] = "autoClosingBrackets";
+    EditorOption2[EditorOption2["screenReaderAnnounceInlineSuggestion"] = 7] = "screenReaderAnnounceInlineSuggestion";
+    EditorOption2[EditorOption2["autoClosingDelete"] = 8] = "autoClosingDelete";
+    EditorOption2[EditorOption2["autoClosingOvertype"] = 9] = "autoClosingOvertype";
+    EditorOption2[EditorOption2["autoClosingQuotes"] = 10] = "autoClosingQuotes";
+    EditorOption2[EditorOption2["autoIndent"] = 11] = "autoIndent";
+    EditorOption2[EditorOption2["automaticLayout"] = 12] = "automaticLayout";
+    EditorOption2[EditorOption2["autoSurround"] = 13] = "autoSurround";
+    EditorOption2[EditorOption2["bracketPairColorization"] = 14] = "bracketPairColorization";
+    EditorOption2[EditorOption2["guides"] = 15] = "guides";
+    EditorOption2[EditorOption2["codeLens"] = 16] = "codeLens";
+    EditorOption2[EditorOption2["codeLensFontFamily"] = 17] = "codeLensFontFamily";
+    EditorOption2[EditorOption2["codeLensFontSize"] = 18] = "codeLensFontSize";
+    EditorOption2[EditorOption2["colorDecorators"] = 19] = "colorDecorators";
+    EditorOption2[EditorOption2["colorDecoratorsLimit"] = 20] = "colorDecoratorsLimit";
+    EditorOption2[EditorOption2["columnSelection"] = 21] = "columnSelection";
+    EditorOption2[EditorOption2["comments"] = 22] = "comments";
+    EditorOption2[EditorOption2["contextmenu"] = 23] = "contextmenu";
+    EditorOption2[EditorOption2["copyWithSyntaxHighlighting"] = 24] = "copyWithSyntaxHighlighting";
+    EditorOption2[EditorOption2["cursorBlinking"] = 25] = "cursorBlinking";
+    EditorOption2[EditorOption2["cursorSmoothCaretAnimation"] = 26] = "cursorSmoothCaretAnimation";
+    EditorOption2[EditorOption2["cursorStyle"] = 27] = "cursorStyle";
+    EditorOption2[EditorOption2["cursorSurroundingLines"] = 28] = "cursorSurroundingLines";
+    EditorOption2[EditorOption2["cursorSurroundingLinesStyle"] = 29] = "cursorSurroundingLinesStyle";
+    EditorOption2[EditorOption2["cursorWidth"] = 30] = "cursorWidth";
+    EditorOption2[EditorOption2["disableLayerHinting"] = 31] = "disableLayerHinting";
+    EditorOption2[EditorOption2["disableMonospaceOptimizations"] = 32] = "disableMonospaceOptimizations";
+    EditorOption2[EditorOption2["domReadOnly"] = 33] = "domReadOnly";
+    EditorOption2[EditorOption2["dragAndDrop"] = 34] = "dragAndDrop";
+    EditorOption2[EditorOption2["dropIntoEditor"] = 35] = "dropIntoEditor";
+    EditorOption2[EditorOption2["emptySelectionClipboard"] = 36] = "emptySelectionClipboard";
+    EditorOption2[EditorOption2["experimentalWhitespaceRendering"] = 37] = "experimentalWhitespaceRendering";
+    EditorOption2[EditorOption2["extraEditorClassName"] = 38] = "extraEditorClassName";
+    EditorOption2[EditorOption2["fastScrollSensitivity"] = 39] = "fastScrollSensitivity";
+    EditorOption2[EditorOption2["find"] = 40] = "find";
+    EditorOption2[EditorOption2["fixedOverflowWidgets"] = 41] = "fixedOverflowWidgets";
+    EditorOption2[EditorOption2["folding"] = 42] = "folding";
+    EditorOption2[EditorOption2["foldingStrategy"] = 43] = "foldingStrategy";
+    EditorOption2[EditorOption2["foldingHighlight"] = 44] = "foldingHighlight";
+    EditorOption2[EditorOption2["foldingImportsByDefault"] = 45] = "foldingImportsByDefault";
+    EditorOption2[EditorOption2["foldingMaximumRegions"] = 46] = "foldingMaximumRegions";
+    EditorOption2[EditorOption2["unfoldOnClickAfterEndOfLine"] = 47] = "unfoldOnClickAfterEndOfLine";
+    EditorOption2[EditorOption2["fontFamily"] = 48] = "fontFamily";
+    EditorOption2[EditorOption2["fontInfo"] = 49] = "fontInfo";
+    EditorOption2[EditorOption2["fontLigatures"] = 50] = "fontLigatures";
+    EditorOption2[EditorOption2["fontSize"] = 51] = "fontSize";
+    EditorOption2[EditorOption2["fontWeight"] = 52] = "fontWeight";
+    EditorOption2[EditorOption2["fontVariations"] = 53] = "fontVariations";
+    EditorOption2[EditorOption2["formatOnPaste"] = 54] = "formatOnPaste";
+    EditorOption2[EditorOption2["formatOnType"] = 55] = "formatOnType";
+    EditorOption2[EditorOption2["glyphMargin"] = 56] = "glyphMargin";
+    EditorOption2[EditorOption2["gotoLocation"] = 57] = "gotoLocation";
+    EditorOption2[EditorOption2["hideCursorInOverviewRuler"] = 58] = "hideCursorInOverviewRuler";
+    EditorOption2[EditorOption2["hover"] = 59] = "hover";
+    EditorOption2[EditorOption2["inDiffEditor"] = 60] = "inDiffEditor";
+    EditorOption2[EditorOption2["inlineSuggest"] = 61] = "inlineSuggest";
+    EditorOption2[EditorOption2["letterSpacing"] = 62] = "letterSpacing";
+    EditorOption2[EditorOption2["lightbulb"] = 63] = "lightbulb";
+    EditorOption2[EditorOption2["lineDecorationsWidth"] = 64] = "lineDecorationsWidth";
+    EditorOption2[EditorOption2["lineHeight"] = 65] = "lineHeight";
+    EditorOption2[EditorOption2["lineNumbers"] = 66] = "lineNumbers";
+    EditorOption2[EditorOption2["lineNumbersMinChars"] = 67] = "lineNumbersMinChars";
+    EditorOption2[EditorOption2["linkedEditing"] = 68] = "linkedEditing";
+    EditorOption2[EditorOption2["links"] = 69] = "links";
+    EditorOption2[EditorOption2["matchBrackets"] = 70] = "matchBrackets";
+    EditorOption2[EditorOption2["minimap"] = 71] = "minimap";
+    EditorOption2[EditorOption2["mouseStyle"] = 72] = "mouseStyle";
+    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 73] = "mouseWheelScrollSensitivity";
+    EditorOption2[EditorOption2["mouseWheelZoom"] = 74] = "mouseWheelZoom";
+    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 75] = "multiCursorMergeOverlapping";
+    EditorOption2[EditorOption2["multiCursorModifier"] = 76] = "multiCursorModifier";
+    EditorOption2[EditorOption2["multiCursorPaste"] = 77] = "multiCursorPaste";
+    EditorOption2[EditorOption2["multiCursorLimit"] = 78] = "multiCursorLimit";
+    EditorOption2[EditorOption2["occurrencesHighlight"] = 79] = "occurrencesHighlight";
+    EditorOption2[EditorOption2["overviewRulerBorder"] = 80] = "overviewRulerBorder";
+    EditorOption2[EditorOption2["overviewRulerLanes"] = 81] = "overviewRulerLanes";
+    EditorOption2[EditorOption2["padding"] = 82] = "padding";
+    EditorOption2[EditorOption2["pasteAs"] = 83] = "pasteAs";
+    EditorOption2[EditorOption2["parameterHints"] = 84] = "parameterHints";
+    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 85] = "peekWidgetDefaultFocus";
+    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 86] = "definitionLinkOpensInPeek";
+    EditorOption2[EditorOption2["quickSuggestions"] = 87] = "quickSuggestions";
+    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 88] = "quickSuggestionsDelay";
+    EditorOption2[EditorOption2["readOnly"] = 89] = "readOnly";
+    EditorOption2[EditorOption2["readOnlyMessage"] = 90] = "readOnlyMessage";
+    EditorOption2[EditorOption2["renameOnType"] = 91] = "renameOnType";
+    EditorOption2[EditorOption2["renderControlCharacters"] = 92] = "renderControlCharacters";
+    EditorOption2[EditorOption2["renderFinalNewline"] = 93] = "renderFinalNewline";
+    EditorOption2[EditorOption2["renderLineHighlight"] = 94] = "renderLineHighlight";
+    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 95] = "renderLineHighlightOnlyWhenFocus";
+    EditorOption2[EditorOption2["renderValidationDecorations"] = 96] = "renderValidationDecorations";
+    EditorOption2[EditorOption2["renderWhitespace"] = 97] = "renderWhitespace";
+    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 98] = "revealHorizontalRightPadding";
+    EditorOption2[EditorOption2["roundedSelection"] = 99] = "roundedSelection";
+    EditorOption2[EditorOption2["rulers"] = 100] = "rulers";
+    EditorOption2[EditorOption2["scrollbar"] = 101] = "scrollbar";
+    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 102] = "scrollBeyondLastColumn";
+    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 103] = "scrollBeyondLastLine";
+    EditorOption2[EditorOption2["scrollPredominantAxis"] = 104] = "scrollPredominantAxis";
+    EditorOption2[EditorOption2["selectionClipboard"] = 105] = "selectionClipboard";
+    EditorOption2[EditorOption2["selectionHighlight"] = 106] = "selectionHighlight";
+    EditorOption2[EditorOption2["selectOnLineNumbers"] = 107] = "selectOnLineNumbers";
+    EditorOption2[EditorOption2["showFoldingControls"] = 108] = "showFoldingControls";
+    EditorOption2[EditorOption2["showUnused"] = 109] = "showUnused";
+    EditorOption2[EditorOption2["snippetSuggestions"] = 110] = "snippetSuggestions";
+    EditorOption2[EditorOption2["smartSelect"] = 111] = "smartSelect";
+    EditorOption2[EditorOption2["smoothScrolling"] = 112] = "smoothScrolling";
+    EditorOption2[EditorOption2["stickyScroll"] = 113] = "stickyScroll";
+    EditorOption2[EditorOption2["stickyTabStops"] = 114] = "stickyTabStops";
+    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 115] = "stopRenderingLineAfter";
+    EditorOption2[EditorOption2["suggest"] = 116] = "suggest";
+    EditorOption2[EditorOption2["suggestFontSize"] = 117] = "suggestFontSize";
+    EditorOption2[EditorOption2["suggestLineHeight"] = 118] = "suggestLineHeight";
+    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 119] = "suggestOnTriggerCharacters";
+    EditorOption2[EditorOption2["suggestSelection"] = 120] = "suggestSelection";
+    EditorOption2[EditorOption2["tabCompletion"] = 121] = "tabCompletion";
+    EditorOption2[EditorOption2["tabIndex"] = 122] = "tabIndex";
+    EditorOption2[EditorOption2["unicodeHighlighting"] = 123] = "unicodeHighlighting";
+    EditorOption2[EditorOption2["unusualLineTerminators"] = 124] = "unusualLineTerminators";
+    EditorOption2[EditorOption2["useShadowDOM"] = 125] = "useShadowDOM";
+    EditorOption2[EditorOption2["useTabStops"] = 126] = "useTabStops";
+    EditorOption2[EditorOption2["wordBreak"] = 127] = "wordBreak";
+    EditorOption2[EditorOption2["wordSeparators"] = 128] = "wordSeparators";
+    EditorOption2[EditorOption2["wordWrap"] = 129] = "wordWrap";
+    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 130] = "wordWrapBreakAfterCharacters";
+    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 131] = "wordWrapBreakBeforeCharacters";
+    EditorOption2[EditorOption2["wordWrapColumn"] = 132] = "wordWrapColumn";
+    EditorOption2[EditorOption2["wordWrapOverride1"] = 133] = "wordWrapOverride1";
+    EditorOption2[EditorOption2["wordWrapOverride2"] = 134] = "wordWrapOverride2";
+    EditorOption2[EditorOption2["wrappingIndent"] = 135] = "wrappingIndent";
+    EditorOption2[EditorOption2["wrappingStrategy"] = 136] = "wrappingStrategy";
+    EditorOption2[EditorOption2["showDeprecated"] = 137] = "showDeprecated";
+    EditorOption2[EditorOption2["inlayHints"] = 138] = "inlayHints";
+    EditorOption2[EditorOption2["editorClassName"] = 139] = "editorClassName";
+    EditorOption2[EditorOption2["pixelRatio"] = 140] = "pixelRatio";
+    EditorOption2[EditorOption2["tabFocusMode"] = 141] = "tabFocusMode";
+    EditorOption2[EditorOption2["layoutInfo"] = 142] = "layoutInfo";
+    EditorOption2[EditorOption2["wrappingInfo"] = 143] = "wrappingInfo";
+    EditorOption2[EditorOption2["defaultColorDecorators"] = 144] = "defaultColorDecorators";
+    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 145] = "colorDecoratorsActivatedOn";
   })(EditorOption || (EditorOption = {}));
   var EndOfLinePreference;
   (function(EndOfLinePreference2) {
@@ -8113,7 +8220,7 @@
     WrappingIndent2[WrappingIndent2["DeepIndent"] = 3] = "DeepIndent";
   })(WrappingIndent || (WrappingIndent = {}));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/services/editorBaseApi.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/services/editorBaseApi.js
   var KeyMod = class {
     static chord(firstPart, secondPart) {
       return KeyChord(firstPart, secondPart);
@@ -8142,7 +8249,7 @@
     };
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/wordCharacterClassifier.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/wordCharacterClassifier.js
   var WordCharacterClassifier = class extends CharacterClassifier {
     constructor(wordSeparators) {
       super(
@@ -8179,7 +8286,7 @@
   }
   var getMapForWordSeparators = once2((input) => new WordCharacterClassifier(input));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/model.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/model.js
   var OverviewRulerLane2;
   (function(OverviewRulerLane3) {
     OverviewRulerLane3[OverviewRulerLane3["Left"] = 1] = "Left";
@@ -8205,7 +8312,7 @@
     InjectedTextCursorStops3[InjectedTextCursorStops3["None"] = 3] = "None";
   })(InjectedTextCursorStops2 || (InjectedTextCursorStops2 = {}));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/model/textModelSearch.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/model/textModelSearch.js
   function leftIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength) {
     if (matchStartIndex === 0) {
       return true;
@@ -8293,7 +8400,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/assert.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/assert.js
   function assertNever(value, message = "Unreachable") {
     throw new Error(message);
   }
@@ -8317,7 +8424,7 @@
     return true;
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/services/unicodeTextModelHighlighter.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/services/unicodeTextModelHighlighter.js
   var UnicodeTextModelHighlighter = class {
     static computeUnicodeHighlights(model, options, range) {
       const startLine = range ? range.startLineNumber : 1;
@@ -8494,7 +8601,7 @@
     return character === " " || character === "\n" || character === "	";
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/lineRange.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/lineRange.js
   var LineRange = class _LineRange {
     static fromRange(range) {
       return new _LineRange(range.startLineNumber, range.endLineNumber);
@@ -8665,6 +8772,11 @@
       }
       return result;
     }
+    forEach(f) {
+      for (let lineNumber = this.startLineNumber; lineNumber < this.endLineNumberExclusive; lineNumber++) {
+        f(lineNumber);
+      }
+    }
     /**
      * @internal
      */
@@ -8676,7 +8788,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputer.js
   var LinesDiff = class {
     constructor(changes, moves, hitTimeout) {
       this.changes = changes;
@@ -8732,15 +8844,15 @@
     }
   };
   var SimpleLineRangeMapping = class _SimpleLineRangeMapping {
-    constructor(originalRange, modifiedRange) {
-      this.originalRange = originalRange;
-      this.modifiedRange = modifiedRange;
+    constructor(original, modified) {
+      this.original = original;
+      this.modified = modified;
     }
     toString() {
-      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
+      return `{${this.original.toString()}->${this.modified.toString()}}`;
     }
     flip() {
-      return new _SimpleLineRangeMapping(this.modifiedRange, this.originalRange);
+      return new _SimpleLineRangeMapping(this.modified, this.original);
     }
   };
   var MovedText = class _MovedText {
@@ -8753,7 +8865,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/smartLinesDiffComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/smartLinesDiffComputer.js
   var MINIMUM_MATCHING_CHARACTER_LENGTH = 3;
   var SmartLinesDiffComputer = class {
     computeDiff(originalLines, modifiedLines, options) {
@@ -9173,7 +9285,7 @@
     };
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/core/offsetRange.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/core/offsetRange.js
   var OffsetRange = class _OffsetRange {
     static addRange(range, sortedRanges) {
       let i = 0;
@@ -9223,6 +9335,9 @@
     containsRange(other) {
       return this.start <= other.start && other.endExclusive <= this.endExclusive;
     }
+    contains(offset) {
+      return this.start <= offset && offset < this.endExclusive;
+    }
     /**
      * for all numbers n: range1.contains(n) or range2.contains(n) => range1.join(range2).contains(n)
      * The joined range is the smallest range that contains both ranges.
@@ -9246,7 +9361,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/diffAlgorithm.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/diffAlgorithm.js
   var DiffAlgorithmResult = class _DiffAlgorithmResult {
     static trivial(seq1, seq2) {
       return new _DiffAlgorithmResult([new SequenceDiff(new OffsetRange(0, seq1.length), new OffsetRange(0, seq2.length))], false);
@@ -9306,7 +9421,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/utils.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/utils.js
   var Array2D = class {
     constructor(width, height) {
       this.width = width;
@@ -9322,7 +9437,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/dynamicProgrammingDiffing.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/dynamicProgrammingDiffing.js
   var DynamicProgrammingDiffing = class {
     compute(sequence1, sequence2, timeout = InfiniteTimeout.instance, equalityScore) {
       if (sequence1.length === 0 || sequence2.length === 0) {
@@ -9398,7 +9513,7 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/joinSequenceDiffs.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/joinSequenceDiffs.js
   function optimizeSequenceDiffs(sequence1, sequence2, sequenceDiffs) {
     let result = sequenceDiffs;
     result = joinSequenceDiffs(sequence1, sequence2, result);
@@ -9421,13 +9536,68 @@
     }
     return result;
   }
-  function joinSequenceDiffs(sequence1, sequence2, sequenceDiffs) {
-    const result = [];
-    if (sequenceDiffs.length > 0) {
-      result.push(sequenceDiffs[0]);
+  function removeRandomMatches(sequence1, sequence2, sequenceDiffs) {
+    let diffs = sequenceDiffs;
+    if (diffs.length === 0) {
+      return diffs;
     }
+    let counter = 0;
+    let shouldRepeat;
+    do {
+      shouldRepeat = false;
+      const result = [
+        diffs[0]
+      ];
+      for (let i = 1; i < diffs.length; i++) {
+        let shouldJoinDiffs = function(before, after) {
+          const unchangedRange = new OffsetRange(lastResult.seq1Range.endExclusive, cur.seq1Range.start);
+          const unchangedLineCount = sequence1.countLinesIn(unchangedRange);
+          if (unchangedLineCount > 5 || unchangedRange.length > 500) {
+            return false;
+          }
+          const unchangedText = sequence1.getText(unchangedRange).trim();
+          if (unchangedText.length > 20 || unchangedText.split(/\r\n|\r|\n/).length > 1) {
+            return false;
+          }
+          const beforeLineCount1 = sequence1.countLinesIn(before.seq1Range);
+          const beforeSeq1Length = before.seq1Range.length;
+          const beforeLineCount2 = sequence2.countLinesIn(before.seq2Range);
+          const beforeSeq2Length = before.seq2Range.length;
+          const afterLineCount1 = sequence1.countLinesIn(after.seq1Range);
+          const afterSeq1Length = after.seq1Range.length;
+          const afterLineCount2 = sequence2.countLinesIn(after.seq2Range);
+          const afterSeq2Length = after.seq2Range.length;
+          const max = 2 * 40 + 50;
+          function cap(v) {
+            return Math.min(v, max);
+          }
+          if (Math.pow(Math.pow(cap(beforeLineCount1 * 40 + beforeSeq1Length), 1.5) + Math.pow(cap(beforeLineCount2 * 40 + beforeSeq2Length), 1.5), 1.5) + Math.pow(Math.pow(cap(afterLineCount1 * 40 + afterSeq1Length), 1.5) + Math.pow(cap(afterLineCount2 * 40 + afterSeq2Length), 1.5), 1.5) > Math.pow(Math.pow(max, 1.5), 1.5) * 1.3) {
+            return true;
+          }
+          return false;
+        };
+        const cur = diffs[i];
+        const lastResult = result[result.length - 1];
+        const shouldJoin = shouldJoinDiffs(lastResult, cur);
+        if (shouldJoin) {
+          shouldRepeat = true;
+          result[result.length - 1] = result[result.length - 1].join(cur);
+        } else {
+          result.push(cur);
+        }
+      }
+      diffs = result;
+    } while (counter++ < 10 && shouldRepeat);
+    return diffs;
+  }
+  function joinSequenceDiffs(sequence1, sequence2, sequenceDiffs) {
+    if (sequenceDiffs.length === 0) {
+      return sequenceDiffs;
+    }
+    const result = [];
+    result.push(sequenceDiffs[0]);
     for (let i = 1; i < sequenceDiffs.length; i++) {
-      const prevResult = sequenceDiffs[i - 1];
+      const prevResult = result[result.length - 1];
       let cur = sequenceDiffs[i];
       if (cur.seq1Range.isEmpty || cur.seq2Range.isEmpty) {
         const length = cur.seq1Range.start - prevResult.seq1Range.endExclusive;
@@ -9520,7 +9690,7 @@
     return diff.delta(bestDelta);
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/myersDiffAlgorithm.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/myersDiffAlgorithm.js
   var MyersDiffAlgorithm = class {
     compute(seq1, seq2, timeout = InfiniteTimeout.instance) {
       if (seq1.length === 0 || seq2.length === 0) {
@@ -9648,13 +9818,24 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/standardLinesDiffComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/standardLinesDiffComputer.js
   var StandardLinesDiffComputer = class {
     constructor() {
       this.dynamicProgrammingDiffing = new DynamicProgrammingDiffing();
       this.myersDiffingAlgorithm = new MyersDiffAlgorithm();
     }
     computeDiff(originalLines, modifiedLines, options) {
+      if (originalLines.length === 1 && originalLines[0].length === 0 || modifiedLines.length === 1 && modifiedLines[0].length === 0) {
+        return {
+          changes: [
+            new LineRangeMapping(new LineRange(1, originalLines.length + 1), new LineRange(1, modifiedLines.length + 1), [
+              new RangeMapping(new Range(1, 1, originalLines.length, originalLines[0].length + 1), new Range(1, 1, modifiedLines.length, modifiedLines[0].length + 1))
+            ])
+          ],
+          hitTimeout: false,
+          moves: []
+        };
+      }
       const timeout = options.maxComputationTimeMs === 0 ? InfiniteTimeout.instance : new DateTimeout(options.maxComputationTimeMs);
       const considerWhitespaceChanges = !options.ignoreTrimWhitespace;
       const perfectHashes = /* @__PURE__ */ new Map();
@@ -9738,16 +9919,53 @@
           }
         }
       }
+      assertFn(() => {
+        function validatePosition(pos, lines) {
+          if (pos.lineNumber < 1 || pos.lineNumber > lines.length) {
+            return false;
+          }
+          const line = lines[pos.lineNumber - 1];
+          if (pos.column < 1 || pos.column > line.length + 1) {
+            return false;
+          }
+          return true;
+        }
+        function validateRange(range, lines) {
+          if (range.startLineNumber < 1 || range.startLineNumber > lines.length + 1) {
+            return false;
+          }
+          if (range.endLineNumberExclusive < 1 || range.endLineNumberExclusive > lines.length + 1) {
+            return false;
+          }
+          return true;
+        }
+        for (const c of changes) {
+          if (!c.innerChanges) {
+            return false;
+          }
+          for (const ic of c.innerChanges) {
+            const valid = validatePosition(ic.modifiedRange.getStartPosition(), modifiedLines) && validatePosition(ic.modifiedRange.getEndPosition(), modifiedLines) && validatePosition(ic.originalRange.getStartPosition(), originalLines) && validatePosition(ic.originalRange.getEndPosition(), originalLines);
+            if (!valid) {
+              return false;
+            }
+          }
+          if (!validateRange(c.modifiedRange, modifiedLines) || !validateRange(c.originalRange, originalLines)) {
+            return false;
+          }
+        }
+        return true;
+      });
       return new LinesDiff(changes, moves, hitTimeout);
     }
     refineDiff(originalLines, modifiedLines, diff, timeout, considerWhitespaceChanges) {
-      const slice1 = new Slice(originalLines, diff.seq1Range, considerWhitespaceChanges);
-      const slice2 = new Slice(modifiedLines, diff.seq2Range, considerWhitespaceChanges);
+      const slice1 = new LinesSliceCharSequence(originalLines, diff.seq1Range, considerWhitespaceChanges);
+      const slice2 = new LinesSliceCharSequence(modifiedLines, diff.seq2Range, considerWhitespaceChanges);
       const diffResult = slice1.length + slice2.length < 500 ? this.dynamicProgrammingDiffing.compute(slice1, slice2, timeout) : this.myersDiffingAlgorithm.compute(slice1, slice2, timeout);
       let diffs = diffResult.diffs;
       diffs = optimizeSequenceDiffs(slice1, slice2, diffs);
       diffs = coverFullWords(slice1, slice2, diffs);
       diffs = smoothenSequenceDiffs(slice1, slice2, diffs);
+      diffs = removeRandomMatches(slice1, slice2, diffs);
       const result = diffs.map((d) => new RangeMapping(slice1.translateRange(d.seq1Range), slice2.translateRange(d.seq2Range)));
       return {
         mappings: result,
@@ -9904,7 +10122,7 @@
     }
     return i;
   }
-  var Slice = class {
+  var LinesSliceCharSequence = class {
     constructor(lines, lineRange, considerWhitespaceChanges) {
       this.lines = lines;
       this.considerWhitespaceChanges = considerWhitespaceChanges;
@@ -9944,7 +10162,10 @@
       return `Slice: "${this.text}"`;
     }
     get text() {
-      return [...this.elements].map((e) => String.fromCharCode(e)).join("");
+      return this.getText(new OffsetRange(0, this.length));
+    }
+    getText(range) {
+      return this.elements.slice(range.start, range.endExclusive).map((e) => String.fromCharCode(e)).join("");
     }
     getElement(offset) {
       return this.elements[offset];
@@ -10008,6 +10229,9 @@
         end++;
       }
       return new OffsetRange(start, end);
+    }
+    countLinesIn(range) {
+      return this.translateOffset(range.endExclusive).lineNumber - this.translateOffset(range.start).lineNumber;
     }
   };
   function isWordChar(charCode) {
@@ -10112,13 +10336,13 @@
     }
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputers.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputers.js
   var linesDiffComputers = {
     getLegacy: () => new SmartLinesDiffComputer(),
     getAdvanced: () => new StandardLinesDiffComputer()
   };
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/base/common/color.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/base/common/color.js
   function roundFloat(number, decimalPoints) {
     const decimal = Math.pow(10, decimalPoints);
     return Math.round(number * decimal) / decimal;
@@ -10562,7 +10786,7 @@
     })(Format = Color2.Format || (Color2.Format = {}));
   })(Color || (Color = {}));
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/languages/defaultDocumentColorsComputer.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/languages/defaultDocumentColorsComputer.js
   function _parseCaptureGroups(captureGroups) {
     const values = [];
     for (const captureGroup of captureGroups) {
@@ -10683,7 +10907,7 @@
     return computeColors(model);
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/common/services/editorSimpleWorker.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/common/services/editorSimpleWorker.js
   var __awaiter2 = function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve2) {
@@ -10961,10 +11185,10 @@
         quitEarly: result.hitTimeout,
         changes: getLineChanges(result.changes),
         moves: result.moves.map((m) => [
-          m.lineRangeMapping.originalRange.startLineNumber,
-          m.lineRangeMapping.originalRange.endLineNumberExclusive,
-          m.lineRangeMapping.modifiedRange.startLineNumber,
-          m.lineRangeMapping.modifiedRange.endLineNumberExclusive,
+          m.lineRangeMapping.original.startLineNumber,
+          m.lineRangeMapping.original.endLineNumberExclusive,
+          m.lineRangeMapping.modified.startLineNumber,
+          m.lineRangeMapping.modified.endLineNumberExclusive,
           getLineChanges(m.changes)
         ])
       };
@@ -11174,7 +11398,7 @@
     globalThis.monaco = createMonacoBaseAPI();
   }
 
-  // node_modules/.pnpm/monaco-editor@0.40.0/node_modules/monaco-editor/esm/vs/editor/editor.worker.js
+  // node_modules/.pnpm/monaco-editor@0.41.0/node_modules/monaco-editor/esm/vs/editor/editor.worker.js
   var initialized = false;
   function initialize(foreignModule) {
     if (initialized) {

@@ -1,1 +1,0 @@
-@supports ((-webkit-background-clip: text) or (background-clip: text)) or (-webkit-background-clip: text){.panel-app-logo__title{white-space:nowrap;background-clip:text;-webkit-background-clip:text;background-color:currentColor}}@supports not (-webkit-background-clip: text){.panel-app-logo__title{transition-property:width;width:var(--386a9073)}}
