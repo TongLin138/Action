@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-07-08
+## Modified: 2023-08-31
 
 ## 目录
 RootDir=${ARCADIA_DIR}
@@ -155,7 +155,12 @@ function output_table_data_file() {
 function send_notify() {
     local title=$(echo "$1" | sed "s|-|_|g")
     local msg="$(echo -e "$2")"
-    node $FileNotify "$title" "$msg"
+    import_config_not_check
+    if [[ "${EnableCustomNotify}" == true ]] && [ -s $FileSendNotifyUser ]; then
+        node $FileNotify "$title" "$msg" "true"
+    else
+        node $FileNotify "$title" "$msg"
+    fi
 }
 
 ## 创建目录
