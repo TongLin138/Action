@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-07-30
+## Modified: 2023-09-08
 
 ## 统计数量
 function count_usersum() {
@@ -187,6 +187,16 @@ function run_normal() {
     ## 指定运行账号
     function designated_account() {
         local AccountsTmp="$1"
+        local TempBlocked=""
+        local GlobalBlocked=""
+        local ActuallyRun=""
+
+        ## 全局屏蔽
+        grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
+        if [ $? -eq 0 ]; then
+            local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | head -n 1 | awk -F "[\"\']" '{print$2}')
+        fi
+
         for UserNum in ${AccountsTmp}; do
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
@@ -194,19 +204,51 @@ function run_normal() {
                 check_accounts_range_format "${UserNum}"
                 if [[ ${UserNum%-*} -lt ${UserNum##*-} ]]; then
                     for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
+                        ## 跳过全局屏蔽的账号
+                        if [[ ${GlobalBlockCookie} ]]; then
+                            for num1 in ${GlobalBlockCookie}; do
+                                if [[ $i -eq $num1 ]]; then
+                                    GlobalBlocked="${GlobalBlocked} ${i}"
+                                    continue 2
+                                fi
+                            done
+                        fi
+                        ## 跳过临时屏蔽的账号
+                        for num2 in ${TempBlockCookie}; do
+                            if [[ $i -eq $num2 ]]; then
+                                TempBlocked="${TempBlocked} ${i}"
+                                continue 2
+                            fi
+                        done
                         ## 判定账号是否存在
                         account_existence_judgment $i
                         combin_designated_cookie $i
+                        ActuallyRun="${ActuallyRun} ${i}"
                     done
                 else
                     output_error "检测到无效参数值 ${BLUE}${UserNum}${PLAIN} ，账号区间语法有误，请重新输入！"
                 fi
+
             else
                 ## 判定账号是否存在
                 account_existence_judgment $UserNum
                 combin_designated_cookie $UserNum
+                ActuallyRun="${ActuallyRun} $UserNum"
             fi
         done
+
+        ## 输出汇总信息（仅在处理账号范围时）
+        ActuallyRun=$(echo $ActuallyRun | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+        TempBlocked=$(echo $TempBlocked | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+        GlobalBlocked=$(echo $GlobalBlocked | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+        # echo -e "\e[32m实际运行账号序号: ${ActuallyRun}\e[0m"
+        # echo -e "\e[36m以下信息仅关于指定区间内的账号：\e[0m"
+        # echo -e "\e[33m临时屏蔽账号序号: ${TempBlocked}\e[0m"
+        # echo -e "\e[31m全局屏蔽账号序号: ${GlobalBlocked}\e[0m"
+        # 检查 ActuallyRun 是否为空
+        if [ -z "$ActuallyRun" ]; then
+            output_error "检测到没有满足的运行账号，请确认后重试！"
+        fi
         ## 声明变量
         export JD_COOKIE=${COOKIE_TMP}
     }
@@ -421,6 +463,15 @@ function run_concurrent() {
     ## 推迟执行
     [[ ${RUN_WAIT} == true ]] && wait_before_run
 
+    # 全局屏蔽
+    grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
+    if [ $? -eq 0 ]; then
+        local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | awk -F "[\"\']" '{print$2}')
+    fi
+    local TempBlocked=""
+    local GlobalBlocked=""
+    local ActuallyRun=""
+
     ## 加载账号并执行
     if [[ ${RUN_DESIGNATED} == true ]]; then
         ## 判定账号是否存在
@@ -449,21 +500,34 @@ function run_concurrent() {
             echo "${UserNum}" | grep "-" -q
             if [ $? -eq 0 ]; then
                 for ((i = ${UserNum%-*}; i <= ${UserNum##*-}; i++)); do
+                    ## 跳过全局屏蔽的账号
+                    if [[ ${GlobalBlockCookie} ]]; then
+                        for num1 in ${GlobalBlockCookie}; do
+                            if [[ $i -eq $num1 ]]; then
+                                GlobalBlocked="${GlobalBlocked} $i"
+                                continue 2
+                            fi
+                        done
+                    fi
+                    ## 跳过临时屏蔽的账号
+                    for num2 in ${TempBlockCookie}; do
+                        if [[ $i -eq $num2 ]]; then
+                            TempBlocked="${TempBlocked} $i"
+                            continue 2
+                        fi
+                    done
+                    ActuallyRun="${ActuallyRun} ${i}"
                     ## 执行脚本
                     run_concurrent_main $i
                 done
             else
+                ActuallyRun="${ActuallyRun} $UserNum"
                 ## 执行脚本
                 run_concurrent_main ${UserNum}
             fi
         done
     else
         ## 加载全部账号
-        # 全局屏蔽
-        grep "^TempBlockCookie=" $FileConfUser -q 2>/dev/null
-        if [ $? -eq 0 ]; then
-            local GlobalBlockCookie=$(grep "^TempBlockCookie=" $FileConfUser | awk -F "[\"\']" '{print$2}')
-        fi
         for ((UserNum = 1; UserNum <= ${UserSum}; UserNum++)); do
             if [[ ${GlobalBlockCookie} ]]; then
                 for num1 in ${GlobalBlockCookie}; do
@@ -473,10 +537,24 @@ function run_concurrent() {
             for num in ${TempBlockCookie}; do
                 [[ $UserNum -eq $num ]] && continue 2
             done
+            ActuallyRun="${ActuallyRun} $UserNum"
             ## 执行脚本
             run_concurrent_main ${UserNum}
         done
     fi
+    ## 输出汇总信息
+    ActuallyRun=$(echo $ActuallyRun | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+    TempBlocked=$(echo $TempBlocked | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+    GlobalBlocked=$(echo $GlobalBlocked | tr ' ' '\n' | sort -nu | tr '\n' ' ' | sed 's/^[ \t]*//;s/[ \t]*$//')
+    # echo -e "\e[32m实际运行账号序号: ${ActuallyRun}\e[0m"
+    # echo -e "\e[36m以下信息仅关于指定区间内的账号：\e[0m"
+    # echo -e "\e[33m临时屏蔽账号序号: ${TempBlocked}\e[0m"
+    # echo -e "\e[31m全局屏蔽账号序号: ${GlobalBlocked}\e[0m"
+
+    if [ -z "$ActuallyRun" ]; then
+        output_error "检测到没有满足的运行账号，请确认后重试！"
+    fi
+
     echo -e "\n$COMPLETE 已部署当前任务并于后台运行中，如需查询脚本运行记录请前往 ${BLUE}$(echo "${LogPath}" | awk -F "${RootDir}/" '{print$2}')${PLAIN} 目录查看相关日志\n"
 
     ## 判断远程脚本执行后是否删除
