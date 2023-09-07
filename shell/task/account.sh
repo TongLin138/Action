@@ -581,18 +581,18 @@ function accounts_control() {
         ## 汇总
         case $# in
         1)
-            for ((i = 1; i <= ${UserSum}; i++)); do
-                echo -e "\n$WORKING 正在请求接口获取账号 ${BLUE}$i${PLAIN} 的今日收支数据...\n"
+            for ((n = 1; n <= ${UserSum}; n++)); do
+                echo -e "\n$WORKING 正在请求接口获取账号 ${BLUE}$n${PLAIN} 的今日收支数据...\n"
                 nickName=""
                 StatusCode=""
-                Cookie_Tmp=Cookie$i
+                Cookie_Tmp=Cookie$n
                 CK=${!Cookie_Tmp}
                 CheckStatus "${CK}"
                 if [[ ${StatusCode} == "0" ]]; then
-                    echo -e "❖ 账号$i · ${BLUE}${nickName}${PLAIN}\n"
+                    echo -e "❖ 账号$n · ${BLUE}${nickName}${PLAIN}\n"
                     QueryBeanInfo
                 else
-                    echo -e "$WARN 账号$i · [${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN}] 无效，跳过查询..."
+                    echo -e "$FAIL 该账号 [${BLUE}$(echo "$CK" | perl -pe "{s|.*pt_pin=([^; ]+)(?=;?).*|\1|g;}")${PLAIN}] 无效，跳过查询..."
                 fi
                 echo -e "\n............................................................................."
                 sleep 1
