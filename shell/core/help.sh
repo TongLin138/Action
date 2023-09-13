@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-09-13
 
 ## 命令帮助
 function print_help() {
@@ -186,11 +186,11 @@ function print_help() {
   使用方法：
 
     ${BLUE}$UpdateCmd all${PLAIN}        ✧ 更新全部内容，包括下列除指定仓库以外的所有内容
-    ${BLUE}$UpdateCmd source${PLAIN}     ✧ 更新项目源码，包括项目源码，所有仓库和脚本，自定义脚本等
-    ${BLUE}$UpdateCmd repo${PLAIN}       ✧ 更新脚本仓库，包括项目源码，所有仓库和脚本，自定义脚本等
-    ${BLUE}$UpdateCmd raw${PLAIN}        ✧ 更新远程脚本，包括项目源码，所有仓库和脚本，自定义脚本等
-    ${BLUE}$UpdateCmd extra${PLAIN}      ✧ 执行自定义更新脚本，包括项目源码，所有仓库和脚本，自定义脚本等
-    ${BLUE}$UpdateCmd <path>${PLAIN}     ✧ 更新指定路径下的脚本仓库，包括项目源码，所有仓库和脚本，自定义脚本等
+    ${BLUE}$UpdateCmd source${PLAIN}     ✧ 更新项目源码
+    ${BLUE}$UpdateCmd repo${PLAIN}       ✧ 更新脚本仓库
+    ${BLUE}$UpdateCmd raw${PLAIN}        ✧ 更新远程脚本
+    ${BLUE}$UpdateCmd extra${PLAIN}      ✧ 执行自定义更新脚本
+    ${BLUE}$UpdateCmd <path>${PLAIN}     ✧ 更新指定路径下的脚本仓库
 
   命令注释：
 
