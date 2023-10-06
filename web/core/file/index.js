@@ -123,10 +123,12 @@ const getDirectory = (dir, query) => {
     let parentDir = dir;
     let options = getOptions(query);
     let files = fs.readdirSync(dir);
+    let dirStats = fs.statSync(dir)
     let result = { //构造文件夹数据
         path: dir,
         title: path.basename(dir),
-        type: 0
+        type: 0,
+        mTime: dirStats.mtime
     }
     result.children = arrayObjectSort("type", files.filter(item => {
         let subPath = path.join(dir, item)
@@ -142,7 +144,8 @@ const getDirectory = (dir, query) => {
         return {
             path: subPath,
             name: file,
-            type: stats.isDirectory() ? 0 : 1
+            type: stats.isDirectory() ? 0 : 1,
+            mTime: stats.mtime
         }
     }).filter((item) => {
         return dirQueryAfter(parentDir, item, options)
