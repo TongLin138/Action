@@ -1,6 +1,6 @@
 const express = require('express');
 const compression = require('compression');
-const { expressjwt: jwt } = require("express-jwt");
+const { expressjwt } = require("express-jwt");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -56,7 +56,7 @@ let getToken = function fromHeaderOrQuerystring(req) {
     }
     return null;
 };
-let sessionMiddleware = jwt({
+let sessionMiddleware = expressjwt({
     secret: jwtSecret,
     algorithms: ['HS256'],
     credentialsRequired: true,
