@@ -27,7 +27,7 @@ api.post('/auth', async (request, response) => {
         let limitTime = 60 - (curTime.getTime() - authErrorTime)/1000;
         if (limitTime > 0) {
             // 累计错误登录次数超过3次锁定1分钟
-            response.send(API_STATUS_CODE.failData('认证失败次数过多，请过一会儿再尝试进行登录!', {
+            response.send(API_STATUS_CODE.failData('认证失败次数过多，请稍后尝试！', {
                 showCaptcha: true,
                 limitTime:Math.floor(limitTime),
             }))
@@ -37,12 +37,12 @@ api.post('/auth', async (request, response) => {
 
     let showCaptcha = authErrorCount >= errorCount;
     if (captcha === '' && showCaptcha) {
-        response.send(API_STATUS_CODE.failData('请输入验证码!', {showCaptcha: true}))
+        response.send(API_STATUS_CODE.failData('请输入验证码！', {showCaptcha: true}))
         return;
     }
     let authCaptcha = con['captcha'];
     if (showCaptcha && captcha !== authCaptcha) {
-        response.send(API_STATUS_CODE.failData('验证码不正确!', {showCaptcha: showCaptcha}))
+        response.send(API_STATUS_CODE.failData('验证码不正确！', {showCaptcha: showCaptcha}))
         return;
     }
     if (username && password) {
@@ -64,7 +64,7 @@ api.post('/auth', async (request, response) => {
                     loginTime: util.dateToString(curTime)
                 }
                 if(ip !== "127.0.0.1" &&  ip !== "localhost"){
-                    logger.info(`${username} 用户登录成功，登录IP：${ip}，登录地址：${address}`);
+                    logger.info(`用户 ${username} 已登录，登录地址：${ip} ${address}`);
                 }
                 saveNewConf(CONFIG_FILE_KEY.AUTH, con, false);
             });
@@ -108,7 +108,7 @@ api.post('/changePwd', function (request, response) {
         logger.info(`用户修改了用户名密码，openApiToken 已重置为：${config.openApiToken}`)
         response.send(API_STATUS_CODE.ok("修改成功！"));
     } else {
-        response.send(API_STATUS_CODE.fail("请输入用户名密码!"));
+        response.send(API_STATUS_CODE.fail("请输入用户名密码！"));
     }
 
 });
