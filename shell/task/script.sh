@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-29
+## Modified: 2023-10-24
 
 ## 查找脚本
 # 通过各种判断将得到的必要信息传给接下来运行的函数或命令
@@ -103,6 +103,8 @@ function find_script() {
             ## 定义日志路径
             if [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "repo" ]]; then
                 LogPath="$LogDir/$(echo ${AbsolutePath} | awk -F '/' '{print$4}')_${FileName}"
+            elif [[ $(echo ${AbsolutePath} | awk -F '/' '{print$3}') == "raw" ]]; then
+                LogPath="$LogDir/raw_${FileName}"
             else
                 LogPath="$LogDir/${FileName}"
             fi
