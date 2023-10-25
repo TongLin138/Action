@@ -92,7 +92,7 @@ const CONFIG_FILE_KEY = {
  * @return {{excludeRegExp: RegExp, keywords: string, startTime: string, endTime: string, isDir: boolean}}
  */
 const getOptions = (options) => {
-    let excludeRegExp = /(user.session)|(.git)|(.tmp)|(.check)|(node_modules)|(auth.json)|(crontab.list)|(crontab.sample.list)/;
+    let excludeRegExp = /(user\.session)|(\.git$)|(\.tmp$)|(\.check$)|(node_modules)|(auth\.json$)/;
     let keywords = "";
     //用于日志查询
     let startTime = "";
