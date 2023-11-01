@@ -1,7 +1,7 @@
-const got = require('got');
-const util = require("../../utils");
-const {logger} = require("../logger");
-const {CONFIG_FILE_KEY, getFile, getJsonFile, saveNewConf} = require("../file");
+const got = require('got')
+const util = require('../../utils')
+const { logger } = require('../logger')
+const { CONFIG_FILE_KEY, getFile, getJsonFile, saveNewConf } = require('../file')
 
 /**
  * 初始化CK
@@ -14,44 +14,44 @@ const {CONFIG_FILE_KEY, getFile, getJsonFile, saveNewConf} = require("../file");
  * @returns {{}}
  * @constructor
  */
-function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("yyyy-MM-dd hh:mm:ss", new Date()), remark = '无', phone = '无') {
-    this.id = id;
-    this.ptKey = ptKey;
-    this.ptPin = ptPin;
-    this.phone = phone;
-    this.lastUpdateTime = lastUpdateTime;
-    this.remark = remark;
+function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat('yyyy-MM-dd hh:mm:ss', new Date()), remark = '无', phone = '无') {
+    this.id = id
+    this.ptKey = ptKey
+    this.ptPin = ptPin
+    this.phone = phone
+    this.lastUpdateTime = lastUpdateTime
+    this.remark = remark
     this.cookieStr = () => {
-        return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`;
-    };
+        return `Cookie${this.id}="pt_key=${this.ptKey};pt_pin=${this.ptPin};"`
+    }
     this.tipStr = () => {
-        return `## pt_pin=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`;
-    };
+        return `## pt_pin=${this.ptPin};  联系方式：${this.phone};  上次更新：${this.lastUpdateTime};  备注：${this.remark};`
+    }
 
     this.convert = (cookie, tips, phone = '无') => {
-        if (cookie.indexOf("Cookie") > -1) {
-            this.id = parseInt(util.regExecFirst(cookie, /(?<=Cookie)([^=]+)/));
+        if (cookie.indexOf('Cookie') > -1) {
+            this.id = parseInt(util.regExecFirst(cookie, /(?<=Cookie)([^=]+)/))
         } else {
-            this.id = 0;
+            this.id = 0
         }
         this.ptKey = util.regExecFirst(cookie, /(?<=pt_key=)([^;]+)/)
         this.ptPin = util.regExecFirst(cookie, /(?<=pt_pin=)([^;]+)/)
-        if (tips && tips.indexOf("上次更新") > 0) {
-            this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+)/);
+        if (tips && tips.indexOf('上次更新') > 0) {
+            this.lastUpdateTime = util.regExecFirst(tips, /(?<=上次更新：)([^;]+)/)
             if (this.lastUpdateTime.length > 19) {
-                this.lastUpdateTime = this.lastUpdateTime.substring(0, 19);
+                this.lastUpdateTime = this.lastUpdateTime.substring(0, 19)
             }
-            this.phone = util.regExecFirst(tips, /(?<=联系方式：)([^;]+)/);
-            this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/);
+            this.phone = util.regExecFirst(tips, /(?<=联系方式：)([^;]+)/)
+            this.remark = util.regExecFirst(tips, /(?<=备注：)([^;]+)/)
         } else {
-            this.lastUpdateTime = util.dateToString(new Date());
-            this.remark = tips;
-            this.phone = phone;
+            this.lastUpdateTime = util.dateToString(new Date())
+            this.remark = tips
+            this.phone = phone
         }
-        return this;
+        return this
     }
 
-    return this;
+    return this
 }
 
 /**
@@ -59,21 +59,21 @@ function CookieObj(id = 0, ptKey, ptPin, lastUpdateTime = util.dateFormat("yyyy-
  * @returns {*[]}
  */
 function readCookies() {
-    const content = getFile(CONFIG_FILE_KEY.CONFIG);
-    const lines = content.split('\n');
-    let cookieList = [];
+    const content = getFile(CONFIG_FILE_KEY.CONFIG)
+    const lines = content.split('\n')
+    let cookieList = []
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+        let line = lines[i]
         if (line.startsWith('Cookie')) {
             try {
-                let tips = lines[i + 1];
+                let tips = lines[i + 1]
                 cookieList.push(new CookieObj(i).convert(line, tips))
             } catch (e) {
                 console.error(`${i + 1}行Cookie读取失败，请检查Cookie或Cookie下方的备注是否有误！`)
             }
         }
     }
-    return cookieList;
+    return cookieList
 }
 
 /**
@@ -81,48 +81,50 @@ function readCookies() {
  * @returns {*[]}
  */
 function saveCookiesToConfig(cookieList = []) {
-    const content = getFile(CONFIG_FILE_KEY.CONFIG);
-    const lines = content.split('\n');
+    const content = getFile(CONFIG_FILE_KEY.CONFIG)
+    const lines = content.split('\n')
     //写入的下标
-    let writeIndex = 0, id = 1, over = false;
+    let writeIndex = 0,
+        id = 1,
+        over = false
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+        let line = lines[i]
         if (over && (line.startsWith('Cookie') || line.startsWith('## pt_pin'))) {
-            lines.splice(i, 1);
-            i--;
-            continue;
+            lines.splice(i, 1)
+            i--
+            continue
         }
         if (line.startsWith('Cookie')) {
-            writeIndex = i;
-            cookieList.forEach(item => {
+            writeIndex = i
+            cookieList.forEach((item) => {
                 if (item.id === 0) {
-                    item.id = id;
+                    item.id = id
                     //说明该CK为新增的CK
-                    if (lines[writeIndex].startsWith("Cookie")) {
+                    if (lines[writeIndex].startsWith('Cookie')) {
                         //说明此次保存存在CK删除，当前CK直接覆盖
-                        lines[writeIndex] = item.cookieStr();
-                        writeIndex++;
-                        lines[writeIndex] = item.tipStr();
-                        writeIndex++;
+                        lines[writeIndex] = item.cookieStr()
+                        writeIndex++
+                        lines[writeIndex] = item.tipStr()
+                        writeIndex++
                     } else {
-                        lines.splice(writeIndex, 0, item.cookieStr(), item.tipStr());
-                        writeIndex = writeIndex + 2;
+                        lines.splice(writeIndex, 0, item.cookieStr(), item.tipStr())
+                        writeIndex = writeIndex + 2
                     }
                 } else {
-                    item.id = id;
-                    lines[writeIndex] = item.cookieStr();
-                    writeIndex++;
-                    lines[writeIndex] = item.tipStr();
-                    writeIndex++;
+                    item.id = id
+                    lines[writeIndex] = item.cookieStr()
+                    writeIndex++
+                    lines[writeIndex] = item.tipStr()
+                    writeIndex++
                 }
-                id++;
+                id++
             })
-            over = true;
-            i = writeIndex - 1;
+            over = true
+            i = writeIndex - 1
         }
     }
-    saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'),false);
-    return cookieList;
+    saveNewConf(CONFIG_FILE_KEY.CONFIG, lines.join('\n'), false)
+    return cookieList
 }
 
 /**
@@ -130,11 +132,11 @@ function saveCookiesToConfig(cookieList = []) {
  */
 function ckAutoAddOpen() {
     let CK_AUTO_ADD = 'false'
-    const content = getFile(CONFIG_FILE_KEY.CONFIG);
+    const content = getFile(CONFIG_FILE_KEY.CONFIG)
     if (content.match(/CK_AUTO_ADD=".+?"/)) {
         CK_AUTO_ADD = content.match(/CK_AUTO_ADD=".+?"/)[0].split('"')[1]
     }
-    return CK_AUTO_ADD && CK_AUTO_ADD === 'true';
+    return CK_AUTO_ADD && CK_AUTO_ADD === 'true'
 }
 
 /**
@@ -146,7 +148,7 @@ function getAccount() {
     accounts = accounts.filter((item) => {
         return util.isNotEmpty(item.pt_pin) && util.isNotEmpty(item.ws_key)
     })
-    return accounts;
+    return accounts
 }
 
 /**
@@ -154,7 +156,26 @@ function getAccount() {
  * @return {{accountCount: number, cookieCount: number}}
  */
 function getCount() {
-    return {cookieCount: readCookies().length, accountCount: getAccount().length};
+    return { cookieCount: readCookies().length, accountCount: getAccount().length }
+}
+
+/**
+ * 获取cookie信息列表
+ * @return {[{id: number, ptPin: string, lastUpdateTime: string, remark: string}]}
+ */
+function getCookieList() {
+    let cookieArr = []
+    const cookies = readCookies()
+    // 帮我写一个遍历数组 readCookies() 的方法，将里面的ptPin键值放入到pinArr数组中
+    for (let item of cookies) {
+        cookieArr.push({
+            id: item.id || '',
+            ptPin: item.ptPin || '',
+            lastUpdateTime: item.lastUpdateTime || '',
+            remark: item.remark || '',
+        })
+    }
+    return cookieArr
 }
 
 /**
@@ -164,24 +185,30 @@ function getCount() {
  */
 function removeCookie(ptPins) {
     if (typeof ptPins === 'string') {
-        ptPins = [ptPins];
+        ptPins = [ptPins]
     }
-    let cookieList = readCookies();
+    let cookieList = readCookies()
     let deleteCount = 0
+    let deleteList = []
     if (ptPins && ptPins.length > 0) {
         for (let i = 0; i < cookieList.length; i++) {
-            let cookieObj = cookieList[i];
-            if (ptPins.indexOf(cookieObj.ptPin) > -1) {
-                cookieList.splice(i, 1);
-                deleteCount++;
+            let cookieObj = cookieList[i]
+            if (ptPins.includes(cookieObj.ptPin)) {
+                deleteList.push(cookieObj.ptPin)
+                cookieList.splice(i, 1)
+                deleteCount++
+                i--
             }
         }
     } else {
-        throw new Error("传入的ptPin不能为空")
+        throw new Error('传入的ptPin不能为空')
     }
-    saveCookiesToConfig(cookieList);
-    removeAccount(ptPins)
-    return {...getCount(), deleteCount};
+    if (deleteList.length > 0) {
+        saveCookiesToConfig(cookieList)
+        removeAccount(ptPins)
+        logger.info(`删除账号(Cookie) => ${ptPins.join('、')}`)
+    }
+    return { ...getCount(), deleteCount }
 }
 
 /**
@@ -191,91 +218,90 @@ function removeCookie(ptPins) {
  * @param phone 联系方式
  * @return {number} ck数量
  */
-function updateCookie({ck, remarks = '无', phone}) {
-    let cookieList = readCookies();
-    let cookieObj = new CookieObj().convert(ck, remarks, phone);
-    let isUpdate = false;
+function updateCookie({ ck, remarks = '无', phone }) {
+    let cookieList = readCookies()
+    let cookieObj = new CookieObj().convert(ck, remarks, phone)
+    let isUpdate = false
     cookieList.forEach((item) => {
         if (item.ptPin === cookieObj.ptPin) {
-            isUpdate = true;
+            isUpdate = true
             //更新ptKey
-            item.ptKey = cookieObj.ptKey;
-            item.lastUpdateTime = cookieObj.lastUpdateTime;
+            item.ptKey = cookieObj.ptKey
+            item.lastUpdateTime = cookieObj.lastUpdateTime
             if (remarks) {
-                item.remark = remarks;
+                item.remark = remarks
             }
             if (phone) {
-                item.phone = phone;
+                item.phone = phone
             }
         }
     })
     if (!isUpdate) {
         if (!ckAutoAddOpen()) {
-            throw new Error(`添加 Cookie 失败，当前服务器已关闭自动添加`);
+            throw new Error(`添加 Cookie 失败，当前服务器已关闭自动添加`)
         } else {
             //新增CK
             cookieList.push(cookieObj)
         }
     }
-    cookieList = saveCookiesToConfig(cookieList);
+    cookieList = saveCookiesToConfig(cookieList)
 
     // 打印日志
-    let updateTime = util.dateToString(new Date());
-    let remark_tmp = '';
-    if (remarks) remark_tmp += ` · ${remarks}`;
-    if (phone) remark_tmp += ` · ${phone}`;
-    logger.log(`${isUpdate ? "更新" : "新增"}账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`)
-
-    return cookieList.length;
+    // let updateTime = util.dateToString(new Date())
+    let remark_tmp = ''
+    if (remarks) remark_tmp += ` · ${remarks}`
+    if (phone) remark_tmp += ` · ${phone}`
+    logger.info(`${isUpdate ? '更新' : '新增'}账号(Cookie) => ${cookieObj.ptPin}${remark_tmp}`)
+    return cookieList.length
 }
 
-function updateAccount({ptPin, ptKey, wsKey, remarks, phone}) {
+function updateAccount({ ptPin, ptKey, wsKey, remarks, phone }) {
     if (!util.isNotEmpty(ptPin)) {
-        throw new Error("ptPin不能为空")
+        throw new Error('ptPin不能为空')
     }
     if (!util.isNotEmpty(wsKey) && !util.isNotEmpty(ptKey)) {
-        throw new Error("账号不能为空")
+        throw new Error('账号不能为空')
     }
     if (ptPin === '%2A%2A%2A%2A%2A%2A') {
-        throw new Error("ptPin不正确")
+        throw new Error('ptPin不正确')
     }
     if (util.isNotEmpty(ptKey)) {
-        updateCookie({ck: `pt_key=${ptKey};pt_pin=${ptPin};`, remarks, phone});
+        updateCookie({ ck: `pt_key=${ptKey};pt_pin=${ptPin};`, remarks, phone })
     }
     if (util.isNotEmpty(wsKey)) {
-        let accounts = getAccount(), isUpdate = false;
+        let accounts = getAccount(),
+            isUpdate = false
         accounts.forEach((account, index) => {
             if (account['pt_pin'] && account['pt_pin'] === ptPin) {
-                account['ws_key'] = wsKey || '';
+                account['ws_key'] = wsKey || ''
                 if (remarks) {
-                    account['remarks'] = remarks;
+                    account['remarks'] = remarks
                 }
                 if (phone) {
-                    account['phone'] = phone;
+                    account['phone'] = phone
                 }
-                isUpdate = true;
+                isUpdate = true
             }
         })
         if (!isUpdate) {
-            remarks = remarks || ptPin;
+            remarks = remarks || ptPin
             accounts.push({
-                "pt_pin": ptPin,
-                "ws_key": wsKey,
-                "remarks": remarks,
-                "phone": phone
+                pt_pin: ptPin,
+                ws_key: wsKey,
+                remarks: remarks,
+                phone: phone,
             })
         }
-        saveAccount(accounts);
+        saveAccount(accounts)
 
         // 打印日志
-        let updateTime = util.dateToString(new Date());
-        let remark_tmp = '';
-        if (remarks) remark_tmp += ` · ${remarks}`;
-        if (phone) remark_tmp += ` · ${phone}`;
-        logger.log(`${isUpdate ? "更新" : "新增"}账号(wskey) => ${ptPin}${remark_tmp}`)
-
+        // let updateTime = util.dateToString(new Date())
+        let remark_tmp = ''
+        if (remarks) remark_tmp += ` · ${remarks}`
+        if (phone) remark_tmp += ` · ${phone}`
+        logger.info(`${isUpdate ? '更新' : '新增'}账号(wskey) => ${ptPin}${remark_tmp}`)
     }
-    return getCount();
+    return getCount()
 }
 
 /**
@@ -291,9 +317,9 @@ function saveAccount(accounts = []) {
  * @param ptPins
  */
 function removeAccount(ptPins = []) {
-    let accounts = getAccount().filter(item => {
+    let accounts = getAccount().filter((item) => {
         return ptPins.indexOf(item.pt_pin) === -1
-    });
+    })
     saveNewConf(CONFIG_FILE_KEY.ACCOUNT, accounts)
 }
 
@@ -303,19 +329,21 @@ function removeAccount(ptPins = []) {
  * @param  ck pt_key=xxx; 或 wskey=xxx;
  */
 async function checkCookieStatus(ck) {
-    return got.get('https://me-api.jd.com/user_new/info/GetJDUserInfoUnion', {
-        method: 'get',
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-            cookie: ck,
-        }
-    }).json();
+    return got
+        .get('https://me-api.jd.com/user_new/info/GetJDUserInfoUnion', {
+            method: 'get',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                cookie: ck,
+            },
+        })
+        .json()
 }
-
 
 module.exports = {
     CookieObj,
     getCount,
+    getCookieList,
     readCookies,
     saveCookiesToConfig,
     removeAccount,
@@ -324,5 +352,5 @@ module.exports = {
     removeCookie,
     getAccount,
     saveAccount,
-    checkCookieStatus
+    checkCookieStatus,
 }
