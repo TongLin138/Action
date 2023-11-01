@@ -65,27 +65,34 @@ function cronInit() {
     require('./dbInit')
     setTimeout(async () => {
         let tasks = await taskCoreCurd.list()
-        logger.log(`定时任务初始化开始`)
-        // logger.log('任务总数', tasks.length)
+        logger.log(`定时任务初始化 - 开始`)
         for (let task of tasks) {
+            const taskCoreId = task.id
+            const taskId = taskCoreId.split('T_')[1]
             task.cron = task.cron.trim() // 去除首尾空格
             // 定时表达式格式校验
             const cronParams = task.cron.split(' ')
             if (cronParams.length < 5 || cronParams.length > 6) {
-                logger.error(`设置定时任务 ${task.id.split('T_')[1]} 失败 => ${task.cron.trim()} (格式错误)`)
+                logger.error(`设置定时任务 ${taskId} 失败 => ${task.cron.trim()} (格式错误)`)
                 continue
+            }
+            // 删除不存在的定时任务
+            if (!(await curd.getById(taskId))) {
+                await taskCoreCurd.deleteById(taskCoreId)
+                // logger.warn(`定时任务 ${taskId} 不存在，已删除`)
             }
             // 月份兼容性处理（kelektiv/node-cron 库特性，月份单位为非Unix格式，0-11 代表 Jan-Dec）
             task.cron = decreaseMonth(task.cron)
             // 设置定时
             try {
-                engine.setTask(task.id, task.cron, () => onCron(task))
-                // logger.log(`设置定时任务 ${task.id.split('T_')[1]} 成功 => ${task.cron}`)
+                engine.setTask(taskCoreId, task.cron, () => onCron(task))
+                // logger.log(`设置定时任务 ${taskId} 成功 => ${task.cron}`)
             } catch (e) {
-                logger.error(`设置定时任务 ${task.id.split('T_')[1]} 失败 => ${task.cron.trim()} ${e.message || e}`)
+                logger.error(`设置定时任务 ${taskId} 失败 => ${task.cron.trim()} ${e.message || e}`)
             }
         }
-        logger.log(`定时任务初始化结束`)
+        // logger.log('任务总数', taskCoreCurd.list().length)
+        logger.log(`定时任务初始化 - 结束`)
     }, 1000)
 }
 
@@ -112,7 +119,6 @@ function onCron(task) {
 async function onCronTask(taskId) {
     let task = await curd.getById(taskId)
     if (!task) {
-        //todo:报错?
         await taskCoreCurd.deleteById(taskId) // 删除不存在的定时任务
         return
     }

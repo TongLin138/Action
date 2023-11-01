@@ -1,7 +1,6 @@
-const Cron = require('cron');
+const Cron = require('cron')
 
 const id2task = {}
-
 
 module.exports = {
     /**
@@ -11,7 +10,8 @@ module.exports = {
      * @param {function} callback - 回调函数
      */
     setTask(id, cron, callback) {
-        let task = id2task[id];
+        let task = id2task[id]
+        // 如果任务已存在，则先停止
         if (task) {
             task.task.stop()
         } else {
@@ -21,7 +21,7 @@ module.exports = {
         task.callback = callback
         let job = new Cron.CronJob(cron, () => {
             task.callback()
-        });
+        })
         task.task = job
         job.start()
     },
@@ -30,11 +30,10 @@ module.exports = {
      * @param {string} id - 任务ID
      */
     removeTask(id) {
-        let task = id2task[id];
+        let task = id2task[id]
         if (task) {
             task.task.stop()
             delete id2task[id]
         }
-    }
+    },
 }
-
