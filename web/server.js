@@ -1,92 +1,83 @@
-const express = require('express');
-const compression = require('compression');
-const { expressjwt } = require("express-jwt");
-const jwt = require("jsonwebtoken");
-const bodyParser = require('body-parser');
-const path = require('path');
-const random = require('string-random');
-const {
-    createProxyMiddleware
-} = require('http-proxy-middleware');
+const express = require('express')
+const compression = require('compression')
+const { expressjwt } = require('express-jwt')
+const jwt = require('jsonwebtoken')
+const bodyParser = require('body-parser')
+const path = require('path')
+const random = require('string-random')
+const { createProxyMiddleware } = require('http-proxy-middleware')
 
-const {
-    extraServerFile,
-    checkConfigFile,
-    CONFIG_FILE_KEY,
-    getJsonFile, saveNewConf,
-} = require("./core/file");
+const { logger } = require('./core/logger')
+const { API_STATUS_CODE } = require('./core/http')
+const { extraServerFile, checkConfigFile, CONFIG_FILE_KEY, getJsonFile, saveNewConf } = require('./core/file')
 
-const {API_STATUS_CODE} = require("./core/http");
-const {logger} = require("./core/logger");
-const cronCore = require("./core/cron/core");
+/**
+ * 初始化定时任务
+ */
+const cronCore = require('./core/cron/core')
+cronCore.cronInit()
 
-cronCore.cronInit();
-
-const app = express();
-const server = require("http").createServer(app);
+const app = express()
+const server = require('http').createServer(app)
 
 // gzip压缩
-app.use(compression({
-    level: 6,
-    filter: shouldCompress
-}));
+app.use(
+    compression({
+        level: 6,
+        filter: shouldCompress,
+    })
+)
 
 function shouldCompress(req, res) {
     if (req.headers['x-no-compression']) {
-        return false;
+        return false
     }
-    return compression.filter(req, res);
+    return compression.filter(req, res)
 }
 
-let authConfig = getJsonFile(CONFIG_FILE_KEY.AUTH);
-let jwtSecret = authConfig["jwtSecret"];
-if (!jwtSecret || jwtSecret === "") {
-    jwtSecret = random(32);
-    authConfig["jwtSecret"] = jwtSecret;
-    saveNewConf(CONFIG_FILE_KEY.AUTH, authConfig);
+let authConfig = getJsonFile(CONFIG_FILE_KEY.AUTH)
+let jwtSecret = authConfig['jwtSecret']
+if (!jwtSecret || jwtSecret === '') {
+    jwtSecret = random(32)
+    authConfig['jwtSecret'] = jwtSecret
+    saveNewConf(CONFIG_FILE_KEY.AUTH, authConfig)
 }
 let getToken = function fromHeaderOrQuerystring(req) {
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.split(" ")[0] === "Bearer"
-    ) {
-        return req.headers.authorization.split(" ")[1];
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1]
     } else if (req.query && req.query.token) {
-        return req.query.token;
+        return req.query.token
     }
-    return null;
-};
+    return null
+}
 let sessionMiddleware = expressjwt({
     secret: jwtSecret,
     algorithms: ['HS256'],
     credentialsRequired: true,
-    getToken: getToken
+    getToken: getToken,
 }).unless({
-    path: [
-        '/',
-        '/index.html',
-        '/favicon.ico',
-        '/_app.config.js',
-        /^\/resource\/*/,
-        /^\/assets\/*/,
-        '/api/common/cookie/check',
-        '/api/common/health',
-        '/api/user/auth',
-        '/api/captcha',
-        /^\/api\/captcha\/.*/,
-    ]  // 指定路径不经过 Token 解析
+    path: ['/', '/index.html', '/favicon.ico', '/_app.config.js', /^\/resource\/*/, /^\/assets\/*/, '/api/common/cookie/check', '/api/common/health', '/api/user/auth', '/api/captcha', /^\/api\/captcha\/.*/], // 指定路径不经过 Token 解析
 })
 
 app.use('*', require('cors')())
-app.use(bodyParser.json({
-    limit: '50mb'
-}));
-app.use(bodyParser.urlencoded({
-    limit: '50mb',
-    extended: true
-}));
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(
+    bodyParser.json({
+        limit: '50mb',
+    })
+)
+app.use(
+    bodyParser.urlencoded({
+        limit: '50mb',
+        extended: true,
+    })
+)
+/**
+ * 设置静态文件目录（前端）
+ */
+app.use(express.static(path.join(__dirname, 'public')))
+/**
+ * ttyd
+ */
 app.use(
     '/api/shell',
     createProxyMiddleware({
@@ -96,70 +87,74 @@ app.use(
         pathRewrite: {
             '^/api/shell': '/',
         },
-        onProxyReq: function(proxyReq, req, res) {
-            const token = getToken(req);
+        onProxyReq: function (proxyReq, req, res) {
+            const token = getToken(req)
             if (token) {
-                jwt.verify(token, jwtSecret, function(err, decoded) {
+                jwt.verify(token, jwtSecret, function (err, decoded) {
                     if (err) {
                         // JWT 验证失败
-                        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code));
+                        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code))
                     } else {
                         // JWT 验证成功
-                        proxyReq.setHeader('Authorization', token); // 将 token 传递给目标服务器
+                        proxyReq.setHeader('Authorization', token) // 将 token 传递给目标服务器
                     }
-                });
+                })
             } else {
-                res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code));
+                res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code))
             }
-        }
+        },
     })
-);
+)
 
-const {openAPI, openApiHandler} = require("./api/open");
-app.use('/api/open', openApiHandler, openAPI);
-app.use('/openApi', openApiHandler, require("./api/open_old").openOldAPI);
+// 下方涉及到接口认证的中间件处理函数，顺序请勿随意调整
 
-app.use(sessionMiddleware);
+/**
+ * open api
+ */
+const { openAPI, openApiHandler } = require('./api/open')
+app.use('/api/open', openApiHandler, openAPI)
+app.use('/openApi', openApiHandler, require('./api/open_old').openOldAPI)
+
+app.use(sessionMiddleware)
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
-        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code));
+        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code))
+    } else if (err.name === 'SyntaxError') {
+        res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.SYNTAX_ERROR.message, API_STATUS_CODE.API.SYNTAX_ERROR.code))
     }
-    next();
-});
+    next()
+})
 
-
-
-
-app.use('/api', require("./api/main").mainAPI);
-app.use('/api/config', require("./api/config").configAPI);
-app.use('/api/file', require("./api/file").fileAPI);
-app.use('/api/user', require("./api/user").userAPI);
-app.use('/api/cron', require("./api/cron").cronAPI);
-app.use('/api/common', require("./api/common").commonAPI);
-app.use('/api/config', require("./api/configs").configAPI);
-
+/**
+ * api
+ */
+app.use('/api', require('./api/main').mainAPI)
+app.use('/api/config', require('./api/config').configAPI)
+app.use('/api/file', require('./api/file').fileAPI)
+app.use('/api/user', require('./api/user').userAPI)
+app.use('/api/cron', require('./api/cron').cronAPI)
+app.use('/api/common', require('./api/common').commonAPI)
+app.use('/api/config', require('./api/configs').configAPI)
 
 /**
  * socket init
  */
-const {setSocket} = require("./core/socket/common");
-const core = require("./core/cron/core");
-setSocket(require("./core/socket")(server, sessionMiddleware))
+const { setSocket } = require('./core/socket/common')
+const core = require('./core/cron/core')
+setSocket(require('./core/socket')(server, sessionMiddleware))
 
-checkConfigFile();
+checkConfigFile()
 
 // 调用自定义api
 try {
-    require.resolve(extraServerFile);
-    const extraServer = require(extraServerFile);
+    require.resolve(extraServerFile)
+    const extraServer = require(extraServerFile)
     if (typeof extraServer === 'function') {
-        extraServer(app);
+        extraServer(app)
         logger.log('用户自定义API模块初始化成功')
     }
-} catch (e) {
-}
+} catch (e) {}
 
 server.listen(5678, '0.0.0.0', () => {
-    console.log('应用正在监听 5678 端口!');
-});
-
+    console.log('应用正在监听 5678 端口!')
+})
