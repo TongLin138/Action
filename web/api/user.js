@@ -41,7 +41,7 @@ api.post('/auth', async (request, response) => {
         return;
     }
     let authCaptcha = con['captcha'];
-    if (showCaptcha && captcha !== authCaptcha) {
+    if (showCaptcha && captcha.toLowerCase() !== authCaptcha) {
         response.send(API_STATUS_CODE.failData('验证码不正确！', {showCaptcha: showCaptcha}))
         return;
     }

@@ -48,10 +48,17 @@ api.get('/captcha/flag', function (request, response) {
  * 验证码
  */
 api.get('/captcha', function (req, res) {
-    let {w = 120, h = 50} = req.query;
-    let captcha = svgCaptcha.createMathExpr({width: w, height: h});
+    let {w = 120, h = 50, background = '#ffffff'} = req.query;
+    let options = {
+        noise: 3,
+        width: w, 
+        height: h,
+        color: true,
+        background: background,
+    }
+    let captcha = svgCaptcha.create(options);
     let con = getJsonFile(CONFIG_FILE_KEY.AUTH);
-    con['captcha'] = captcha.text;
+    con['captcha'] = captcha.text.toLowerCase(); // 小写
     saveNewConf(CONFIG_FILE_KEY.AUTH, con, false)
     res.type('svg');
     res.status(200).send(captcha.data);
