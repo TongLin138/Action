@@ -1,9 +1,18 @@
-const db = require("../db");
-// const {logger} = require("../logger");
-const eventBus = require("../eventBus").db;
+const db = require('../db')
+const { logger } = require('../logger')
+const eventBus = require('../eventBus').db
 
-((async () => {
-    if (await db.existTable("tasks")) {
+;(async () => {
+    const tableExit = await db.existTable('tasks')
+    if (tableExit) {
+        // const ColumnExit = await db.existColumn('tasks', 'logPath')
+        // logger.info(ColumnExit)
+        // if (ColumnExit) {
+        //     logger.info('tasks表logPath列已存在')
+        // } else {
+        //     // await db.exec(`ALTER TABLE tasks ADD COLUMN logPath VARCHAR(200) NOT NULL DEFAULT ''`)
+        //     logger.info('tasks表logPath列不存在')
+        // }
         // logger.info("检查tasks表完成,已存在")
         return
     }
@@ -26,11 +35,10 @@ const eventBus = require("../eventBus").db;
             bind         TEXT         NOT NULL DEFAULT ''
         );
         CREATE INDEX sort ON tasks (sort);`)
-    eventBus.emit("createTable", 'tasks')
-})());
-
-((async () => {
-    if (await db.existTable("task_core")) {
+    eventBus.emit('createTable', 'tasks')
+})()
+;(async () => {
+    if (await db.existTable('task_core')) {
         // logger.info("检查task_core表完成,已存在")
         return
     }
@@ -41,5 +49,5 @@ const eventBus = require("../eventBus").db;
             cron     varchar(100) not null,
             callback varchar(100) not null
         )`)
-    eventBus.emit("createTable", 'task_core')
-})());
+    eventBus.emit('createTable', 'task_core')
+})()

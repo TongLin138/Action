@@ -1,16 +1,16 @@
-const path = require("path");
-const fs = require("fs");
-const {logger} = require("../logger");
-const sqlite3 = require('sqlite3').verbose();
+const path = require('path')
+const fs = require('fs')
+const { logger } = require('../logger')
+const sqlite3 = require('sqlite3').verbose()
 
-const basePath = path.resolve(__dirname + "/../../../config");
-const s = path.resolve(basePath + "/config.db");
+const basePath = path.resolve(__dirname + '/../../../config')
+const s = path.resolve(basePath + '/config.db')
 if (!fs.existsSync(basePath)) {
     fs.mkdirSync(basePath)
 }
 const sqlite = new sqlite3.Database(s, (e) => {
     if (e) {
-        console.error("连接sqlite失败!!!")
+        console.error('连接sqlite失败!!!')
         throw e
     }
 })
@@ -24,10 +24,10 @@ const db = {
      */
     selectFirst: (sql, data) => {
         sql = sql.trim()
-        if (!sql.includes("limit")) {
-            sql = sql + " limit 1"
+        if (!sql.includes('limit')) {
+            sql = sql + ' limit 1'
         }
-        return new Promise((r, f) => sqlite.all(sql, data, (e, d) => e ? f(e) : r(d[0])))
+        return new Promise((r, f) => sqlite.all(sql, data, (e, d) => (e ? f(e) : r(d[0]))))
     },
 
     /**
@@ -38,17 +38,21 @@ const db = {
      */
     exec: (sql, data) => {
         sql = sql.trim()
-        const indexOf = sql.indexOf("select");
+        const indexOf = sql.indexOf('select')
         if (indexOf > -1 && indexOf < 10) {
-            return new Promise((r, f) => sqlite.all(sql, data, (e, d) => e ? f(e) : r(d)))
+            return new Promise((r, f) => sqlite.all(sql, data, (e, d) => (e ? f(e) : r(d))))
         } else {
-            return new Promise((r, f) => sqlite.run(sql, data, function (e) {
-                e ? f(e) : r({
-                    id: () => this.lastID,
-                    change: () => this.changes,
-                    original: () => this
+            return new Promise((r, f) =>
+                sqlite.run(sql, data, function (e) {
+                    e
+                        ? f(e)
+                        : r({
+                              id: () => this.lastID,
+                              change: () => this.changes,
+                              original: () => this,
+                          })
                 })
-            }))
+            )
         }
     },
 
@@ -72,13 +76,17 @@ const db = {
             }
             let res = []
             for (let data of datas) {
-                res.push(new Promise((r1, f1) => {
-                    statement.run(data, function (err) {
-                        err ? f1(err) : r1()
+                res.push(
+                    new Promise((r1, f1) => {
+                        statement.run(data, function (err) {
+                            err ? f1(err) : r1()
+                        })
                     })
-                }))
+                )
             }
-            Promise.all(res).then(r, f).finally(() => statement.finalize())
+            Promise.all(res)
+                .then(r, f)
+                .finally(() => statement.finalize())
         })
     },
 
@@ -95,6 +103,26 @@ const db = {
               AND name = ?`, tableName
         )
     },
+
+    /**
+     * 判断表中的列是否存在
+     * @param {string} tableName - 表名
+     * @param {string} columnName - 列名
+     * @returns {Promise<boolean>} - 返回一个Promise对象，resolve时返回列名是否存在
+     */
+    existColumn: async (tableName, columnName) => {
+        const result = await new Promise((resolve, reject) => {
+            db.sqlite.all(`PRAGMA table_info(${tableName})`, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            })
+        })
+        return result.some(column => column.name === columnName)
+    },
+
     /**
      * like查询sql
      *
@@ -103,10 +131,10 @@ const db = {
     likeSql() {
         return ` like ('%'|| ? || '%')`
     },
-    debug: process.env.DEBUG_SQL === "true",
+    debug: process.env.DEBUG_SQL === 'true',
     serialize: sqlite.serialize,
     sqlite,
-};
+}
 
 {
     let starting = true
@@ -115,7 +143,7 @@ const db = {
     }, 1000)
     sqlite.on('trace', (sql) => {
         if (starting) {
-            if (sql.includes("create") || sql.includes("CREATE")) {
+            if (sql.includes('create') || sql.includes('CREATE')) {
                 // console.log('CREATE SQL: ', sql)
                 logger.info('SQL: ', sql)
             }
@@ -124,14 +152,14 @@ const db = {
         db.debug && logger.info('SQL: ', sql)
     })
 }
-module.exports = db;
-(async function () {
-    if (await db.existTable("info")) {
+module.exports = db
+;(async function () {
+    if (await db.existTable('info')) {
         // logger.info("检查info表完成,已存在")
         await db.exec(`update info
                        set value=?
                        where name = ?`,
-            [`start`, new Date().getTime() + ""]
+            [`start`, new Date().getTime() + '']
         )
         return
     }
@@ -142,7 +170,8 @@ module.exports = db;
                    )`)
     await db.execGroup(`insert into info (name, value)
                         values (?, ?)`, [
-        [`version`, `0.0.1`],
-        [`start`, new Date().getTime() + ""],
-    ])
-}())
+            [`version`, `0.0.1`],
+            [`start`, new Date().getTime() + ''],
+        ]
+    )
+})()
