@@ -81,8 +81,6 @@ function cronInit() {
                 await taskCoreCurd.deleteById(taskCoreId)
                 // logger.warn(`定时任务 ${taskId} 不存在，已删除`)
             }
-            // 月份兼容性处理（kelektiv/node-cron 库特性，月份单位为非Unix格式，0-11 代表 Jan-Dec）
-            task.cron = decreaseMonth(task.cron)
             // 设置定时
             try {
                 engine.setTask(taskCoreId, task.cron, () => onCron(task))
@@ -130,11 +128,11 @@ async function onCronTask(taskId) {
         logger.log('触发定时任务', task.shell, '（PASS，原因：正在运行）')
         return
     }
-    running[taskId] = task
+    running[taskId] = task // 将任务添加到正在运行的列表
     let date = new Date()
-    //fixme:需要其他操作,如指定日志等
     taskRunner.execShell(task.shell, {
         callback: (error, stdout, stderr) => {
+            // 任务回调
             if (error) {
                 // logger.log("定时任务运行完毕", task.shell, stdout.substring(stdout.length - 1000))
                 // } else {
@@ -142,7 +140,10 @@ async function onCronTask(taskId) {
             }
         },
         onExit: (code) => {
-            delete running[taskId]
+            // 任务结束后的回调
+            // logger.log(`定时任务 ${taskId} 运行完毕`)
+            delete running[taskId] // 从正在运行的列表删除运行中的任务
+            // 更新数据库对应任务的最后运行时间和其运行时长
             curd.updateById({
                 id: taskId,
                 last_runtime: date,
@@ -171,8 +172,6 @@ module.exports = {
         if (!change) {
             await taskCoreCurd.save({ id, cron: formatCron, callback })
         }
-        // 格式化表达式
-        formatCron = decreaseMonth(formatCron) // 月份兼容性处理（kelektiv/node-cron 库特性，月份单位为非Unix格式，0-11 代表 Jan-Dec）
         engine.setTask(id, formatCron, () =>
             onCron({
                 id: id,
