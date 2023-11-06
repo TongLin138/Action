@@ -81,6 +81,25 @@ function readCookies() {
  * @returns {*[]}
  */
 function saveCookiesToConfig(cookieList = []) {
+    if (cookieList.length === 0) {
+        // 当删除所有ck时保留ck1为空值
+        cookieList = [
+            {
+                id: 1,
+                ptKey: '',
+                ptPin: '',
+                phone: '',
+                lastUpdateTime: '',
+                remark: '',
+                cookieStr() {
+                    return 'Cookie1=""'
+                },
+                tipStr() {
+                    return '## pt_pin=;  联系方式：;  上次更新：;  备注：;'
+                },
+            },
+        ]
+    }
     const content = getFile(CONFIG_FILE_KEY.CONFIG)
     const lines = content.split('\n')
     //写入的下标
