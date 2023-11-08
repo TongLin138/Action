@@ -128,6 +128,7 @@ async function onCronTask(taskId) {
         logger.log('触发定时任务', task.shell, '（PASS，原因：正在运行）')
         return
     }
+    logger.log("触发定时任务", task.shell)
     running[taskId] = task // 将任务添加到正在运行的列表
     let date = new Date()
     taskRunner.execShell(task.shell, {

@@ -1,6 +1,6 @@
-const Cron = require('cron')
-
-const id2task = {}
+const { CronJob } = require('cron')
+const idTotask = {}
+const CronTimeZone = 'Asia/Shanghai'
 
 module.exports = {
     /**
@@ -10,30 +10,35 @@ module.exports = {
      * @param {function} callback - 回调函数
      */
     setTask(id, cron, callback) {
-        let task = id2task[id]
-        // 如果任务已存在，则先停止
-        if (task) {
-            task.task.stop()
-        } else {
-            task = {}
-            id2task[id] = task
+        let cronTask = idTotask[id]
+        // 如果任务已存在，则先停止并删除
+        if (cronTask) {
+            cronTask.task.stop()
+            cronTask.task = null
+            delete cronTask.task
         }
-        task.callback = callback
-        let job = new Cron.CronJob(cron, () => {
-            task.callback()
-        })
-        task.task = job
-        job.start()
+        cronTask = {}
+        idTotask[id] = cronTask
+        cronTask.callback = callback
+        cronTask.task = new CronJob(
+            cron,
+            () => {
+                cronTask.callback()
+            },
+            true,
+            CronTimeZone
+        )
+        cronTask.task.start()
     },
     /**
      * 移除定时任务
      * @param {string} id - 任务ID
      */
     removeTask(id) {
-        let task = id2task[id]
+        let task = idTotask[id]
         if (task) {
             task.task.stop()
-            delete id2task[id]
+            delete idTotask[id]
         }
     },
 }
