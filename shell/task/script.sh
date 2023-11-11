@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-10-24
+## Modified: 2023-11-11
 
 ## 查找脚本
 # 通过各种判断将得到的必要信息传给接下来运行的函数或命令
@@ -38,12 +38,7 @@ function find_script() {
                 if [ -d "$RepoDir/$TmpDirName" ]; then
                     AbsolutePath=$(echo "${InputContent}" | sed "s|^|$RepoDir/|g")
                 else
-                    ## 适配在定时清单中使用相对路径时将自动纠正为绝对路径
-                    if [[ $(pwd) == "/root" ]]; then
-                        AbsolutePath=$(echo "${InputContent}" | sed "s|\.\/||g; s|^*|$RootDir/|g")
-                    else
-                        AbsolutePath=$(echo "${InputContent}" | sed "s|\.\/||g; s|^*|$(pwd)/|g")
-                    fi
+                    AbsolutePath=$(echo "${InputContent}" | sed "s|\.\/||g; s|^|$(pwd)/|g")
                 fi
             fi
             echo ${InputContent} | grep "\.\./" -q
