@@ -5,12 +5,14 @@ const appLogoTitle = "Arcadia";
 try {
   const themeState = localStorage.getItem("__APP__THEME__STATE__") || "light";
   document.documentElement.style.setProperty(
-    "--app-loading-background-color",
-    themeState === "light" ? "#ffffff" : "#18181c"
+    "--app-loading-background",
+    themeState === "light"
+      ? "linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%), linear-gradient(to bottom, rgba(0,0,0,0.02) 50%, rgba(255,255,255,0.02) 61%, rgba(0,0,0,0.02) 73%), linear-gradient(33deg, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0.20) 100%)"
+      : "linear-gradient(60deg, #29323c 0%, #485563 100%)",
   );
   document.documentElement.style.setProperty(
     "--app-loading-title-color",
-    themeState === "light" ? "#000000" : "#ffffff"
+    themeState === "light" ? "#000000" : "#ffffff",
   );
 } catch (error) {
   console.error("Failed to update loading animation theme:", error);
