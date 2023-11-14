@@ -1,9 +1,10 @@
 #!/bin/bash
-## Modified: 2023-06-13
+## Modified: 2023-11-14
 
 ## 删除日志功能
 # task rmlog [days]
 function remove_logs() {
+    local current_dir=$(pwd)
 
     ## 删除日志（通用）
     # 根据时间格式 YYYY-mm-dd HH:MM:SS 判断
@@ -28,7 +29,7 @@ function remove_logs() {
     }
     ## 删除日志目录下的空文件夹
     function rm_empty_dir() {
-        cd $LogDir
+        cd $1
         for dir in $(ls); do
             if [ -d ${dir} ] && [[ $(ls ${dir}) == "" ]]; then
                 rm -rf ${dir}
@@ -52,8 +53,10 @@ function remove_logs() {
         rm_log_universal "$LogDir/server.log" # 删除后端服务日志
         rm_log_universal "$LogDir/update.log" # 删除 update 的运行日志
         rm_log_universal "$BotLogDir/run.log" # 删除 Telegram Bot 的运行日志
-        rm_empty_dir # 删除日志目录下的空文件夹
+        rm_empty_dir "$LogDir" # 删除日志目录下的空文件夹
+        if [ -d "$ConfigDir/bak" ] && rm_empty_dir "$ConfigDir/bak" # 删除备份配置文件目录下的空文件夹
         [ -f $RootDir/core ] && rm -rf $RootDir/core # 删除缓存
         echo -e "\n$COMPLETE 运行结束\n"
     fi
+    cd $current_dir
 }
