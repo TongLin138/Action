@@ -1,0 +1,1 @@
+import{_ as o}from"./square-edit-outline-5e955a5c.js";import{_ as n,o as t,c as _}from"./index-797c0a85.js";import"./monacoEditor-d72532b2.js";const c={};function r(s,i){const e=o;return t(),_(e,{style:{"vertical-align":"baseline"}})}const p=n(c,[["render",r]]);export{p as default};

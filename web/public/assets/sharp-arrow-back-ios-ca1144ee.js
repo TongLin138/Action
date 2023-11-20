@@ -1,0 +1,1 @@
+import{o as e,p as o,v as t}from"./index-797c0a85.js";const n={style:{display:"inline-block"},viewBox:"0 0 24 24",width:"1em",height:"1em"},s=t("path",{fill:"currentColor",d:"M17.51 3.87L15.73 2.1L5.84 12l9.9 9.9l1.77-1.77L9.38 12l8.13-8.13z"},null,-1),c=[s];function l(i,r){return e(),o("svg",n,[...c])}const _={name:"ic-sharp-arrow-back-ios",render:l};export{_};
