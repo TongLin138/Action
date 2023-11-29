@@ -13108,7 +13108,7 @@
     }
     return s;
   }
-  var __extends = function() {
+  var __extends = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -14937,7 +14937,7 @@
     return localize2;
   }
   var localize22 = loadMessageBundle();
-  var CSSIssueType = function() {
+  var CSSIssueType = /* @__PURE__ */ function() {
     function CSSIssueType2(id, message) {
       this.id = id;
       this.message = message;
@@ -18808,7 +18808,7 @@
     }
     return result;
   }
-  var __extends2 = function() {
+  var __extends2 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -18894,7 +18894,7 @@
     }
     return GlobalScope2;
   }(Scope);
-  var Symbol2 = function() {
+  var Symbol2 = /* @__PURE__ */ function() {
     function Symbol3(name, value, node, type) {
       this.name = name;
       this.value = value;
@@ -19352,7 +19352,7 @@
       }
       var l = "", p = "/", g = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/, d = function() {
         function t3(t4, e3, r3, n2, o2, i2) {
-          void 0 === i2 && (i2 = false), "object" == typeof t4 ? (this.scheme = t4.scheme || l, this.authority = t4.authority || l, this.path = t4.path || l, this.query = t4.query || l, this.fragment = t4.fragment || l) : (this.scheme = function(t5, e4) {
+          void 0 === i2 && (i2 = false), "object" == typeof t4 ? (this.scheme = t4.scheme || l, this.authority = t4.authority || l, this.path = t4.path || l, this.query = t4.query || l, this.fragment = t4.fragment || l) : (this.scheme = /* @__PURE__ */ function(t5, e4) {
             return t5 || e4 ? t5 : "file";
           }(t4, i2), this.authority = e3 || l, this.path = function(t5, e4) {
             switch (t5) {
@@ -20987,7 +20987,7 @@
   function isColorString(s) {
     return s.toLowerCase() in colors || /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(s);
   }
-  var __extends3 = function() {
+  var __extends3 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -21199,7 +21199,7 @@
     }
     quotes2.remove = remove;
   })(quotes || (quotes = {}));
-  var Specificity = function() {
+  var Specificity = /* @__PURE__ */ function() {
     function Specificity2() {
       this.id = 0;
       this.attr = 0;
@@ -22139,7 +22139,7 @@
   var Warning = Level.Warning;
   var Error2 = Level.Error;
   var Ignore = Level.Ignore;
-  var Rule = function() {
+  var Rule = /* @__PURE__ */ function() {
     function Rule2(id, message, defaultValue) {
       this.id = id;
       this.message = message;
@@ -22147,7 +22147,7 @@
     }
     return Rule2;
   }();
-  var Setting = function() {
+  var Setting = /* @__PURE__ */ function() {
     function Setting2(id, message, defaultValue) {
       this.id = id;
       this.message = message;
@@ -22280,7 +22280,7 @@
     };
     return CSSCodeActions2;
   }();
-  var Element2 = function() {
+  var Element2 = /* @__PURE__ */ function() {
     function Element3(decl) {
       this.fullPropertyName = decl.getFullPropertyName().toLowerCase();
       this.node = decl;
@@ -22978,7 +22978,7 @@
     };
     return CSSValidation2;
   }();
-  var __extends4 = function() {
+  var __extends4 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -23085,7 +23085,7 @@
     return SCSSScanner2;
   }(Scanner);
   var localize10 = loadMessageBundle();
-  var SCSSIssueType = function() {
+  var SCSSIssueType = /* @__PURE__ */ function() {
     function SCSSIssueType2(id, message) {
       this.id = id;
       this.message = message;
@@ -23097,7 +23097,7 @@
     ThroughOrToExpected: new SCSSIssueType("scss-throughexpected", localize10("expected.through", "'through' or 'to' expected")),
     InExpected: new SCSSIssueType("scss-fromexpected", localize10("expected.in", "'in' expected"))
   };
-  var __extends5 = function() {
+  var __extends5 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -23843,7 +23843,7 @@
     };
     return SCSSParser2;
   }(Parser);
-  var __extends6 = function() {
+  var __extends6 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -24210,7 +24210,7 @@
       }
     });
   }
-  var __extends7 = function() {
+  var __extends7 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -24287,7 +24287,7 @@
     };
     return LESSScanner2;
   }(Scanner);
-  var __extends8 = function() {
+  var __extends8 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -24973,7 +24973,7 @@
     };
     return LESSParser2;
   }(Parser);
-  var __extends9 = function() {
+  var __extends9 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;
@@ -48805,7 +48805,7 @@
       return result;
     }
   }
-  var __extends10 = function() {
+  var __extends10 = /* @__PURE__ */ function() {
     var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
         d2.__proto__ = b2;

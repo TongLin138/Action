@@ -1,1 +1,0 @@
-import{d as e,_ as n,o,p as a}from"./index-797c0a85.js";import"./monacoEditor-d72532b2.js";const t=e({name:"FrameBlank"});function r(s,c,p,m,_,d){return o(),a("div")}const l=n(t,[["render",r]]);export{l as default};

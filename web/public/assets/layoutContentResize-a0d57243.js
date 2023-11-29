@@ -1,1 +1,0 @@
-import{dU as m,dV as d,ag as D}from"./index-797c0a85.js";const F=Symbol(),g=(o,r=!0)=>{const{on:s,off:a,reset:i,emit:u}=m(o!=null?o:F);let e,f;function l(t,{wait:n=150,immediate:p=!1,isPassPars:b=!0}={}){e=D(t,n),f=()=>{e()},s(b?e:()=>{e()}),p&&u()}function c(t){const n=t||e||f;n&&a(n)}return d(()=>{r&&c()}),{on:l,off:c,reset:i,emit:u}};export{g as u};

@@ -1,0 +1,1 @@
+import{_ as o}from"./trash-O6SV7yvL.js";import{_ as n}from"./index-YWZYq8iG.js";import{a6 as t,a7 as _}from"./vendor-tP7MJkVm.js";const c={};function r(a,s){const e=o;return t(),_(e,{style:{"vertical-align":"baseline"}})}const m=n(c,[["render",r]]);export{m as default};

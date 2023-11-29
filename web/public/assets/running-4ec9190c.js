@@ -1,1 +1,0 @@
-import{_ as n}from"./Icon-73e4f596.js";import{_ as c,o as t,c as r}from"./index-797c0a85.js";import"./propTypes-69de8b77.js";import"./Icon-abc31adc.js";import"./monacoEditor-d72532b2.js";const e={};function s(_,p){const o=n;return t(),r(o,{icon:"svg-spinners:12-dots-scale-rotate"})}const l=c(e,[["render",s]]);export{l as default};

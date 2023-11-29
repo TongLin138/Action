@@ -1,0 +1,7 @@
+var g=(t,r,a)=>new Promise((c,e)=>{var s=o=>{try{n(a.next(o))}catch(i){e(i)}},l=o=>{try{n(a.throw(o))}catch(i){e(i)}},n=o=>o.done?c(o.value):Promise.resolve(o.value).then(s,l);n((a=a.apply(t,r)).next())});import{h as m,u as d,_}from"./vendor-tP7MJkVm.js";import{E as p,F as u,G as L,H as h,I}from"./index-YWZYq8iG.js";function f(t){const r=p();u.mode==="legacy"?u.global.locale=t:u.global.locale.value=t,r.setLocaleInfo({locale:t}),I(t)}function E(){const t=p(),r=m(()=>t.getLocale),a=m(()=>t.getShowPicker);function c(e){return g(this,null,function*(){const s=u.global;if(d(s.locale)===e)return e;if(L.includes(e))return f(e),e;const n=(yield h(Object.assign({"./lang/en.ts":()=>_(()=>import("./en-OtgFAXC-.js"),__vite__mapDeps([0,1,2,3,4]),import.meta.url),"./lang/zh_CN.ts":()=>_(()=>import("./zh_CN-huWmwoMf.js"),__vite__mapDeps([5,1,2,3,4]),import.meta.url)}),`./lang/${e}.ts`)).default;if(!n)return;const{message:o}=n;return s.setLocaleMessage(e,o),L.push(e),f(e),e})}return{getLocale:r,getShowLocalePicker:a,changeLocale:c}}export{E as u};
+function __vite__mapDeps(indexes) {
+  if (!__vite__mapDeps.viteFileDeps) {
+    __vite__mapDeps.viteFileDeps = ["./en-OtgFAXC-.js","./index-YWZYq8iG.js","./vendor-tP7MJkVm.js","./vendor-vWBeemth.css","./index-zEJZ9m4X.css","./zh_CN-huWmwoMf.js"]
+  }
+  return indexes.map((i) => __vite__mapDeps.viteFileDeps[i])
+}

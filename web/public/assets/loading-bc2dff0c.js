@@ -1,1 +1,0 @@
-import{_ as n}from"./Icon-73e4f596.js";import{_ as c,o as t,c as e}from"./index-797c0a85.js";import"./propTypes-69de8b77.js";import"./Icon-abc31adc.js";import"./monacoEditor-d72532b2.js";const r={};function s(_,i){const o=n;return t(),e(o,{icon:"svg-spinners:pulse-2",style:{"vertical-align":"0"}})}const u=c(r,[["render",s]]);export{u as default};
