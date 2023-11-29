@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-09-08
+## Modified: 2023-11-29
 
 ## 账号控制功能
 # task cookie check/update/beans/list
@@ -300,7 +300,7 @@ function accounts_control() {
                 ## 优化日志排版
                 sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                 ## 记录执行结束时间
-                echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+                echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行完毕" >>${LogFile}
                 ## 推送通知
                 grep "Cookie => \[" ${LogFile} >>$FileSendMark
                 if [[ $(grep "Cookie =>" ${LogFile}) ]]; then
@@ -365,7 +365,7 @@ function accounts_control() {
                     ## 优化日志排版
                     sed -i '/更新Cookies,.*\!/d; /^$/d; s/===.*//g' ${LogFile}
                     ## 记录执行结束时间
-                    echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束" >>${LogFile}
+                    echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行完毕" >>${LogFile}
                     ## 判断结果
                     if [[ $(grep "Cookie => \[${FormatPin}\]  更新成功" ${LogFile}) ]]; then
                         echo -e "${BLUE}${EscapePin}${PLAIN}  ${Valid}"

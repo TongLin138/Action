@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-09-08
+## Modified: 2023-11-29
 
 ## 统计数量
 function count_usersum() {
@@ -171,7 +171,7 @@ function run_normal() {
             local endtime=$(date +'%Y-%m-%d %H:%M:%S')
             local start_seconds=$(date --date="$starttime" +%s)
             local end_seconds=$(date --date="$endtime" +%s)
-            echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行结束，总用时 $((end_seconds - start_seconds)) 秒" >>${LogFile}
+            echo -e "\n[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行完毕，总用时 $((end_seconds - start_seconds)) 秒" >>${LogFile}
         fi
     }
 

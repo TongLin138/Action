@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-05-28
+## Modified: 2023-11-29
 
 function main() {
 
@@ -207,7 +207,7 @@ function main() {
             ## 开始执行
             echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行开始\n"
             source $RunFile
-            echo -e "\n[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行结束\n"
+            echo -e "\n[$(date "+%Y-%m-%d %H:%M:%S")] 全部执行完毕\n"
             ;;
         [Nn] | [Nn][Oo])
             echo -e "\n$ERROR 中途退出！\n"

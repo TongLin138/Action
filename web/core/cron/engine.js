@@ -14,7 +14,6 @@ module.exports = {
         // 如果任务已存在，则先停止并删除
         if (cronTask) {
             cronTask.task.stop()
-            cronTask.task = null
             delete cronTask.task
         }
         cronTask = {}
