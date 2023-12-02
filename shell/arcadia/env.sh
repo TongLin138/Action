@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-08-15
+## Modified: 2023-12-02
 
 ## 检测项目配置文件完整性
 # arcadia check config
@@ -38,7 +38,7 @@ function environment_package() {
 
     ## 安装 TypeScript
     function install_typescript() {
-        if [ ! -x /usr/bin/ts-node ]; then
+        if [ ! -x /usr/local/bin/ts-node ]; then
             echo -e "\n$WORKING 开始安装 ${BLUE}TypeScript${PLAIN} 运行环境...\n"
             local exit_code=$?
             if [ $exit_code -eq 0 ]; then
