@@ -1,5 +1,7 @@
+const fs = require('fs')
 const express = require('express')
 const util = require('../utils')
+const { logger } = require('../core/logger')
 const { extraServerFile, getJsonFile, CONFIG_FILE_KEY } = require('../core/file')
 const { updateCookie, removeCookie, updateAccount, getCount } = require('../core/cookie')
 const { API_STATUS_CODE } = require('../core/http')
@@ -75,14 +77,20 @@ api.post('/cookie/webhook', function (request, response) {
 })
 
 // 调用自定义接口
-try {
-    require.resolve(extraServerFile)
-    const extraApi = require(extraServerFile)
-    if (typeof extraServer === 'function') {
-        extraApi(api)
-        logger.success('用户 Open Api 模块初始化成功')
+if (fs.existsSync(extraServerFile)) {
+    try {
+        require.resolve(extraServerFile)
+        const extraApi = require(extraServerFile)
+        if (typeof extraApi === 'function') {
+            extraApi(api, API_STATUS_CODE, logger)
+            logger.info('用户 Open Api 模块初始化成功')
+        } else {
+            logger.error('用户 Open Api 模块初始化失败', '未导出函数')
+        }
+    } catch (e) {
+        logger.error('用户 Open Api 模块初始化失败', e)
     }
-} catch {}
+}
 
 module.exports.openAPI = api
 module.exports.tokenChecker = function (req) {
