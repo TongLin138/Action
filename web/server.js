@@ -7,9 +7,8 @@ const path = require('path')
 const random = require('string-random')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
-const { logger } = require('./core/logger')
 const { API_STATUS_CODE } = require('./core/http')
-const { extraServerFile, checkConfigFile, CONFIG_FILE_KEY, getJsonFile, saveNewConf } = require('./core/file')
+const { checkConfigFile, CONFIG_FILE_KEY, getJsonFile, saveNewConf } = require('./core/file')
 
 /**
  * 初始化定时任务
@@ -56,13 +55,13 @@ let sessionMiddleware = expressjwt({
     credentialsRequired: true,
     getToken: getToken,
 }).unless({
-    path: ['/', '/index.html', '/favicon.ico', '/_app.config.js', /^\/resource\/*/, /^\/assets\/*/, '/api/common/cookie/check', '/api/common/health', '/api/user/auth', '/api/captcha', /^\/api\/captcha\/.*/], // 指定路径不经过 Token 解析
+    path: ['/', '/index.html', '/favicon.ico', '/_app.config.js', /^\/resource\/*/, /^\/assets\/*/, '/api/common/health', '/api/user/auth', '/api/captcha', /^\/api\/captcha\/.*/], // 指定路径不经过 Token 解析
 })
 
 app.use('*', require('cors')())
 app.use(
     bodyParser.json({
-        limit: '50mb',
+        limit: '50mb', 
     })
 )
 app.use(
@@ -71,12 +70,14 @@ app.use(
         extended: true,
     })
 )
+
 /**
  * 设置静态文件目录（前端）
  */
 app.use(express.static(path.join(__dirname, 'public')))
+
 /**
- * ttyd
+ * ttyd 服务映射（需要JWT认证）
  */
 app.use(
     '/api/shell',
@@ -106,16 +107,19 @@ app.use(
     })
 )
 
-// 下方涉及到接口认证的中间件处理函数，顺序请勿随意调整
+// 下方涉及到处理接口认证的中间件函数，请勿随意调整顺序
 
 /**
- * open api
+ * Open Api
  */
 const { openAPI, openApiHandler } = require('./api/open')
 app.use('/api/open', openApiHandler, openAPI)
 app.use('/openApi', openApiHandler, require('./api/open_old').openOldAPI)
 
-app.use(sessionMiddleware)
+/**
+ * Api
+ */
+app.use(sessionMiddleware) // JWT 认证中间件
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
         res.send(API_STATUS_CODE.fail(API_STATUS_CODE.API.NEED_LOGIN.message, API_STATUS_CODE.API.NEED_LOGIN.code))
@@ -124,10 +128,6 @@ app.use(function (err, req, res, next) {
     }
     next()
 })
-
-/**
- * api
- */
 app.use('/api', require('./api/main').mainAPI)
 app.use('/api/config', require('./api/config').configAPI)
 app.use('/api/file', require('./api/file').fileAPI)
@@ -137,24 +137,12 @@ app.use('/api/common', require('./api/common').commonAPI)
 app.use('/api/config', require('./api/configs').configAPI)
 
 /**
- * socket init
+ * Web Socket 接口
  */
 const { setSocket } = require('./core/socket/common')
-const core = require('./core/cron/core')
 setSocket(require('./core/socket')(server, sessionMiddleware))
 
 checkConfigFile()
-
-// 调用自定义api
-try {
-    require.resolve(extraServerFile)
-    const extraServer = require(extraServerFile)
-    if (typeof extraServer === 'function') {
-        extraServer(app)
-        logger.log('用户自定义API模块初始化成功')
-    }
-} catch (e) {}
-
 server.listen(5678, '0.0.0.0', () => {
-    console.log('应用正在监听 5678 端口!')
+    console.log('Arcadia Server is running...')
 })
