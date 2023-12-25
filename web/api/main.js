@@ -50,10 +50,12 @@ api.get('/captcha/flag', function (request, response) {
 api.get('/captcha', function (req, res) {
     let {w = 120, h = 50, background = '#ffffff'} = req.query;
     let options = {
-        noise: 3,
+        noise: 2,
         width: w, 
         height: h,
         color: true,
+        size: 5,
+        ignoreChars: '0o1i',
         background: background,
     }
     let captcha = svgCaptcha.create(options);
