@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-11-29
+## Modified: 2023-12-26
 
 ## 统计数量
 function count_usersum() {
@@ -150,18 +150,21 @@ function run_normal() {
             echo -e "[$(date "${TIME_FORMAT}" | cut -c1-23)] 执行开始\n" >>${LogFile}
             case "${FileFormat}" in
             JavaScript)
-                cmd="node ${global_proxy_cmd}${FileName}.js 2>&1 | tee -a ${LogFile}"
+                cmd="node ${global_proxy_cmd}${FileName}.js 2>&1"
                 ;;
             Python)
-                cmd="python3 -u ${FileName}.py 2>&1 | tee -a ${LogFile}"
+                cmd="python3 -u ${FileName}.py 2>&1"
                 ;;
             TypeScript)
-                cmd="ts-node-transpile-only ${global_proxy_cmd}${FileName}.ts 2>&1 | tee -a ${LogFile}"
+                cmd="ts-node-transpile-only ${global_proxy_cmd}${FileName}.ts 2>&1"
                 ;;
             Shell)
-                cmd="bash ${FileName}.sh 2>&1 | tee -a ${LogFile}"
+                cmd="bash ${FileName}.sh 2>&1"
                 ;;
             esac
+            if [[ "${RUN_NO_LOG}" != "true" ]]; then
+                cmd="${cmd} | tee -a ${LogFile}"
+            fi
             if [[ "${RUN_TIMEOUT}" == true ]]; then
                 timeout ${TIMEOUT_OPTIONS} bash -c "${cmd}"
             else

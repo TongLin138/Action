@@ -1,5 +1,5 @@
 #!/bin/bash
-## Modified: 2023-06-13
+## Modified: 2023-12-26
 
 function main() {
     case $# in
@@ -133,6 +133,9 @@ function main() {
                     ;;
                 -T | --Timeout)
                     output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定超时命令选项！"
+                    ;;
+                -N | --no-log)
+                    RUN_NO_LOG="true"
                     ;;
                 -p | --proxy)
                     echo ${RUN_TARGET} | grep -Eq "https?://.*github"
@@ -283,6 +286,10 @@ function main() {
                     else
                         output_error "检测到 ${BLUE}$1${PLAIN} 为无效命令选项，请在该命令选项后指定超时命令选项！"
                     fi
+                    ;;
+                -N | --no-log)
+                    RUN_NO_LOG="true"
+                    shift
                     ;;
                 -p | --proxy)
                     echo ${RUN_TARGET} | grep -Eq "https?://.*github"
