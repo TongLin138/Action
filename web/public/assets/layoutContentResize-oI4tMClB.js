@@ -1,1 +1,0 @@
-import{an as m,ci as D,b1 as F}from"./vendor-tP7MJkVm.js";const S=Symbol(),v=(o,r=!0)=>{const{on:s,off:a,reset:i,emit:u}=m(o!=null?o:S);let e,f;function b(t,{wait:n=150,immediate:l=!1,isPassPars:p=!0}={}){e=F(t,n),f=()=>{e()},s(p?e:()=>{e()}),l&&u()}function c(t){const n=t||e||f;n&&a(n)}return D(()=>{r&&c()}),{on:b,off:c,reset:i,emit:u}};export{v as u};

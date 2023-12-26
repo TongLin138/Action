@@ -4,15 +4,23 @@ const appLogoTitle = "Arcadia";
 // 动态更新加载动画主题
 try {
   const themeState = localStorage.getItem("__APP__THEME__STATE__") || "light";
-  document.documentElement.style.setProperty(
-    "--app-loading-background",
-    themeState === "light"
-      ? "linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%), linear-gradient(to bottom, rgba(0,0,0,0.02) 50%, rgba(255,255,255,0.02) 61%, rgba(0,0,0,0.02) 73%), linear-gradient(33deg, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0.20) 100%)"
-      : "linear-gradient(60deg, #29323c 0%, #485563 100%)",
-  );
+  const isMobile = window.matchMedia("(max-width: 996px)").matches;
+  if (!isMobile) {
+    document.documentElement.style.setProperty(
+      "--app-loading-background",
+      themeState === "light"
+        ? "linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%), linear-gradient(to bottom, rgba(0,0,0,0.02) 50%, rgba(255,255,255,0.02) 61%, rgba(0,0,0,0.02) 73%), linear-gradient(33deg, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0.20) 100%)"
+        : "linear-gradient(60deg, #29323c 0%, #485563 100%)",
+    );
+  } else {
+    document.documentElement.style.setProperty(
+      "--app-loading-background",
+      themeState === "light" ? "linear-gradient(#FFF, #FFF)" : "linear-gradient(rgb(16, 16, 20), rgb(16, 16, 20))",
+    );
+  }
   document.documentElement.style.setProperty(
     "--app-loading-title-color",
-    themeState === "light" ? "#000000" : "#ffffff",
+    themeState === "light" ? "#000" : "#FFF",
   );
 } catch (error) {
   console.error("Failed to update loading animation theme:", error);
