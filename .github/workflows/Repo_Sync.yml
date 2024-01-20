@@ -34,15 +34,6 @@ jobs:
         directory: sillygirl
         github_token: ${{ secrets.TOKEN }}
         branch: sillygirl
-    - name: Clone KingRan
-      run: |
-        git clone -b main https://github.com/KingRan/KR.git kingran
-    - name: Push KingRan
-      uses: ad-m/github-push-action@master
-      with:
-        directory: kingran
-        github_token: ${{ secrets.TOKEN }}
-        branch: kingran
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
