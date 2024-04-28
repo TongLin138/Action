@@ -25,6 +25,15 @@ jobs:
         directory: jdmax
         github_token: ${{ secrets.TOKEN }}
         branch: jdmax
+    - name: Clone ArcadiaBeta
+      run: |
+        git clone -b main https://github.com/SuperManito/Arcadia.git ArcadiaBeta
+    - name: Push ArcadiaBeta
+      uses: ad-m/github-push-action@master
+      with:
+        directory: ArcadiaBeta
+        github_token: ${{ secrets.TOKEN }}
+        branch: ArcadiaBeta
     - name: Clone QingLong
       run: |
         git clone -b master https://github.com/whyour/qinglong.git qinglong
