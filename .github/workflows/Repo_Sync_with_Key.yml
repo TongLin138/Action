@@ -31,15 +31,6 @@ jobs:
         directory: stable
         github_token: ${{ secrets.TOKEN }}
         branch: stable
-    - name: Clone panel_sign_json
-      run: |
-        git clone -b master git@gitee.com:supermanito/panel_sign_json.git panel_sign_json
-    - name: Push panel_sign_json
-      uses: ad-m/github-push-action@master
-      with:
-        directory: panel_sign_json
-        github_token: ${{ secrets.TOKEN }}
-        branch: panel_sign_json
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
