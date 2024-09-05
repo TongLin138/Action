@@ -1,6 +1,6 @@
 /*
 活动名称：0元试用 · 超级会员
-活动链接：https://cjhy-isv.isvjcloud.com/mc/zeroTrialView/wx/activity/forC/indexPage?venderId=<店铺id>&giftId=<活动id>
+活动链接：https://cjhy-isv.isvjcloud.com/mc/zeroTrialView/wx/activity/forC/indexPage?venderId=<店铺id>&activityId=<活动id>
 环境变量：
 jd_wx_zeroTrial_url // 活动链接
 jd_wx_zeroTrial_opencard // 是否入会（true/false），默认不入会（要参与就必须入会）
