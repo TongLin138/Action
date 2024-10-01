@@ -2,7 +2,7 @@ name: Repo_Sync_with_Key
 on:
   workflow_dispatch:
   schedule:
-    - cron: '20 * * * *'
+    - cron: '20 */3 * * *'
   watch:
     types: started
 jobs:
