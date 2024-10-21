@@ -5,7 +5,7 @@
 
 环境变量：
 jd_XinFarm_plantSkuId // 需要种植的作物ID，详见脚本打印
-jd_XinFarm_autoPlant // 种植模式 默认自动种植，自动随机种植等级价值最高的物品
+jd_XinFarm_autoPlant // 种植模式（true/false） 默认自动种植，自动随机种植等级价值最高的物品
 jd_XinFarm_waternum // 浇水次数，默认 10次  自行修改
 jd_XinFarm_retainWater  // 快速浇水，默认不开启（有水滴门槛，满足要求后开启才会生效）
 jd_XinFarm_Notify // 是否推送通知（true/false），默认不推送
